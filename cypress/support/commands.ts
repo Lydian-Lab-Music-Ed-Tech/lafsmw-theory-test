@@ -35,3 +35,17 @@
 //     }
 //   }
 // }
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import { attachCustomCommands } from "cypress-firebase";
+
+const fbConfig = {
+  apiKey: Cypress.env("NEXT_PUBLIC_FIREBASE_API_KEY"),
+  authDomain: Cypress.env("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"),
+  projectId: Cypress.env("NEXT_PUBLIC_FIREBASE_PROJECT_ID"),
+  appId: Cypress.env("NEXT_PUBLIC_FIREBASE_APP_ID"),
+};
+
+firebase.initializeApp(fbConfig);
+
+attachCustomCommands({ Cypress, cy, firebase });

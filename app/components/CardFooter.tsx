@@ -21,7 +21,12 @@ export default function CardFooter({
   buttonForm,
 }: CardFooterProps) {
   return (
-    <Box width={width} height={height} margin={"auto"}>
+    <Box
+      width={width}
+      height={height}
+      margin={"auto"}
+      data-testid="card-footer"
+    >
       <Divider sx={{ paddingY: "16px", marginBottom: "12px" }} />
       <Stack
         direction="row"

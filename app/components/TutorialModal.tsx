@@ -44,7 +44,11 @@ export default function TutorialModal({
             </Typography>
             <List>
               {tutorialInstructions.map((value, index) => (
-                <ListItem key={index} disableGutters>
+                <ListItem
+                  key={index}
+                  disableGutters
+                  data-test={`tutorial-item-${index}`}
+                >
                   <ListItemText
                     primary={`${index + 1}. ${value.instructionTitle}`}
                     secondary={value.instructionText}
