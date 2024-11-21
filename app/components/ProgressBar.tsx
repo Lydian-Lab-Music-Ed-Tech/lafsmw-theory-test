@@ -15,6 +15,7 @@ export default function ProgressBar({ value }: { value: number }) {
           width: "216px",
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
         }}
+        data-testid="progress-bar"
       />
     </div>
   );

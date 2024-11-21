@@ -32,6 +32,28 @@ describe("Authenticated tests", () => {
       .should("exist")
       .within(() => {
         cy.get("button").should("contain.text", "Save and Continue >");
+        cy.get("p").should("contain.text", "Page: 1/27");
       });
+
+    cy.get('[data-testid="progress-bar"]')
+      .should("exist")
+      .and("have.attr", "aria-valuenow", "3");
+
+    // Perform an action to update the progress bar:
+    // Click the "Save and Continue >" button to go to the next page
+    cy.get('[data-testid="card-footer"]')
+      .find("button")
+      .contains("Save and Continue >")
+      .click();
+
+    // Verify the progress bar has updated
+    cy.get('[data-testid="progress-bar"]')
+      .should("exist")
+      .and("have.attr", "aria-valuenow", "7");
+
+    // Verify the page number has incremented
+    cy.get('[data-testid="card-footer"]').within(() => {
+      cy.get("p").should("contain.text", "Page: 2/27");
+    });
   });
 });
