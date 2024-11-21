@@ -13,8 +13,10 @@ describe("Authenticated tests", () => {
 
     cy.contains("Sign In").click();
 
-    cy.get('input[type="email"]').type("pb@email.com");
-    cy.get('input[type="password"]').type("1234Go");
+    cy.get('input[type="email"]').type(Cypress.env("NEXT_PUBLIC_EMAIL"));
+    cy.get('input[type="password"]').type(
+      Cypress.env("NEXT_PUBLIC_SIGNIN_PASS")
+    );
 
     cy.get('button[type="submit"]').contains("Sign In").click();
 
