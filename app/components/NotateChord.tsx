@@ -169,7 +169,11 @@ const NotateChord = ({
 
   return (
     <>
-      <div ref={container} onClick={handleClick} />
+      <div
+        data-testid="staff-container"
+        ref={container}
+        onClick={handleClick}
+      />
       <SnackbarToast open={open} setOpen={setOpen} message={message} />
       <Container
         sx={{
