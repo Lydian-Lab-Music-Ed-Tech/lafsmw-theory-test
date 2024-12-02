@@ -31,6 +31,12 @@ const Formatter = {
   FormatAndDraw: jest.fn(),
 };
 
+const Glyph = jest.fn().mockImplementation(() => ({
+  setContext: jest.fn().mockReturnThis(),
+  setStave: jest.fn().mockReturnThis(),
+  render: jest.fn(),
+}));
+
 module.exports = {
   Flow: {
     Renderer,
@@ -38,5 +44,6 @@ module.exports = {
     StaveNote,
     Accidental,
     Formatter,
+    Glyph,
   },
 };

@@ -23,7 +23,7 @@ const Header: FC = () => {
         <div className="text-center sm:flex left-0 top-0 w-full z-[3] ease-in duration-300 text-black">
           <div className="flex p-4 justify-between">
             <Link href="/">
-              <h1 className="text-3xl">
+              <h1 className="text-3xl" data-testid="main-title">
                 Lafayette Jazz Workshop Placement Exam
               </h1>
             </Link>

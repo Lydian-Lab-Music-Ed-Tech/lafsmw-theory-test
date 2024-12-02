@@ -388,6 +388,7 @@ export default function ExamHomePage() {
                 size="large"
                 onClick={handleStartTest(handleLevelSubmit)}
                 sx={{ padding: "16px 32px", borderRadius: 8 }}
+                data-testid="begin-test"
               >
                 <Typography variant="h5">Begin Test</Typography>
               </Button>
