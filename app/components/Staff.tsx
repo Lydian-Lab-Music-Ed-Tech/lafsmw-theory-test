@@ -54,7 +54,7 @@ export default function Staff({
   }
 
   useEffect(() => {
-    const { Stave, StaveNote, Accidental, Formatter, Renderer } = Flow;
+    const { Renderer, Stave, StaveNote, Accidental, Formatter } = Flow;
 
     const contRefCurrent = containerRef.current;
 
