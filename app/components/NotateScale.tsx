@@ -57,10 +57,7 @@ const NotateScale = ({
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
   const { chosenClef } = useClef();
-  const [state, dispatch] = useReducer(
-    reducer,
-    noteInteractionInitialState
-  );
+  const [state, dispatch] = useReducer(reducer, noteInteractionInitialState);
 
   const modifyStaveNotesButtonGroup = useMemo(
     () => buttonGroup(dispatch, state, modifyNotesActionTypes),
@@ -209,7 +206,7 @@ const NotateScale = ({
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
           padding: 0,
-          margin: 0,
+          marginTop: 2,
         }}
         disableGutters
       >

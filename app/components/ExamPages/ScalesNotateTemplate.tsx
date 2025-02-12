@@ -2,7 +2,7 @@
 import { scalesNotationInstructions } from "@/app/lib/data/instructions";
 import scalesText from "@/app/lib/data/scalesText";
 import { FormEvent, UserDataProps } from "@/app/lib/typesAndInterfaces";
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import CardFooter from "../CardFooter";
 import NotateScale from "../NotateScale";
@@ -53,39 +53,47 @@ export default function ScalesNotation({
         borderRadius="var(--borderRadius)"
         p={2}
         boxShadow={"0px 4px 4px rgba(0, 0, 0, 0.25)"}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
-        <Grid container spacing={4} p={2}>
-          <Grid item xs={12} margin={"auto"}>
-            <Box
-              width={750}
-              height={540}
-              bgcolor={"card.background"}
-              borderRadius="var(--borderRadius)"
-              margin={"auto"}
-              boxShadow="var(--cardShadow)"
+        <Stack spacing={4} p={2}>
+          <Box
+            width={750}
+            height={540}
+            bgcolor={"card.background"}
+            borderRadius="var(--borderRadius)"
+            boxShadow="var(--cardShadow)"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <Stack
+              direction="column"
+              alignItems={"center"}
+              justifyContent={"center"}
+              maxHeight={"70%"}
+              sx={{
+                p: 6,
+                flex: 1,
+                width: "100%",
+                "& .MuiTypography-h6": {
+                  mb: 0,
+                },
+              }}
             >
-              <Grid
-                container
-                columns={1}
-                direction="column"
-                alignItems={"center"}
-                marginY={"auto"}
-                p={2}
-                spacing={2}
-              >
-                <Grid item>
-                  <Typography variant="h6">
-                    {`Write the following scale: ${scalesText[page - 6]}`}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <NotateScale setScales={setScales} />
-                </Grid>
-              </Grid>
-              <CardFooter pageNumber={page} handleSubmit={handleSubmit} />
-            </Box>
-          </Grid>
-        </Grid>
+              <Typography variant="h6">
+                {`Write the following scale: ${scalesText[page - 6]}`}
+              </Typography>
+              <NotateScale setScales={setScales} />
+            </Stack>
+            <CardFooter
+              width={630}
+              pageNumber={page}
+              handleSubmit={handleSubmit}
+            />
+          </Box>
+        </Stack>
       </Box>
     </Container>
   );
