@@ -53,6 +53,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
   const renderCount = useRef(0);
+  const hasScaled = useRef(false);
 
   const keySigButtonGroup = useMemo(
     () => buttonGroup(dispatch, state, modifyKeySigActionTypes),
@@ -72,15 +73,15 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         chosenClef,
         firstStaveWidth: 450,
         staves,
-        setStaves,
       }),
-    [staves]
+    [chosenClef]
   );
 
   useEffect(() => {
     initializeRenderer(rendererRef, container);
     const newStaves = renderStaves();
-    if (newStaves)
+    if (newStaves) {
+      setStaves(newStaves);
       calculateNotesAndCoordinates(
         chosenClef,
         setNotesAndCoordinates,
@@ -90,6 +91,21 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         1,
         0
       );
+    }
+  }, [chosenClef, renderStaves]);
+
+  useEffect(() => {
+    if (!hasScaled.current && container.current) {
+      const svgElement = container.current.querySelector("svg");
+      if (svgElement) {
+        svgElement.style.transform = "scale(1.2)";
+        svgElement.style.transformOrigin = "0 0";
+        // Adjust container size to accommodate scaled SVG
+        container.current.style.height = "240px";  // 200px * 1.2
+        container.current.style.width = "564px";   // 470px * 1.2
+        hasScaled.current = true;
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -166,7 +182,15 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
 
   return (
     <>
-      <div ref={container} onClick={handleClick} />
+      <div
+        ref={container}
+        onClick={handleClick}
+        style={{
+          overflow: "visible",
+          width: "564px", 
+          height: "240px", 
+        }}
+      />
 
       <div>
         {keySigButtonGroup.map((button) => {
