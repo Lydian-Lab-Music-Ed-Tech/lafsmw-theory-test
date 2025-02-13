@@ -51,6 +51,7 @@ export default function NotateSeventhChords({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (

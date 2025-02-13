@@ -33,6 +33,7 @@ export default function ChordsIdentification({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (

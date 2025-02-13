@@ -51,6 +51,7 @@ export default function TriadsNotation({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (

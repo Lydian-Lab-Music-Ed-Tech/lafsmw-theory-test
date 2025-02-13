@@ -23,6 +23,7 @@ export default function KeySignaturesIdentification({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (

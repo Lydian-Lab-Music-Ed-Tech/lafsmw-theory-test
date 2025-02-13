@@ -37,6 +37,7 @@ export default function KeySignaturesNotation({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (
@@ -73,7 +74,7 @@ export default function KeySignaturesNotation({
             direction="column"
             alignItems={"center"}
             justifyContent={"center"}
-            maxHeight={"60%"}
+            maxHeight={"70%"}
             sx={{
               p: 6,
               flex: 1,

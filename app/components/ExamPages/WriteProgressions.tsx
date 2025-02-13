@@ -23,6 +23,7 @@ export default function WriteProgressions({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (
@@ -36,20 +37,25 @@ export default function WriteProgressions({
       <Box
         component="main"
         width={1139}
-        height={520}
+        height={660}
         bgcolor={"secondary.main"}
         borderRadius="var(--borderRadius)"
         p={2}
         boxShadow={"0px 4px 4px rgba(0, 0, 0, 0.25)"}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
         <Stack spacing={4} p={2}>
           <Box
             width={1000}
-            height={450}
+            height={600}
             bgcolor={"card.background"}
             borderRadius="var(--borderRadius)"
             margin={"auto"}
             boxShadow="var(--cardShadow)"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+            }}
           >
             <Stack
               direction="column"
