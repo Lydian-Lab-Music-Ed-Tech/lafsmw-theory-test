@@ -38,6 +38,7 @@ export default function WriteBluesChanges({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1400px",
   };
 
   return (
@@ -62,20 +63,25 @@ export default function WriteBluesChanges({
       <Box
         component="main"
         width={1400}
-        height={870}
+        height={800}
         bgcolor={"secondary.main"}
         borderRadius="var(--borderRadius)"
         p={2}
         boxShadow={"0px 4px 4px rgba(0, 0, 0, 0.25)"}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
         <Stack spacing={4} p={2}>
           <Box
             width={1300}
-            height={800}
+            height={730}
             bgcolor={"card.background"}
             borderRadius="var(--borderRadius)"
             margin={"auto"}
             boxShadow="var(--cardShadow)"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+            }}
           >
             <Stack
               direction="column"
