@@ -79,9 +79,6 @@ export default function KeySignaturesNotation({
               p: 6,
               flex: 1,
               width: "100%",
-              "& .MuiTypography-h6": {
-                mb: 0,
-              },
             }}
           >
             <Typography variant="h6">
