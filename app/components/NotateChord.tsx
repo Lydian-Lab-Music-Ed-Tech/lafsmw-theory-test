@@ -176,7 +176,7 @@ const NotateChord = ({
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
           padding: 0,
-          margin: 0,
+          marginTop: 2,
         }}
         disableGutters
       >

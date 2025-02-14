@@ -25,9 +25,12 @@ export default function CardFooter({
       width={width}
       height={height}
       margin={"auto"}
+      py={1}
       data-testid="card-footer"
+      sx={{
+        borderTop: "1px solid var(--primary50)",
+      }}
     >
-      <Divider sx={{ paddingY: "16px", marginBottom: "12px" }} />
       <Stack
         direction="row"
         spacing={8}

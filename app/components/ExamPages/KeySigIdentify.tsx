@@ -1,7 +1,7 @@
 "use client";
 import { keySigInputInstructions } from "@/app/lib/data/instructions";
 import { InputData, UserDataProps } from "@/app/lib/typesAndInterfaces";
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import { useRef } from "react";
 import CardFooter from "../CardFooter";
 import IdentifyKeySigs from "../IdentifyKeySigs";
@@ -23,6 +23,7 @@ export default function KeySignaturesIdentification({
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
+    maxWidth: "1139px",
   };
 
   return (
@@ -36,58 +37,58 @@ export default function KeySignaturesIdentification({
       <Box
         component="main"
         width={1139}
-        height={550}
+        height={610}
         bgcolor={"secondary.main"}
         borderRadius="var(--borderRadius)"
         p={2}
         boxShadow={"0px 4px 4px rgba(0, 0, 0, 0.25)"}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
-        <Grid container spacing={4} p={2}>
-          <Grid item xs={12} margin={"auto"}>
-            <Box
-              width={569}
-              height={480}
-              bgcolor={"card.background"}
-              borderRadius="var(--borderRadius)"
-              margin={"auto"}
-              boxShadow="var(--cardShadow)"
-            >
-              <Grid
-                container
-                columns={1}
-                direction="column"
-                alignItems={"center"}
-                marginY={"auto"}
-                p={4}
-                spacing={2}
-              >
-                <Grid item>
-                  <Typography variant="h6">
-                    Identify the following key signatures:
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <IdentifyKeySigs
-                    currentData={currentUserData.keySignatures}
-                    evenbars
-                    handleInput={handleKeySignatures}
-                    ref={keySigFormRef}
-                    width={520}
-                  />
-                </Grid>
-              </Grid>
-              <CardFooter
-                pageNumber={page}
-                height={200}
-                buttonForm="keySigs"
-                handleSubmit={() => {
-                  keySigFormRef.current?.requestSubmit();
-                  nextViewState();
-                }}
-              />
-            </Box>
-          </Grid>
-        </Grid>
+        <Box
+          width={750}
+          height={540}
+          bgcolor={"card.background"}
+          borderRadius="var(--borderRadius)"
+          boxShadow="var(--cardShadow)"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <Stack
+            direction="column"
+            alignItems={"center"}
+            justifyContent={"center"}
+            maxHeight={"60%"}
+            spacing={4}
+            sx={{
+              p: 6,
+              flex: 1,
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6">
+              Identify the following key signatures:
+            </Typography>
+            <IdentifyKeySigs
+              currentData={currentUserData.keySignatures}
+              evenbars
+              handleInput={handleKeySignatures}
+              ref={keySigFormRef}
+              width={700}
+            />
+          </Stack>
+          <CardFooter
+            width={630}
+            pageNumber={page}
+            buttonForm="keySigs"
+            handleSubmit={() => {
+              keySigFormRef.current?.requestSubmit();
+              nextViewState();
+            }}
+          />
+        </Box>
       </Box>
     </Container>
   );
