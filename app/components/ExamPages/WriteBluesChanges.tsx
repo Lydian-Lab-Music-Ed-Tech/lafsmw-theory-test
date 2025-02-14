@@ -72,6 +72,7 @@ export default function WriteBluesChanges({
       >
         <Stack spacing={4} p={2}>
           <Box
+            className="write-blues-changes"
             width={1300}
             height={730}
             bgcolor={"card.background"}
