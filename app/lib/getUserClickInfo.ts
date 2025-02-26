@@ -7,7 +7,7 @@ const getUserClickInfo = (
   stave: StaveType
 ): any => {
   const rect = container && container.current?.getBoundingClientRect();
-  const scale = 1.2;
+  const scale = 1.5;
   // Divide by scale since we need to map the click to the original coordinate space
   const userClickY = rect ? parseFloat(((e.clientY - rect.top) / scale).toFixed(0)) : 0;
   const userClickX = rect ? parseFloat(((e.clientX - rect.left) / scale).toFixed(0)) : 0;

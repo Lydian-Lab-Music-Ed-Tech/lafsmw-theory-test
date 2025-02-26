@@ -98,11 +98,11 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     if (!hasScaled.current && container.current) {
       const svgElement = container.current.querySelector("svg");
       if (svgElement) {
-        svgElement.style.transform = "scale(1.2)";
+        svgElement.style.transform = "scale(1.5)";
         svgElement.style.transformOrigin = "0 0";
         // Adjust container size to accommodate scaled SVG
-        container.current.style.height = "240px"; // 200px * 1.2
-        container.current.style.width = "564px"; // 470px * 1.2
+        container.current.style.height = "300px";  // 200px * 1.5
+        container.current.style.width = "705px";   // 470px * 1.5
         hasScaled.current = true;
       }
     }
@@ -187,8 +187,8 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         onClick={handleClick}
         style={{
           overflow: "visible",
-          width: "564px",
-          height: "240px",
+          width: "705px",
+          height: "300px",
         }}
       />
 
