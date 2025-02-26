@@ -230,7 +230,6 @@ const NotateScale = ({
           paddingTop: 4,
           marginTop: 2,
         }}
-        disableGutters
       >
         {modifyStaveNotesButtonGroup.map((button) => {
           return (

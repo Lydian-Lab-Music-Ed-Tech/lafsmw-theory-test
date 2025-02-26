@@ -49,6 +49,7 @@ const NotateChord = ({
 }) => {
   const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
+  const hasScaled = useRef<boolean>(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [chordInteractionState, dispatch] = useReducer(
     reducer,
@@ -96,6 +97,17 @@ const NotateChord = ({
         -4,
         true
       );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasScaled.current && container.current) {
+      const svgElement = container.current.querySelector("svg");
+      if (svgElement) {
+        svgElement.style.transform = "scale(1.5)";
+        svgElement.style.transformOrigin = "0 0";
+        hasScaled.current = true;
+      }
     }
   }, []);
 
@@ -169,16 +181,23 @@ const NotateChord = ({
 
   return (
     <>
-      <div ref={container} onClick={handleClick} />
+      <div
+        ref={container}
+        onClick={handleClick}
+        style={{
+          overflow: "visible",
+          width: "705px",
+          height: "300px",
+        }}
+      />
       <SnackbarToast open={open} setOpen={setOpen} message={message} />
       <Container
         sx={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
-          padding: 0,
+          paddingTop: 4,
           marginTop: 2,
         }}
-        disableGutters
       >
         {modifyChordsButtonGroup.map((button) => {
           return (
