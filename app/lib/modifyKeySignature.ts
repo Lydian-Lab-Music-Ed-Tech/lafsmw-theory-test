@@ -39,8 +39,8 @@ export const addGlyphs = (
     glyph: keySigState.isSharpActive
       ? "accidentalSharp"
       : keySigState.isFlatActive
-      ? "accidentalFlat"
-      : "",
+        ? "accidentalFlat"
+        : "",
   };
   for (const glyph of glyphs) {
     if (glyph.yPosition === newState.yPosition) return;
@@ -74,7 +74,7 @@ export const deleteAccidentalFromKeySigArray = (
   keySigArray: string[],
   setKeySigState: (newState: React.SetStateAction<string[]>) => void
 ) => {
-  console.log("foundNoteData: ", foundNoteData.note);
+  // console.log("foundNoteData: ", foundNoteData.note);
   const noteBase = parseNote(foundNoteData.note).noteBase;
   const newKeySig = [...keySigArray];
   if (newKeySig.includes(noteBase)) {

@@ -14,13 +14,13 @@ const isClickWithinStaveBounds = (
   const minLeftClick = measureWidth * 0.08;
   const minTopClick = topStaveMaxYClick;
   const maxBottomClick = bottomStaveMaxYClick;
-  console.log(
-    `measure width: ${measureWidth}\n`,
-    `max right click: ${maxRightClick}\n`,
-    `min left click: ${minLeftClick}\n`,
-    `min top click: ${minTopClick}\n`,
-    `max bottom click: ${maxBottomClick}`
-  );
+  // console.log(
+  //   `measure width: ${measureWidth}\n`,
+  //   `max right click: ${maxRightClick}\n`,
+  //   `min left click: ${minLeftClick}\n`,
+  //   `min top click: ${minTopClick}\n`,
+  //   `max bottom click: ${maxBottomClick}`
+  // );
 
   if (
     userClickX < minLeftClick ||

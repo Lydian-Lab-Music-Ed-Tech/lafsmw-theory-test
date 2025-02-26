@@ -101,8 +101,8 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         svgElement.style.transform = "scale(1.5)";
         svgElement.style.transformOrigin = "0 0";
         // Adjust container size to accommodate scaled SVG
-        container.current.style.height = "300px";  // 200px * 1.5
-        container.current.style.width = "705px";   // 470px * 1.5
+        container.current.style.height = "300px"; // 200px * 1.5
+        container.current.style.width = "705px"; // 470px * 1.5
         hasScaled.current = true;
       }
     }
@@ -133,7 +133,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
 
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
-    console.log(`render count: ${renderCount.current}`);
+    // console.log(`render count: ${renderCount.current}`);
     const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
       getUserClickInfo(e, container, staves[0]);
 
