@@ -33,6 +33,7 @@ import {
   StaveType,
 } from "../lib/typesAndInterfaces";
 import CustomButton from "./CustomButton";
+import { Container } from "@mui/material";
 
 const VF = VexFlow.Flow;
 const { Renderer } = VF;
@@ -191,8 +192,14 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
           height: "300px",
         }}
       />
+      <SnackbarToast open={open} setOpen={setOpen} message={message} />
 
-      <div>
+      <Container
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr",
+        }}
+      >
         {keySigButtonGroup.map((button) => {
           return (
             <CustomButton
@@ -205,8 +212,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
           );
         })}
         <CustomButton onClick={clearKey}>Erase Key Signature</CustomButton>
-      </div>
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
+      </Container>
     </>
   );
 };
