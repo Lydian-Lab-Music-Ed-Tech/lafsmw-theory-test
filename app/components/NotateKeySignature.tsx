@@ -35,14 +35,14 @@ import {
 import CustomButton from "./CustomButton";
 import { Container } from "@mui/material";
 
-const VF = VexFlow.Flow;
-const { Renderer } = VF;
+const { Renderer } = VexFlow.Flow;
 
 //weird glitch is still happening. Figure out why!
 
 const NotateKeySignature = ({ handleKeySig }: any) => {
   const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
+  const hasScaled = useRef(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [glyphs, setGlyphs] = useState<GlyphProps[]>([]);
   const [open, setOpen] = useState(false);
@@ -54,7 +54,6 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
   const renderCount = useRef(0);
-  const hasScaled = useRef(false);
 
   const keySigButtonGroup = useMemo(
     () => buttonGroup(dispatch, state, modifyKeySigActionTypes),
@@ -127,6 +126,18 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     }
   }, [glyphs]);
 
+  useEffect(() => {
+    console.log("Key signature state changed:", keySig);
+  }, [keySig]);
+
+  useEffect(() => {
+    // Pass the updated key signature to the parent component whenever it changes
+    if (handleKeySig) {
+      console.log("keySig from NotateKeySignature useEffect (will pass to parent):", keySig);
+      handleKeySig(keySig);
+    }
+  }, [keySig, handleKeySig]);
+
   const clearKey = () => {
     clearKeySignature(setGlyphs, rendererRef, container), setKeySig(() => []);
     const newStaves = renderStaves();
@@ -147,7 +158,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
 
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
-    // console.log(`render count: ${renderCount.current}`);
+    console.log(`Handling click, render count: ${renderCount.current}`);
     const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
       getUserClickInfo(e, container, staves[0]);
 
@@ -157,12 +168,14 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     );
 
     if (!foundNoteData) {
+      console.log("No note found at click position");
       return;
     } else {
       foundNoteData = {
         ...foundNoteData,
         userClickX: userClickX,
       };
+      console.log("Found note data:", foundNoteData.note);
     }
 
     isClickWithinStaveBounds(
@@ -176,7 +189,8 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     );
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
-
+    console.log("Current key sig before interaction:", keySig);
+    
     const { notesAndCoordinates: newNotesAndCoordinates } =
       handleKeySigInteraction(
         notesAndCoordinatesCopy,
@@ -191,7 +205,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
       );
 
     setNotesAndCoordinates(() => newNotesAndCoordinates);
-    handleKeySig(keySig);
+    console.log("Current glyphs after interaction:", glyphs);
   };
 
   return (

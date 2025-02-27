@@ -26,12 +26,12 @@ export default function KeySignaturesNotation({
       ...currentUserData,
       [keySigPropName]: keySignatureNotation,
     });
+    console.log({
+      ...currentUserData,
+      [keySigPropName]: keySignatureNotation,
+    });
     nextViewState();
   };
-
-  function handleKeySigNotation(input: string[]) {
-    setKeySignatureNotation(input);
-  }
 
   const boxStyle = {
     display: "flex",
@@ -86,7 +86,7 @@ export default function KeySignaturesNotation({
                 keySignaturesText[page - 1]
               }`}
             </Typography>
-            <NotateKeySignature handleKeySig={handleKeySigNotation} />
+            <NotateKeySignature handleKeySig={setKeySignatureNotation} />
           </Stack>
           <CardFooter
             width={630}
