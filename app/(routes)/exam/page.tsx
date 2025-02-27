@@ -131,6 +131,10 @@ export default function ExamHomePage() {
       currentUserData.keySignaturesNotation3,
       currentUserData.keySignaturesNotation4,
     ];
+    console.log(
+      "userKeySigNotationAnswers from updateAnswers:",
+      userKeySigNotationAnswers
+    );
     const userKeySigAnswers = convertObjectToArray(
       currentUserData.keySignatures
     );
