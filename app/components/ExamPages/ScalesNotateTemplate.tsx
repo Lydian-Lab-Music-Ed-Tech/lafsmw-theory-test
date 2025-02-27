@@ -58,8 +58,8 @@ export default function ScalesNotation({
       >
         <Stack spacing={4} p={2}>
           <Box
-            width={750}
-            height={540}
+            width={850}
+            height={500}
             bgcolor={"card.background"}
             borderRadius="var(--borderRadius)"
             boxShadow="var(--cardShadow)"

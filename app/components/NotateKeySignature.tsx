@@ -33,6 +33,7 @@ import {
   StaveType,
 } from "../lib/typesAndInterfaces";
 import CustomButton from "./CustomButton";
+import { Container } from "@mui/material";
 
 const VF = VexFlow.Flow;
 const { Renderer } = VF;
@@ -53,6 +54,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
   const renderCount = useRef(0);
+  const hasScaled = useRef(false);
 
   const keySigButtonGroup = useMemo(
     () => buttonGroup(dispatch, state, modifyKeySigActionTypes),
@@ -72,15 +74,15 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         chosenClef,
         firstStaveWidth: 450,
         staves,
-        setStaves,
       }),
-    [staves]
+    [chosenClef]
   );
 
   useEffect(() => {
     initializeRenderer(rendererRef, container);
     const newStaves = renderStaves();
-    if (newStaves)
+    if (newStaves) {
+      setStaves(newStaves);
       calculateNotesAndCoordinates(
         chosenClef,
         setNotesAndCoordinates,
@@ -90,11 +92,39 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         1,
         0
       );
+    }
+  }, [chosenClef, renderStaves]);
+
+  useEffect(() => {
+    if (!hasScaled.current && container.current) {
+      const svgElement = container.current.querySelector("svg");
+      if (svgElement) {
+        svgElement.style.transform = "scale(1.5)";
+        svgElement.style.transformOrigin = "0 0";
+        // Adjust container size to accommodate scaled SVG
+        container.current.style.height = "300px"; // 200px * 1.5
+        container.current.style.width = "705px"; // 470px * 1.5
+        hasScaled.current = true;
+      }
+    }
   }, []);
 
   useEffect(() => {
-    renderStaves();
-    context && buildKeySignature(glyphs, 40, context, staves[0]);
+    if (context && staves.length > 0) {
+      // Clear and redraw without recreating the staves
+      context.clear();
+      staves[0].setContext(context).draw();
+      buildKeySignature(glyphs, 40, context, staves[0]);
+
+      // Re-apply scaling if needed
+      if (container.current) {
+        const svgElement = container.current.querySelector("svg");
+        if (svgElement) {
+          svgElement.style.transform = "scale(1.5)";
+          svgElement.style.transformOrigin = "0 0";
+        }
+      }
+    }
   }, [glyphs]);
 
   const clearKey = () => {
@@ -117,7 +147,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
 
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
-    console.log(`render count: ${renderCount.current}`);
+    // console.log(`render count: ${renderCount.current}`);
     const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
       getUserClickInfo(e, container, staves[0]);
 
@@ -166,9 +196,23 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
 
   return (
     <>
-      <div ref={container} onClick={handleClick} />
+      <div
+        ref={container}
+        onClick={handleClick}
+        style={{
+          overflow: "visible",
+          width: "705px",
+          height: "300px",
+        }}
+      />
+      <SnackbarToast open={open} setOpen={setOpen} message={message} />
 
-      <div>
+      <Container
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr",
+        }}
+      >
         {keySigButtonGroup.map((button) => {
           return (
             <CustomButton
@@ -181,8 +225,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
           );
         })}
         <CustomButton onClick={clearKey}>Erase Key Signature</CustomButton>
-      </div>
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
+      </Container>
     </>
   );
 };

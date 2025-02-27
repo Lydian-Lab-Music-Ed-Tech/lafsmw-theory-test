@@ -15,7 +15,7 @@ export const appendAccidentalToNote = (accidental: string, note: string) => {
     (accidental === "#" && noteBase.length > 1 && noteBase.endsWith("b")) ||
     (accidental === "b" && noteBase.endsWith("#"))
   ) {
-    console.log("Cannot add contradictory accidentals to the same note.");
+    // console.log("Cannot add contradictory accidentals to the same note.");
     return note;
   }
 
@@ -23,7 +23,7 @@ export const appendAccidentalToNote = (accidental: string, note: string) => {
     return `${noteBase}${accidental}/${octave}`;
   }
   if (noteBase.length > 3) {
-    console.log("Cannot add more than 2 accidentals to a note.");
+    // console.log("Cannot add more than 2 accidentals to a note.");
   }
   return `${noteBase}/${octave}`;
 };

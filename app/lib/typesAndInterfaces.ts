@@ -200,7 +200,7 @@ export interface RenderStaves {
   keySig?: string;
   firstStaveWidth: number;
   regularStaveWidth?: number | null;
-  setStaves: SetStaves;
+  setStaves?: SetStaves;
   staves: BlankStaves;
 }
 export interface RenderStavesAndChordParams {

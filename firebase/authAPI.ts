@@ -40,7 +40,7 @@ export async function completeSignIn(link: string) {
       const result = await signInWithEmailLink(auth, emailForSignIn, link);
       window.localStorage.removeItem("emailForSignIn");
       if (result.user) {
-        console.log("Sign in successful! CurrentUser:", result.user);
+        // console.log("Sign in successful! CurrentUser:", result.user);
         return true;
       }
     }
@@ -100,10 +100,10 @@ export async function signIn(email: string, password: string) {
       console.error("signInWithEmailAndPassword error:", err);
     });
     if (auth.currentUser !== null) {
-      console.log(
-        "Sign in successfull! CurrentUser:",
-        auth.currentUser.displayName
-      );
+      // console.log(
+      //   "Sign in successfull! CurrentUser:",
+      //   auth.currentUser.displayName
+      // );
       return true;
     }
   } catch (err) {
