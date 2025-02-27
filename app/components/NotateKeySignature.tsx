@@ -110,8 +110,21 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
   }, []);
 
   useEffect(() => {
-    renderStaves();
-    context && buildKeySignature(glyphs, 40, context, staves[0]);
+    if (context && staves.length > 0) {
+      // Clear and redraw without recreating the staves
+      context.clear();
+      staves[0].setContext(context).draw();
+      buildKeySignature(glyphs, 40, context, staves[0]);
+
+      // Re-apply scaling if needed
+      if (container.current) {
+        const svgElement = container.current.querySelector("svg");
+        if (svgElement) {
+          svgElement.style.transform = "scale(1.5)";
+          svgElement.style.transformOrigin = "0 0";
+        }
+      }
+    }
   }, [glyphs]);
 
   const clearKey = () => {
