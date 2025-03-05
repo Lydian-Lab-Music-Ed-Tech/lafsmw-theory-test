@@ -21,37 +21,70 @@ export const setupRendererAndDrawNotes = (
     keySig,
     setStaves,
     scaleDataMatrix,
-    staves,
   } = params;
-  const renderer = rendererRef?.current;
-  renderer?.resize(rendererWidth, rendererHeight);
-  const context = renderer && renderer.getContext();
-  context?.setFont(font, fontSize * 1.5);
-  context?.clear();
-  let newStaves;
-  if (context && rendererRef) {
-    newStaves = createBlankStaves({
-      numStaves,
-      context,
-      firstStaveWidth,
-      x: xPositionOfStaves,
-      y: yPositionOfStaves,
-      regularStaveWidth: 300,
-      chosenClef,
-      keySig,
-    });
-    setStaves(newStaves);
+  
+  // Early return if renderer is not available
+  if (!rendererRef?.current) {
+    console.error("Renderer reference is not available in setupRendererAndDrawNotes");
+    return undefined;
   }
-  if (!scaleDataMatrix) return newStaves;
-  scaleDataMatrix.forEach((barOfNoteObjects, index) => {
-    if (barOfNoteObjects) {
-      const staveNotes = barOfNoteObjects
-        .map(({ staveNote }) => staveNote)
-        .filter(Boolean) as StaveNote[];
-      if (staveNotes.length > 0 && context && staves[index]) {
-        Formatter.FormatAndDraw(context, staves[index], staveNotes);
+  
+  const renderer = rendererRef.current;
+  
+  try {
+    // Resize the renderer
+    renderer.resize(rendererWidth, rendererHeight);
+    
+    // Get the context
+    const context = renderer.getContext();
+    
+    if (!context) {
+      console.error("Failed to get context from renderer in setupRendererAndDrawNotes");
+      return undefined;
+    }
+    
+    // Set font and clear
+    context.setFont(font, fontSize * 1.5);
+    context.clear();
+    
+    let newStaves;
+    if (context && rendererRef) {
+      newStaves = createBlankStaves({
+        numStaves,
+        context,
+        firstStaveWidth,
+        x: xPositionOfStaves,
+        y: yPositionOfStaves,
+        regularStaveWidth: 300,
+        chosenClef,
+        keySig,
+      });
+      if (setStaves) {
+        setStaves(newStaves);
       }
     }
-  });
-  return newStaves;
+    
+    // If there's no scale data, just return the staves
+    if (!scaleDataMatrix) {
+      return newStaves;
+    }
+    
+    // Format and draw the notes for each bar
+    scaleDataMatrix.forEach((barOfNoteObjects, index) => {
+      if (barOfNoteObjects) {
+        const staveNotes = barOfNoteObjects
+          .map(({ staveNote }) => staveNote)
+          .filter(Boolean) as StaveNote[];
+          
+        if (staveNotes.length > 0 && context && newStaves && newStaves.length > index) {
+          Formatter.FormatAndDraw(context, newStaves[index], staveNotes);
+        }
+      }
+    });
+    
+    return newStaves;
+  } catch (error) {
+    console.error("Error in setupRendererAndDrawNotes:", error);
+    return undefined;
+  }
 };

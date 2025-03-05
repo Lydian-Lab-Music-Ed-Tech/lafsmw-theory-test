@@ -1,45 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { Button } from "@mui/material";
-import Container from "@mui/material/Container";
 import React, {
-  Dispatch,
-  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
+  Dispatch,
+  SetStateAction
 } from "react";
 import VexFlow from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { modifyNotesActionTypes } from "../lib/actionTypes";
+import { modifyScalesActionTypes } from "../lib/actionTypes";
 import { buttonGroup } from "../lib/buttonsAndButtonGroups";
-import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
-import { errorMessages } from "../lib/data/errorMessages";
-import {
-  bassClefNotesArray,
-  trebleClefNotesArray,
-} from "../lib/data/noteArray";
 import { staveData } from "../lib/data/stavesData";
-import { findBarIndex } from "../lib/findBar";
 import getUserClickInfo from "../lib/getUserClickInfo";
-import { HandleScaleInteraction } from "../lib/handleScaleInteraction";
-import {
-  initialNotesAndCoordsState,
-  noteInteractionInitialState,
-} from "../lib/initialStates";
-import { initializeRenderer } from "../lib/initializeRenderer";
+import { handleScaleInteraction } from "../lib/handleScaleInteraction";
+import { scaleInteractionInitialState } from "../lib/initialStates";
+import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { reducer } from "../lib/reducer";
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
-import {
-  NotesAndCoordinatesData,
-  ScaleData,
-  StaveType,
-} from "../lib/typesAndInterfaces";
+import { ScaleData, StaveType } from "../lib/typesAndInterfaces";
 import CustomButton from "./CustomButton";
-import SnackbarToast from "./SnackbarToast";
+import NotationContainer from "./NotationContainer";
+import useNotationRenderer from "../hooks/useNotationRenderer";
+
 const { Renderer } = VexFlow.Flow;
 
 const NotateScale = ({
@@ -47,107 +33,78 @@ const NotateScale = ({
 }: {
   setScales: Dispatch<SetStateAction<Array<string>>>;
 }) => {
-  const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
-  const container = useRef<HTMLDivElement | null>(null);
-  const hasScaled = useRef<boolean>(false);
-  const [staves, setStaves] = useState<StaveType[]>([]);
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
+  const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [notesAndCoordinates, setNotesAndCoordinates] = useState<
-    NotesAndCoordinatesData[]
-  >([initialNotesAndCoordsState]);
   const { chosenClef } = useClef();
-  const [state, dispatch] = useReducer(reducer, noteInteractionInitialState);
+  const [state, dispatch] = useReducer(reducer, scaleInteractionInitialState);
+  
+  // Create a ref for the render function to avoid circular dependencies
+  const renderFunctionRef = useRef<() => StaveType[] | undefined>(null);
 
-  const modifyStaveNotesButtonGroup = useMemo(
-    () => buttonGroup(dispatch, state, modifyNotesActionTypes),
-    [dispatch, state]
-  );
-
-  const renderStavesAndNotes = useCallback(
-    (): StaveType[] =>
-      setupRendererAndDrawNotes({
-        rendererRef,
-        ...staveData,
-        setStaves,
-        scaleDataMatrix,
-        staves,
-        chosenClef,
-      }),
-    [rendererRef, setStaves, scaleDataMatrix, staves]
-  );
-
-  useEffect(() => {
-    initializeRenderer(rendererRef, container);
-    const newStave = renderStavesAndNotes();
-    if (newStave)
-      calculateNotesAndCoordinates(
-        chosenClef,
-        setNotesAndCoordinates,
-        newStave,
-        chosenClef === "bass" ? bassClefNotesArray : trebleClefNotesArray,
-        0,
-        -3,
-        -4,
-        true
-      );
-  }, []);
-
-  useEffect(() => {
-    if (!hasScaled.current && container.current) {
-      const svgElement = container.current.querySelector("svg");
-      if (svgElement) {
-        svgElement.style.transform = "scale(1.5)";
-        svgElement.style.transformOrigin = "0 0";
-        container.current.style.height = "300px";
-        container.current.style.width = "705px";
-        hasScaled.current = true;
+  const {
+    rendererRef,
+    container,
+    staves: stavesFromHook,
+    setStaves: setStavesFromHook,
+    notesAndCoordinates,
+    setNotesAndCoordinates,
+  } = useNotationRenderer({
+    renderFunction: () => {
+      // Use the current value of the ref
+      if (renderFunctionRef.current) {
+        return renderFunctionRef.current();
       }
-    }
-  }, []);
-
-  useEffect(() => {
-    const newStave: StaveType[] = renderStavesAndNotes();
-    if (newStave) {
-      calculateNotesAndCoordinates(
-        chosenClef,
-        setNotesAndCoordinates,
-        newStave,
-        chosenClef === "bass" ? bassClefNotesArray : trebleClefNotesArray,
-        0,
-        -3,
-        -4,
-        true
-      );
-    }
-  }, [scaleDataMatrix, state]);
+      return undefined;
+    },
+    chosenClef,
+    extraDeps: [scaleDataMatrix, state],
+  });
+  
+  // Set up the render function after rendererRef is initialized
+  renderFunctionRef.current = useCallback(() => {
+    return setupRendererAndDrawNotes({
+      rendererRef,
+      ...staveData,
+      setStaves: (newStaves) => {
+        setStaves(newStaves);
+        setStavesFromHook?.(newStaves);
+      },
+      scaleDataMatrix,
+      chosenClef,
+    });
+  }, [scaleDataMatrix, chosenClef, rendererRef, setStavesFromHook]);
 
   const eraseMeasures = () => {
     setScaleDataMatrix((): ScaleData[][] => {
       return [[]];
     });
-    const newStave = renderStavesAndNotes();
-    if (newStave) {
-      calculateNotesAndCoordinates(
-        chosenClef,
-        setNotesAndCoordinates,
-        newStave,
-        chosenClef === "bass" ? bassClefNotesArray : trebleClefNotesArray,
-        0,
-        -3,
-        -4,
-        true
-      );
+    if (renderFunctionRef.current) {
+      renderFunctionRef.current();
     }
   };
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      const { userClickY, userClickX } = getUserClickInfo(
-        e,
-        container,
-        staves[0]
+      // Make sure the stave exists before trying to use it
+      if (!staves.length || !staves[0]) {
+        setOpen(true);
+        setMessage("Error: Stave not properly initialized");
+        return;
+      }
+
+      const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
+        getUserClickInfo(e, container, staves[0]);
+
+      isClickWithinStaveBounds(
+        staves[0],
+        topStaveYCoord,
+        bottomStaveYCoord,
+        userClickX,
+        userClickY,
+        setMessage,
+        setOpen
       );
 
       let foundNoteData = notesAndCoordinates.find(
@@ -155,98 +112,77 @@ const NotateScale = ({
           userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
       );
 
-      if (foundNoteData) {
+      if (!foundNoteData) {
+        setOpen(true);
+        setMessage("No note found at click position");
+        return;
+      } else {
         foundNoteData = {
           ...foundNoteData,
-          userClickY,
+          userClickX: userClickX,
         };
-      } else {
-        setOpen(true);
-        setMessage(errorMessages.noNoteFound);
-        return;
       }
 
-      const barIndex = findBarIndex(staves, userClickX);
-
-      let scaleDataMatrixCopy = scaleDataMatrix.map((scaleData) => [
-        ...scaleData,
-      ]);
-
+      let scaleDataMatrixCopy = [...scaleDataMatrix];
       let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-      const barOfScaleData = scaleDataMatrixCopy[barIndex].map(
-        (scaleData: ScaleData) => ({
-          ...scaleData,
-          staveNoteAbsoluteX: scaleData.staveNote
-            ? scaleData.staveNote.getAbsoluteX()
-            : 0,
-        })
-      );
+      const { scaleDataMatrix: newScaleDataMatrix, notesAndCoordinates: newNotesAndCoordinates } =
+        handleScaleInteraction(
+          notesAndCoordinatesCopy,
+          state,
+          foundNoteData,
+          scaleDataMatrixCopy,
+          userClickX,
+          userClickY,
+          rendererRef,
+          staves,
+          chosenClef
+        );
 
-      const {
-        scaleDataMatrix: newScaleDataMatrix,
-        notesAndCoordinates: newNotesAndCoordinates,
-      } = HandleScaleInteraction(
-        foundNoteData,
-        notesAndCoordinatesCopy,
-        barOfScaleData,
-        scaleDataMatrixCopy,
-        state,
-        userClickX,
-        userClickY,
-        barIndex,
-        chosenClef,
-        setMessage,
-        setOpen,
-        errorMessages
-      );
-      setNotesAndCoordinates(() => newNotesAndCoordinates);
       setScaleDataMatrix(() => newScaleDataMatrix);
-      setScales(
-        newScaleDataMatrix[0].map((scaleDataMatrix) =>
-          scaleDataMatrix.keys.join(", ")
-        )
-      );
+      setNotesAndCoordinates(() => newNotesAndCoordinates);
+      
+      if (setScales && newScaleDataMatrix[0] && newScaleDataMatrix[0].length > 0) {
+        setScales(
+          newScaleDataMatrix[0].map((scaleData) =>
+            scaleData.keys.join(", ")
+          )
+        );
+      }
     },
-    [scaleDataMatrix, notesAndCoordinates, staves, chosenClef]
+    [notesAndCoordinates, scaleDataMatrix, state, staves, container, rendererRef, chosenClef, setScales]
   );
 
+  const modifyScalesButtonGroup = useMemo(
+    () => buttonGroup(dispatch, state, modifyScalesActionTypes),
+    [dispatch, state]
+  );
+
+  useEffect(() => {
+    if (renderFunctionRef.current) {
+      renderFunctionRef.current();
+    }
+  }, [scaleDataMatrix]);
+
   return (
-    <>
-      <div
-        ref={container}
-        onClick={handleClick}
-        style={{
-          overflow: "visible",
-          width: "705px",
-          height: "300px",
-        }}
-      />
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
-      <Container
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr",
-          paddingTop: 4,
-          marginTop: 2,
-        }}
-      >
-        {modifyStaveNotesButtonGroup.map((button) => {
-          return (
-            <CustomButton
-              key={button.text}
-              onClick={() => {
-                button.action();
-              }}
-              isEnabled={button.isEnabled}
-            >
-              {button.text}
-            </CustomButton>
-          );
-        })}
-        <CustomButton onClick={eraseMeasures}>Erase Measure</CustomButton>
-      </Container>
-    </>
+    <NotationContainer
+      containerRef={container}
+      onClick={handleClick}
+      open={open}
+      setOpen={setOpen}
+      message={message}
+    >
+      {modifyScalesButtonGroup.map((button) => (
+        <CustomButton
+          key={button.text}
+          onClick={button.action}
+          isEnabled={button.isEnabled}
+        >
+          {button.text}
+        </CustomButton>
+      ))}
+      <CustomButton onClick={eraseMeasures}>Erase</CustomButton>
+    </NotationContainer>
   );
 };
 

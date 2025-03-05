@@ -1,45 +1,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { Button, Container } from "@mui/material";
 import React, {
-  Dispatch,
-  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
+  Dispatch,
+  SetStateAction
 } from "react";
 import VexFlow from "vexflow";
 import { useClef } from "../context/ClefContext";
 import { modifyChordsActionTypes } from "../lib/actionTypes";
 import { buttonGroup } from "../lib/buttonsAndButtonGroups";
-import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
-import {
-  bassClefNotesArray,
-  trebleClefNotesArray,
-} from "../lib/data/noteArray";
-import { staveData } from "../lib/data/stavesData";
-import { findBarIndex } from "../lib/findBar";
-import getUserClickInfo from "../lib/getUserClickInfo";
-import { handleChordInteraction } from "../lib/handleChordInteraction";
-import {
-  chordInteractionInitialState,
-  initialChordData,
-  initialNotesAndCoordsState,
-} from "../lib/initialStates";
-import { initializeRenderer } from "../lib/initializeRenderer";
+import { chordInteractionInitialState, initialChordData } from "../lib/initialStates";
 import { reducer } from "../lib/reducer";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
+import { staveData } from "../lib/data/stavesData";
 import {
   Chord,
-  NotesAndCoordinatesData,
   StaveType,
 } from "../lib/typesAndInterfaces";
 import CustomButton from "./CustomButton";
-import SnackbarToast from "./SnackbarToast";
-import { errorMessages } from "../lib/data/errorMessages";
+import { buildChord } from "../lib/buildChord";
+import NotationContainer from "./NotationContainer";
+import useNotationRenderer from "../hooks/useNotationRenderer";
+
 const { Renderer } = VexFlow.Flow;
 
 const NotateChord = ({
@@ -47,174 +34,138 @@ const NotateChord = ({
 }: {
   setChords: Dispatch<SetStateAction<Array<string>>>;
 }) => {
-  const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
-  const container = useRef<HTMLDivElement | null>(null);
-  const hasScaled = useRef<boolean>(false);
-  const [staves, setStaves] = useState<StaveType[]>([]);
-  const [chordInteractionState, dispatch] = useReducer(
-    reducer,
-    chordInteractionInitialState
-  );
   const [barIndex, setBarIndex] = useState<number>(0);
   const [chordData, setChordData] = useState<Chord>(initialChordData);
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const { chosenClef } = useClef();
-  const [notesAndCoordinates, setNotesAndCoordinates] = useState<
-    NotesAndCoordinatesData[]
-  >([initialNotesAndCoordsState]);
+  const [chordInteractionState, dispatch] = useReducer(
+    reducer,
+    chordInteractionInitialState
+  );
+  const [staves, setStaves] = useState<StaveType[]>([]);
+  
+  // Create a ref for the render function to avoid circular dependencies
+  const renderFunctionRef = useRef<() => StaveType[] | undefined>(null);
+
+  const {
+    rendererRef,
+    container,
+    staves: stavesFromHook,
+    setStaves: setStavesFromHook,
+    notesAndCoordinates,
+    setNotesAndCoordinates,
+  } = useNotationRenderer({
+    renderFunction: () => {
+      // Use the current value of the ref
+      if (renderFunctionRef.current) {
+        return renderFunctionRef.current();
+      }
+      return undefined;
+    },
+    chosenClef,
+    extraDeps: [chordData, barIndex],
+  });
+  
+  // Set up the render function after rendererRef is initialized
+  renderFunctionRef.current = useCallback(() => {
+    return setupRendererAndDrawChords({
+      rendererRef,
+      ...staveData,
+      setStaves: (newStaves) => {
+        setStaves(newStaves);
+        setStavesFromHook?.(newStaves);
+      },
+      chordData,
+      barIndex,
+      chosenClef,
+    });
+  }, [chordData, barIndex, chosenClef, rendererRef, setStavesFromHook]);
 
   const modifyChordsButtonGroup = useMemo(
     () => buttonGroup(dispatch, chordInteractionState, modifyChordsActionTypes),
     [dispatch, chordInteractionState]
   );
 
-  const renderStavesAndChords = useCallback(
-    (): StaveType[] | undefined =>
-      setupRendererAndDrawChords({
-        rendererRef,
-        ...staveData,
-        setStaves,
-        chordData,
-        staves,
-        barIndex,
-        chosenClef,
-      }),
-    [rendererRef, setStaves, chordData, staves, barIndex]
-  );
-
   useEffect(() => {
-    initializeRenderer(rendererRef, container);
-    const newStave = renderStavesAndChords();
-    if (newStave) {
-      calculateNotesAndCoordinates(
-        chosenClef,
-        setNotesAndCoordinates,
-        newStave,
-        chosenClef === "bass" ? bassClefNotesArray : trebleClefNotesArray,
-        0,
-        -3,
-        -4,
-        true
-      );
+    if (renderFunctionRef.current) {
+      renderFunctionRef.current();
     }
-  }, []);
-
-  useEffect(() => {
-    if (!hasScaled.current && container.current) {
-      const svgElement = container.current.querySelector("svg");
-      if (svgElement) {
-        svgElement.style.transform = "scale(1.5)";
-        svgElement.style.transformOrigin = "0 0";
-        hasScaled.current = true;
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    renderStavesAndChords();
     const chordsArray = chordData.keys;
-  }, [chordData]);
+    if (setChords && chordsArray.length > 0) {
+      setChords(chordsArray);
+    }
+  }, [chordData, setChords]);
 
   const eraseChord = () => {
     setChordData((): Chord => {
       return initialChordData;
     });
-    const newStave: any = renderStavesAndChords();
-    if (newStave) {
-      calculateNotesAndCoordinates(
-        chosenClef,
-        setNotesAndCoordinates,
-        newStave,
-        chosenClef === "bass" ? bassClefNotesArray : trebleClefNotesArray,
-        0,
-        -3,
-        -4,
-        true
-      );
+    if (renderFunctionRef.current) {
+      renderFunctionRef.current();
     }
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    const { userClickY, userClickX } = getUserClickInfo(
-      e,
-      container,
-      staves[0]
-    );
-
-    let foundNoteData = notesAndCoordinates.find(
-      ({ yCoordinateMin, yCoordinateMax }) =>
-        userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
-    );
-
-    if (!foundNoteData) {
+    // Make sure the stave exists before trying to use it
+    if (!staves.length || !staves[0]) {
       setOpen(true);
-      setMessage(errorMessages.noNoteFound);
+      setMessage("Error: Stave not properly initialized");
       return;
     }
 
-    let chordDataCopy = { ...chordData };
-    let notesAndCoordinatesCopy = [...notesAndCoordinates];
+    const rect = container.current?.getBoundingClientRect();
+    if (!rect) return;
 
-    const barIndex = findBarIndex(staves, userClickX);
+    const userClickX = e.clientX - rect.left;
+    const userClickY = e.clientY - rect.top;
 
-    const foundNoteIndex: number = chordData.keys.findIndex(
-      (note) => note === foundNoteData?.note
-    );
+    const topStaveYCoord = staves[0].getYForLine(0);
+    const bottomStaveYCoord = staves[0].getYForLine(4);
 
-    const {
-      chordData: newChordData,
-      notesAndCoordinates: newNotesAndCoordinates,
-    } = handleChordInteraction(
-      notesAndCoordinatesCopy,
-      chordInteractionState,
-      foundNoteData,
-      chordDataCopy,
-      foundNoteIndex,
-      chosenClef
-    );
+    if (
+      userClickY < topStaveYCoord - 50 ||
+      userClickY > bottomStaveYCoord + 50 ||
+      userClickX < staves[0].getBoundingBox().getX() ||
+      userClickX > staves[0].getBoundingBox().getX() + staves[0].getWidth()
+    ) {
+      setOpen(true);
+      setMessage("Please click within the stave bounds");
+      return;
+    }
 
-    setNotesAndCoordinates(() => newNotesAndCoordinates);
-    setChordData(() => newChordData);
-    setChords(newChordData.keys);
+    buildChord({
+      state: chordInteractionState,
+      setChordData,
+      chordData,
+      rendererRef,
+      staves,
+      userClickX,
+      userClickY,
+      chosenClef,
+      barIndex,
+    });
   };
 
   return (
-    <>
-      <div
-        ref={container}
-        onClick={handleClick}
-        style={{
-          overflow: "visible",
-          width: "705px",
-          height: "300px",
-        }}
-      />
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
-      <Container
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          paddingTop: 4,
-          marginTop: 2,
-        }}
-      >
-        {modifyChordsButtonGroup.map((button) => {
-          return (
-            <CustomButton
-              key={button.text}
-              onClick={button.action}
-              isEnabled={button.isEnabled}
-            >
-              {button.text}
-            </CustomButton>
-          );
-        })}
-        <Button onClick={eraseChord} sx={{ m: 0.5 }}>
-          Erase Measure
-        </Button>
-      </Container>
-    </>
+    <NotationContainer
+      containerRef={container}
+      onClick={handleClick}
+      open={open}
+      setOpen={setOpen}
+      message={message}
+    >
+      {modifyChordsButtonGroup.map((button) => (
+        <CustomButton
+          key={button.text}
+          onClick={button.action}
+          isEnabled={button.isEnabled}
+        >
+          {button.text}
+        </CustomButton>
+      ))}
+      <CustomButton onClick={eraseChord}>Erase</CustomButton>
+    </NotationContainer>
   );
 };
 

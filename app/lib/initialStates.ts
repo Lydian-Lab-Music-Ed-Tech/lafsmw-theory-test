@@ -40,6 +40,19 @@ export const noteInteractionInitialState: NoteInteractionState = {
   isFlatActive: false,
   isChangeNoteActive: false,
 };
+
+// This is used for scale interactions
+export const scaleInteractionInitialState: NoteInteractionState = {
+  isEraseNoteActive: false,
+  isEraseAccidentalActive: false,
+  isEnterNoteActive: true,
+  isSharpActive: false,
+  noNoteFound: false,
+  tooManyBeatsInMeasure: false,
+  isFlatActive: false,
+  isChangeNoteActive: false,
+};
+
 export const chordInteractionInitialState: ChordInteractionState = {
   isEraseNoteActive: false,
   isEraseAccidentalActive: false,

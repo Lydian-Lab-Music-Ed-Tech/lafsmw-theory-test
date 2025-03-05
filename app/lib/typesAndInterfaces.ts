@@ -183,7 +183,6 @@ export interface RenderStavesAndNotesParams {
   setStaves: SetStaves;
   scaleDataMatrix?: ScaleData[][];
   notesData?: NoteData | null;
-  staves: BlankStaves;
 }
 
 export interface RenderStaves {
@@ -201,8 +200,8 @@ export interface RenderStaves {
   firstStaveWidth: number;
   regularStaveWidth?: number | null;
   setStaves?: SetStaves;
-  staves: BlankStaves;
 }
+
 export interface RenderStavesAndChordParams {
   rendererRef: RendererRef | null;
   font: string;
@@ -219,7 +218,6 @@ export interface RenderStavesAndChordParams {
   regularStaveWidth?: number | null;
   setStaves: SetStaves;
   chordData: Chord;
-  staves: BlankStaves;
   barIndex: number;
 }
 

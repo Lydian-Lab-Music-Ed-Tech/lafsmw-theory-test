@@ -1,7 +1,7 @@
 import { StaveType } from "./typesAndInterfaces";
 
 const isClickWithinStaveBounds = (
-  stave: StaveType,
+  stave: StaveType | undefined,
   topStaveMaxYClick: number,
   bottomStaveMaxYClick: number,
   userClickX: number,
@@ -9,6 +9,12 @@ const isClickWithinStaveBounds = (
   setMessage: React.Dispatch<React.SetStateAction<string>>,
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 ): void => {
+  if (!stave) {
+    setMessage("Error: Stave not properly initialized");
+    setOpen(true);
+    return;
+  }
+
   const measureWidth = stave.getWidth();
   const maxRightClick = measureWidth * 0.6;
   const minLeftClick = measureWidth * 0.08;

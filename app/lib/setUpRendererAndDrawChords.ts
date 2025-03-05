@@ -20,17 +20,34 @@ export const setupRendererAndDrawChords = (
     keySig,
     setStaves,
     chordData,
-    staves,
     barIndex,
   } = params;
-  const renderer = rendererRef?.current;
-  renderer?.resize(rendererWidth, rendererHeight);
-  const context = renderer && renderer.getContext();
-  context?.setFont(font, fontSize * 1.5);
-  context?.clear();
-  let newStaves;
-  if (context && rendererRef) {
-    newStaves = createBlankStaves({
+  
+  // Early return if renderer is not available
+  if (!rendererRef?.current) {
+    console.error("Renderer reference is not available in setupRendererAndDrawChords");
+    return undefined;
+  }
+  
+  const renderer = rendererRef.current;
+  
+  try {
+    // Resize the renderer
+    renderer.resize(rendererWidth, rendererHeight);
+    
+    // Get the context
+    const context = renderer.getContext();
+    
+    if (!context) {
+      console.error("Failed to get context from renderer in setupRendererAndDrawChords");
+      return undefined;
+    }
+    
+    // Set font and clear
+    context.setFont(font, fontSize * 1.5);
+    context.clear();
+    
+    let newStaves = createBlankStaves({
       numStaves,
       context,
       firstStaveWidth,
@@ -40,11 +57,26 @@ export const setupRendererAndDrawChords = (
       chosenClef: clef,
       keySig,
     });
-    setStaves(newStaves);
+    
+    if (setStaves) {
+      setStaves(newStaves);
+    }
+    
+    // If there are no chord data or keys, just return the staves
+    if (!chordData.staveNotes || chordData.keys.length === 0) {
+      return newStaves;
+    }
+    
+    // Format and draw the chord notes
+    if (newStaves && newStaves.length > barIndex) {
+      Formatter.FormatAndDraw(context, newStaves[barIndex], [chordData.staveNotes]);
+    } else {
+      console.warn("Invalid barIndex or staves not created properly");
+    }
+    
+    return newStaves;
+  } catch (error) {
+    console.error("Error in setupRendererAndDrawChords:", error);
+    return undefined;
   }
-  if (!chordData.staveNotes || chordData.keys.length === 0) return newStaves;
-  if (renderer && context) {
-    Formatter.FormatAndDraw(context, staves[barIndex], [chordData.staveNotes]);
-  }
-  return newStaves;
 };
