@@ -14,7 +14,7 @@ export default function ScalesNotation({
   nextViewState,
   page,
 }: UserDataProps) {
-  const [scales, setScales] = useState<Array<string>>([]);
+  const [scales, setScales] = useState<string[]>([]);
 
   const scalesPropName = `scales${page - 5}`;
 

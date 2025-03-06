@@ -145,7 +145,7 @@ export const changeNotePosition = (
       }),
       keys: [foundNoteData.note],
       duration: "q",
-      staveNoteAbsoluteX,
+      exactX: staveNoteAbsoluteX,
       userClickY,
     });
   }

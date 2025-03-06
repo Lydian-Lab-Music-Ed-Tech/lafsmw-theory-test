@@ -26,10 +26,10 @@ export default function KeySignaturesNotation({
       ...currentUserData,
       [keySigPropName]: keySignatureNotation,
     });
-    console.log({
-      ...currentUserData,
-      [keySigPropName]: keySignatureNotation,
-    });
+    // console.log({
+    //   ...currentUserData,
+    //   [keySigPropName]: keySignatureNotation,
+    // });
     nextViewState();
   };
 
@@ -86,7 +86,9 @@ export default function KeySignaturesNotation({
                 keySignaturesText[page - 1]
               }`}
             </Typography>
-            <NotateKeySignature handleKeySig={setKeySignatureNotation} />
+            <NotateKeySignature
+              setKeySignatureNotation={setKeySignatureNotation}
+            />
           </Stack>
           <CardFooter
             width={630}

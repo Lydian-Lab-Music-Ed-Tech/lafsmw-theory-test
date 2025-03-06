@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { Button } from "@mui/material";
 import Container from "@mui/material/Container";
 import React, {
   Dispatch,
@@ -40,25 +39,26 @@ import {
 } from "../lib/typesAndInterfaces";
 import CustomButton from "./CustomButton";
 import SnackbarToast from "./SnackbarToast";
+
 const { Renderer } = VexFlow.Flow;
 
 const NotateScale = ({
   setScales,
 }: {
-  setScales: Dispatch<SetStateAction<Array<string>>>;
+  setScales: Dispatch<SetStateAction<string[]>>;
 }) => {
   const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
   const hasScaled = useRef<boolean>(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
-  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const { chosenClef } = useClef();
   const [state, dispatch] = useReducer(reducer, noteInteractionInitialState);
+  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
+  const { chosenClef } = useClef();
 
   const modifyStaveNotesButtonGroup = useMemo(
     () => buttonGroup(dispatch, state, modifyNotesActionTypes),
@@ -70,10 +70,10 @@ const NotateScale = ({
       setupRendererAndDrawNotes({
         rendererRef,
         ...staveData,
+        chosenClef,
+        staves,
         setStaves,
         scaleDataMatrix,
-        staves,
-        chosenClef,
       }),
     [rendererRef, setStaves, scaleDataMatrix, staves]
   );
@@ -200,8 +200,11 @@ const NotateScale = ({
         setOpen,
         errorMessages
       );
+
       setNotesAndCoordinates(() => newNotesAndCoordinates);
+
       setScaleDataMatrix(() => newScaleDataMatrix);
+
       setScales(
         newScaleDataMatrix[0].map((scaleDataMatrix) =>
           scaleDataMatrix.keys.join(", ")
