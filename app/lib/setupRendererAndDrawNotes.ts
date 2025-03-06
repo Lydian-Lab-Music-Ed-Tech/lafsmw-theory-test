@@ -1,7 +1,7 @@
 import VexFlow from "vexflow";
 import createBlankStaves from "./createBlankStaves";
 import { RenderStavesAndNotesParams } from "./typesAndInterfaces";
-const { Formatter } = VexFlow.Flow;
+const { Formatter, TickContext } = VexFlow.Flow;
 import type { StaveNote } from "vexflow";
 
 export const setupRendererAndDrawNotes = (
@@ -45,23 +45,51 @@ export const setupRendererAndDrawNotes = (
 
   if (!scaleDataMatrix) return newStaves;
 
-  console.log(
-    "scaleDataMatrix from setUpRendererAndDrawNotes:",
-    scaleDataMatrix
-  );
-  console.log("staves from setUpRendererAndDrawNotes:", staves);
-  console.log("newStaves from setUpRendererAndDrawNotes:", newStaves);
-  console.log("context from setUpRendererAndDrawNotes:", context);
+  // Draw each stave
+  if (newStaves && context) {
+    newStaves.forEach((stave) => {
+      stave.setContext(context).draw();
+    });
+  }
 
+  // Draw notes at their exact positions instead of using the formatter
   scaleDataMatrix.forEach((barOfNoteObjects, index) => {
-    if (barOfNoteObjects) {
-      const staveNotes = barOfNoteObjects
-        .map(({ staveNote }) => staveNote)
-        .filter(Boolean) as StaveNote[];
-      if (staveNotes.length > 0 && context && staves[index]) {
-        Formatter.FormatAndDraw(context, staves[index], staveNotes);
-      }
+    if (barOfNoteObjects && barOfNoteObjects.length > 0 && context) {
+      const currentStave = staves[index] || newStaves[index];
+
+      barOfNoteObjects.forEach((noteObj) => {
+        if (noteObj.staveNote) {
+          // Set the stave and context for the note
+          noteObj.staveNote.setStave(currentStave);
+          noteObj.staveNote.setContext(context);
+
+          // Position and draw the note at the exact click position
+          if (noteObj.exactX) {
+            // Create a separate tick context for each note to prevent them from affecting each other
+            const tickContext = new TickContext();
+            tickContext.addTickable(noteObj.staveNote);
+
+            // Prevent the tick context from doing any formatting that might move notes
+            tickContext.preFormat();
+            tickContext.setPadding(0); // Set padding to 0 to prevent spacing adjustments
+
+            // Apply an offset correction to align the note with the click position
+            // The offset of -40 is an approximation and may need to be adjusted based on testing
+            const offsetCorrection = -60; // Adjust this value as needed
+
+            // Set the x position of the tick context to the exact stored position with offset correction
+            tickContext.setX(noteObj.exactX + offsetCorrection);
+
+            // Draw the note at its exact position
+            noteObj.staveNote.draw();
+          } else {
+            // For backward compatibility, use the formatter for notes without exact positions
+            Formatter.FormatAndDraw(context, currentStave, [noteObj.staveNote]);
+          }
+        }
+      });
     }
   });
+
   return newStaves;
 };

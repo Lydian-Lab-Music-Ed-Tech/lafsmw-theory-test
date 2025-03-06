@@ -34,7 +34,10 @@ export const HandleScaleInteraction = (
   errorMessages: errorMessages
 ) => {
   const scaleLength = scaleDataMatrix[0].length;
-  if (scaleInteractionState.isSharpActive || scaleInteractionState.isFlatActive) {
+  if (
+    scaleInteractionState.isSharpActive ||
+    scaleInteractionState.isFlatActive
+  ) {
     notesAndCoordinates = updateNotesAndCoordsWithAccidental(
       scaleInteractionState,
       foundNoteData,
@@ -89,13 +92,15 @@ export const HandleScaleInteraction = (
       duration: "q",
       clef: chosenClef,
     });
+
+    // Store the exact click position with the note
     let newNoteObject = [
       ...barOfScaleData,
       {
         keys: [foundNoteData.note],
         duration: "q",
         staveNote: newStaveNote,
-        staveNoteAbsoluteX: 0,
+        exactX: userClickX, // Use exactX for positioning
         userClickY,
       },
     ];

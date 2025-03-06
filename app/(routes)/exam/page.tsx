@@ -131,10 +131,7 @@ export default function ExamHomePage() {
       currentUserData.keySignaturesNotation3,
       currentUserData.keySignaturesNotation4,
     ];
-    console.log(
-      "userKeySigNotationAnswers from updateAnswers:",
-      userKeySigNotationAnswers
-    );
+
     const userKeySigAnswers = convertObjectToArray(
       currentUserData.keySignatures
     );
@@ -146,6 +143,7 @@ export default function ExamHomePage() {
       currentUserData.scales5,
       currentUserData.scales6,
     ];
+    console.log("userScales from updateAnswers on Exam page:", userScales);
     const userTriads = [
       currentUserData.triads1,
       currentUserData.triads2,
