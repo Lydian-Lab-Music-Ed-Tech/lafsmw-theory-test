@@ -1,6 +1,6 @@
 import VexFlow from "vexflow";
 import createBlankStaves from "./createBlankStaves";
-import { RenderStavesAndNotesParams } from "./typesAndInterfaces";
+import { RenderStavesAndNotesParams, BlankStaves } from "./typesAndInterfaces";
 const { Formatter, TickContext } = VexFlow.Flow;
 import type { StaveNote } from "vexflow";
 
@@ -28,7 +28,7 @@ export const setupRendererAndDrawNotes = (
   const context = renderer && renderer.getContext();
   context?.setFont(font, fontSize * 1.5);
   context?.clear();
-  let newStaves;
+  let newStaves: BlankStaves = [];
   if (context && rendererRef) {
     newStaves = createBlankStaves({
       numStaves,
@@ -59,7 +59,6 @@ export const setupRendererAndDrawNotes = (
 
       barOfNoteObjects.forEach((noteObj) => {
         if (noteObj.staveNote) {
-          // Set the stave and context for the note
           noteObj.staveNote.setStave(currentStave);
           noteObj.staveNote.setContext(context);
 
@@ -73,14 +72,12 @@ export const setupRendererAndDrawNotes = (
             tickContext.preFormat();
             tickContext.setPadding(0); // Set padding to 0 to prevent spacing adjustments
 
-            // Apply an offset correction to align the note with the click position
-            // The offset of -40 is an approximation and may need to be adjusted based on testing
-            const offsetCorrection = -60; // Adjust this value as needed
+            // Offset correction to align the note with the click position
+            const offsetCorrection = -60;
 
             // Set the x position of the tick context to the exact stored position with offset correction
             tickContext.setX(noteObj.exactX + offsetCorrection);
 
-            // Draw the note at its exact position
             noteObj.staveNote.draw();
           } else {
             // For backward compatibility, use the formatter for notes without exact positions
