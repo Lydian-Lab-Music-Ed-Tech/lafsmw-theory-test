@@ -42,7 +42,17 @@ export const setupRendererAndDrawNotes = (
     });
     setStaves(newStaves);
   }
+
   if (!scaleDataMatrix) return newStaves;
+
+  console.log(
+    "scaleDataMatrix from setUpRendererAndDrawNotes:",
+    scaleDataMatrix
+  );
+  console.log("staves from setUpRendererAndDrawNotes:", staves);
+  console.log("newStaves from setUpRendererAndDrawNotes:", newStaves);
+  console.log("context from setUpRendererAndDrawNotes:", context);
+
   scaleDataMatrix.forEach((barOfNoteObjects, index) => {
     if (barOfNoteObjects) {
       const staveNotes = barOfNoteObjects

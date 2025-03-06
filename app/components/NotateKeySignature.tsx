@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
+import { Container } from "@mui/material";
 import React, {
   useCallback,
   useEffect,
@@ -33,27 +34,26 @@ import {
   StaveType,
 } from "../lib/typesAndInterfaces";
 import CustomButton from "./CustomButton";
-import { Container } from "@mui/material";
 
 const { Renderer } = VexFlow.Flow;
 
 //weird glitch is still happening. Figure out why!
 
-const NotateKeySignature = ({ handleKeySig }: any) => {
+const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
   const hasScaled = useRef(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
-  const [glyphs, setGlyphs] = useState<GlyphProps[]>([]);
   const [open, setOpen] = useState(false);
-  const { chosenClef } = useClef();
   const [message, setMessage] = useState("");
-  const [state, dispatch] = useReducer(reducer, keySigInitialState);
-  const [keySig, setKeySig] = useState<string[]>([]);
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
+  const [state, dispatch] = useReducer(reducer, keySigInitialState);
+  const [glyphs, setGlyphs] = useState<GlyphProps[]>([]);
+  const [keySig, setKeySig] = useState<string[]>([]);
   const renderCount = useRef(0);
+  const { chosenClef } = useClef();
 
   const keySigButtonGroup = useMemo(
     () => buttonGroup(dispatch, state, modifyKeySigActionTypes),
@@ -71,8 +71,8 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         rendererRef,
         ...staveData,
         chosenClef,
-        firstStaveWidth: 450,
         staves,
+        firstStaveWidth: 450,
       }),
     [chosenClef]
   );
@@ -126,17 +126,20 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     }
   }, [glyphs]);
 
-  useEffect(() => {
-    console.log("Key signature state changed:", keySig);
-  }, [keySig]);
+  // useEffect(() => {
+  //   console.log("Key signature state changed:", keySig);
+  // }, [keySig]);
 
   useEffect(() => {
     // Pass the updated key signature to the parent component whenever it changes
-    if (handleKeySig) {
-      console.log("keySig from NotateKeySignature useEffect (will pass to parent):", keySig);
-      handleKeySig(keySig);
+    if (setKeySignatureNotation) {
+      console.log(
+        "keySig from NotateKeySignature useEffect (will pass to parent):",
+        keySig
+      );
+      setKeySignatureNotation(keySig);
     }
-  }, [keySig, handleKeySig]);
+  }, [keySig, setKeySignatureNotation]);
 
   const clearKey = () => {
     clearKeySignature(setGlyphs, rendererRef, container), setKeySig(() => []);
@@ -158,7 +161,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
 
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
-    console.log(`Handling click, render count: ${renderCount.current}`);
+    // console.log(`Handling click, render count: ${renderCount.current}`);
     const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
       getUserClickInfo(e, container, staves[0]);
 
@@ -175,7 +178,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
         ...foundNoteData,
         userClickX: userClickX,
       };
-      console.log("Found note data:", foundNoteData.note);
+      // console.log("Found note data:", foundNoteData.note);
     }
 
     isClickWithinStaveBounds(
@@ -189,8 +192,8 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
     );
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
-    console.log("Current key sig before interaction:", keySig);
-    
+    // console.log("Current key sig before interaction:", keySig);
+
     const { notesAndCoordinates: newNotesAndCoordinates } =
       handleKeySigInteraction(
         notesAndCoordinatesCopy,
@@ -205,7 +208,7 @@ const NotateKeySignature = ({ handleKeySig }: any) => {
       );
 
     setNotesAndCoordinates(() => newNotesAndCoordinates);
-    console.log("Current glyphs after interaction:", glyphs);
+    // console.log("Current glyphs after interaction:", glyphs);
   };
 
   return (
