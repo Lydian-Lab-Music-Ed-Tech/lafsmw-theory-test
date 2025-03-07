@@ -120,7 +120,7 @@ export const addNewNoteToScale = (
     keys: [foundNoteData.note],
     duration: "q",
     staveNote: newNote,
-    staveNoteAbsoluteX: 0,
+    exactX: userClickX,
     userClickY,
   };
   return newNoteObject;
@@ -135,7 +135,7 @@ export const changeNotePosition = (
 ) => {
   const { noteDataObject, noteIndex } = getNoteData(scaleData, userClickX);
   if (noteDataObject && noteDataObject.staveNote) {
-    const staveNoteAbsoluteX = noteDataObject.staveNote.getAbsoluteX();
+    const exactX = noteDataObject.staveNote.getAbsoluteX();
 
     scaleData.splice(noteIndex, 1, {
       staveNote: new StaveNote({
@@ -145,7 +145,7 @@ export const changeNotePosition = (
       }),
       keys: [foundNoteData.note],
       duration: "q",
-      exactX: staveNoteAbsoluteX,
+      exactX,
       userClickY,
     });
   }

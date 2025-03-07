@@ -15,7 +15,6 @@ export const appendAccidentalToNote = (accidental: string, note: string) => {
     (accidental === "#" && noteBase.length > 1 && noteBase.endsWith("b")) ||
     (accidental === "b" && noteBase.endsWith("#"))
   ) {
-    // console.log("Cannot add contradictory accidentals to the same note.");
     return note;
   }
 

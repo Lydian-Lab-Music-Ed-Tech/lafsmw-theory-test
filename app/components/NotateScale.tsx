@@ -177,9 +177,6 @@ const NotateScale = ({
       const barOfScaleData = scaleDataMatrixCopy[barIndex].map(
         (scaleData: ScaleData) => ({
           ...scaleData,
-          staveNoteAbsoluteX: scaleData.staveNote
-            ? scaleData.staveNote.getAbsoluteX()
-            : 0,
         })
       );
 

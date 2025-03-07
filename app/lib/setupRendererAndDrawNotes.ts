@@ -2,11 +2,10 @@ import VexFlow from "vexflow";
 import createBlankStaves from "./createBlankStaves";
 import { RenderStavesAndNotesParams, BlankStaves } from "./typesAndInterfaces";
 const { Formatter, TickContext } = VexFlow.Flow;
-import type { StaveNote } from "vexflow";
 
 export const setupRendererAndDrawNotes = (
   params: RenderStavesAndNotesParams
-): any => {
+): BlankStaves => {
   const {
     rendererRef,
     font,
@@ -23,12 +22,14 @@ export const setupRendererAndDrawNotes = (
     scaleDataMatrix,
     staves,
   } = params;
+
   const renderer = rendererRef?.current;
   renderer?.resize(rendererWidth, rendererHeight);
   const context = renderer && renderer.getContext();
   context?.setFont(font, fontSize * 1.5);
   context?.clear();
   let newStaves: BlankStaves = [];
+
   if (context && rendererRef) {
     newStaves = createBlankStaves({
       numStaves,
@@ -58,6 +59,7 @@ export const setupRendererAndDrawNotes = (
       const currentStave = staves[index] || newStaves[index];
 
       barOfNoteObjects.forEach((noteObj) => {
+        console.log("noteObj from forEach:", noteObj);
         if (noteObj.staveNote) {
           noteObj.staveNote.setStave(currentStave);
           noteObj.staveNote.setContext(context);
@@ -80,7 +82,7 @@ export const setupRendererAndDrawNotes = (
 
             noteObj.staveNote.draw();
           } else {
-            // For backward compatibility, use the formatter for notes without exact positions
+            // If all else fails, use the formatter for notes without exact positions
             Formatter.FormatAndDraw(context, currentStave, [noteObj.staveNote]);
           }
         }
