@@ -111,9 +111,10 @@ export interface UserClickInfo {
 
 export interface StaveNoteData {
   newStaveNote: StaveNoteType;
-  staveNoteAbsoluteX: number;
+  exactX: number;
   userClickY: number;
 }
+
 export interface chosenClef {
   chosenClef: string;
   setChosenClef: Dispatch<SetStateAction<string>>;
@@ -127,7 +128,7 @@ export interface ScaleData {
   duration: string;
   staveNote: StaveNoteType | null;
   userClickY: number;
-  exactX?: number;
+  exactX: number;
 }
 
 export interface NoteStringData {
