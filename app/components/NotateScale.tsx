@@ -172,20 +172,13 @@ const NotateScale = ({
         ...scaleData,
       ]);
 
-      // console.log("scaleDataMatrixCopy:", scaleDataMatrixCopy);
-
       let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
       const barOfScaleData = scaleDataMatrixCopy[barIndex].map(
         (scaleData: ScaleData) => ({
           ...scaleData,
-          staveNoteAbsoluteX: scaleData.staveNote
-            ? scaleData.staveNote.getAbsoluteX()
-            : 0,
         })
       );
-
-      console.log("barOfScaleData:", barOfScaleData);
 
       const {
         scaleDataMatrix: newScaleDataMatrix,

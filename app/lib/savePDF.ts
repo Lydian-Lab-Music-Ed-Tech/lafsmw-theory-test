@@ -29,11 +29,9 @@ export const savePDF = async (
 
     // awaiting Promise
     await uploadBytes(storageRef, pdfBlob);
-    // console.log("PDF uploaded successfully");
 
     // awaiting Promise
     const url = await getDownloadURL(storageRef);
-    // console.log("URL: ", url);
 
     setCurrentUserData({ ...currentUserData, bluesUrl: url });
   } catch (error) {
