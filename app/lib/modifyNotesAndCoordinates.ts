@@ -1,6 +1,6 @@
 import {
-  StateInteraction,
   NotesAndCoordinatesData,
+  StateInteraction,
 } from "./typesAndInterfaces";
 
 export const parseNote = (note: string) => {

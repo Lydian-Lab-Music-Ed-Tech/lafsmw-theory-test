@@ -6,15 +6,11 @@ import React, {
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
-  useReducer,
   useRef,
   useState,
 } from "react";
 import VexFlow from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { modifyChordsActionTypes } from "../lib/actionTypes";
-import { buttonGroup } from "../lib/buttonsAndButtonGroups";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import {
   bassClefNotesArray,
@@ -25,12 +21,10 @@ import { findBarIndex } from "../lib/findBar";
 import getUserClickInfo from "../lib/getUserClickInfo";
 import { handleChordInteraction } from "../lib/handleChordInteraction";
 import {
-  chordInteractionInitialState,
   initialChordData,
   initialNotesAndCoordsState,
 } from "../lib/initialStates";
 import { initializeRenderer } from "../lib/initializeRenderer";
-import { reducer } from "../lib/reducer";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
 import {
   Chord,
@@ -40,6 +34,7 @@ import {
 import CustomButton from "./CustomButton";
 import SnackbarToast from "./SnackbarToast";
 import { errorMessages } from "../lib/data/errorMessages";
+import { useButtonStates } from "../lib/useButtonStates";
 const { Renderer } = VexFlow.Flow;
 
 const NotateChord = ({
@@ -51,10 +46,6 @@ const NotateChord = ({
   const container = useRef<HTMLDivElement | null>(null);
   const hasScaled = useRef<boolean>(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
-  const [chordInteractionState, dispatch] = useReducer(
-    reducer,
-    chordInteractionInitialState
-  );
   const [barIndex, setBarIndex] = useState<number>(0);
   const [chordData, setChordData] = useState<Chord>(initialChordData);
   const [open, setOpen] = useState<boolean>(false);
@@ -63,11 +54,7 @@ const NotateChord = ({
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-
-  const modifyChordsButtonGroup = useMemo(
-    () => buttonGroup(dispatch, chordInteractionState, modifyChordsActionTypes),
-    [dispatch, chordInteractionState]
-  );
+  const { states, setters, clearAllStates } = useButtonStates();
 
   const renderStavesAndChords = useCallback(
     (): StaveType[] | undefined =>
@@ -113,7 +100,6 @@ const NotateChord = ({
 
   useEffect(() => {
     renderStavesAndChords();
-    const chordsArray = chordData.keys;
   }, [chordData]);
 
   const eraseChord = () => {
@@ -167,7 +153,7 @@ const NotateChord = ({
       notesAndCoordinates: newNotesAndCoordinates,
     } = handleChordInteraction(
       notesAndCoordinatesCopy,
-      chordInteractionState,
+      states,
       foundNoteData,
       chordDataCopy,
       foundNoteIndex,
@@ -199,20 +185,52 @@ const NotateChord = ({
           marginTop: 2,
         }}
       >
-        {modifyChordsButtonGroup.map((button) => {
-          return (
-            <CustomButton
-              key={button.text}
-              onClick={button.action}
-              isEnabled={button.isEnabled}
-            >
-              {button.text}
-            </CustomButton>
-          );
-        })}
-        <Button onClick={eraseChord} sx={{ m: 0.5 }}>
-          Erase Measure
-        </Button>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEnterNoteActive(true);
+          }}
+          active={states.isEnterNoteActive}
+        >
+          Enter Note
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEraseNoteActive(true);
+          }}
+          active={states.isEraseNoteActive}
+        >
+          Erase Note
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsSharpActive(true);
+          }}
+          active={states.isSharpActive}
+        >
+          Add Sharp
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsFlatActive(true);
+          }}
+          active={states.isFlatActive}
+        >
+          Add Flat
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEraseAccidentalActive(true);
+          }}
+          active={states.isEraseAccidentalActive}
+        >
+          Erase Accidental
+        </CustomButton>
+        <Button onClick={eraseChord}>Clear All</Button>
       </Container>
     </>
   );

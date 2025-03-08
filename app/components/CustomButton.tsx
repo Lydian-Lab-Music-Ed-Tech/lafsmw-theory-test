@@ -5,12 +5,14 @@ interface CustomButtonProps {
   onClick: () => void;
   children: ReactNode;
   isEnabled?: boolean;
+  active?: boolean;
 }
 
 const CustomButton: FC<CustomButtonProps> = ({
   onClick,
   children,
   isEnabled,
+  active,
 }) => {
   return (
     <Button
@@ -18,10 +20,10 @@ const CustomButton: FC<CustomButtonProps> = ({
       onClick={onClick}
       sx={{
         "&.MuiButton-root": {
-          backgroundColor: isEnabled
+          backgroundColor: isEnabled || active
             ? "var(--colorEnabledButtonColor)"
             : "var(--colorPressedButtonColor)",
-          borderColor: isEnabled ? "#0063cc" : "#a4b1bf",
+          borderColor: (isEnabled || active) ? "#0063cc" : "#a4b1bf",
           borderRadius: "var(--borderRadius)",
           margin: 0.5,
         },

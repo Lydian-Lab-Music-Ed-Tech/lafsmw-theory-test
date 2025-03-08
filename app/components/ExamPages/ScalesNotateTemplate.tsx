@@ -7,6 +7,7 @@ import { useState } from "react";
 import CardFooter from "../CardFooter";
 import NotateScale from "../NotateScale";
 import TutorialModal from "../TutorialModal";
+import { useButtonStates } from '../../lib/useButtonStates';
 
 export default function ScalesNotation({
   currentUserData,
@@ -15,6 +16,7 @@ export default function ScalesNotation({
   page,
 }: UserDataProps) {
   const [scales, setScales] = useState<string[]>([]);
+  const { states, setters, clearAllStates } = useButtonStates();
 
   const scalesPropName = `scales${page - 5}`;
 

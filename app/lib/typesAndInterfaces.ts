@@ -1,10 +1,5 @@
 import { Dispatch, RefObject, SetStateAction } from "react";
 import VexFlow, { RenderContext, StemmableNote } from "vexflow";
-import {
-  modifyChordsActionTypes,
-  modifyKeySigActionTypes,
-  modifyNotesActionTypes,
-} from "./actionTypes";
 const VF = VexFlow.Flow;
 const { StaveNote, Stave, Renderer, Glyph, Note } = VF;
 
@@ -18,16 +13,21 @@ export type InputData = {
   [key: string]: string;
 };
 
-export type StateInteraction =
-  | ChordInteractionState
-  | NoteInteractionState
-  | KeySigState;
+export type ButtonStates = {
+  isEnterNoteActive: boolean;
+  isEraseNoteActive: boolean;
+  isChangeNoteActive: boolean;
+  isSharpActive: boolean;
+  isFlatActive: boolean;
+  isEraseAccidentalActive: boolean;
+};
 
-export type InteractionActionTypes =
-  | keyof typeof modifyNotesActionTypes
-  | keyof typeof modifyChordsActionTypes
-  | keyof typeof modifyKeySigActionTypes
-  | "CLEAR_ALL";
+export type StateInteraction = ButtonStates & {
+  isClearKeySigActive?: boolean;
+  noNoteFound?: boolean;
+  tooManyBeatsInMeasure?: boolean;
+  [key: string]: boolean | undefined;
+};
 
 export type Chord = {
   keys: string[];
@@ -54,38 +54,9 @@ export type SetStavesForChords = Dispatch<SetStateAction<StaveType[]>>;
 export type BlankStaves = StaveType[];
 export type NoteData = StaveNoteData[][];
 
-export interface ActionType {
-  type: InteractionActionTypes;
-}
 
-export type NoteInteractionState = {
-  isEraseNoteActive: boolean;
-  isEraseAccidentalActive: boolean;
-  isChangeNoteActive: boolean;
-  isEnterNoteActive: boolean;
-  isSharpActive: boolean;
-  noNoteFound: boolean;
-  tooManyBeatsInMeasure?: boolean;
-  isFlatActive: boolean;
-  [key: string]: boolean | undefined;
-};
 
-export type ChordInteractionState = {
-  isEraseNoteActive: boolean;
-  isEraseAccidentalActive: boolean;
-  isSharpActive: boolean;
-  noNoteFound: boolean;
-  isFlatActive: boolean;
-  [key: string]: boolean | undefined;
-};
 
-export type KeySigState = {
-  isSharpActive: boolean;
-  isFlatActive: boolean;
-  isEraseAccidentalActive: boolean;
-  isClearKeySigActive: boolean;
-  [key: string]: boolean | undefined;
-};
 
 export type BarMetrics = {
   barWidth: number;
@@ -159,12 +130,12 @@ export interface ModifyScaleData {
 
 export interface CheckNumBeatsInMeasureProps {
   tooManyBeatsInMeasure: boolean | undefined;
-  openEnterNotes: React.Dispatch<InteractionActionTypes>;
+  openEnterNotes: () => void;
 }
 
 export interface CheckIfNoteFoundProps {
   noNoteFound: boolean;
-  openEnterNotes: React.Dispatch<InteractionActionTypes>;
+  openEnterNotes: () => void;
 }
 
 export interface RenderStavesAndNotesParams {

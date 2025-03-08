@@ -43,6 +43,7 @@ import {
 import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useButtonStates } from '../../lib/useButtonStates';
 
 const VIEW_STATES = {
   START_TEST: 0,
@@ -99,6 +100,7 @@ export default function ExamHomePage() {
   const [open, setOpen] = useState<boolean>(false);
   const [level, setLevel] = useState<Level>("select-here");
   const { chosenClef: clef, setChosenClef: setClef } = useClef();
+  const { states, setters, clearAllStates } = useButtonStates();
 
   useEffect(() => {
     const fetchSnapshot = async () => {

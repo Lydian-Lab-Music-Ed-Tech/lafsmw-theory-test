@@ -4,29 +4,23 @@ import { Container } from "@mui/material";
 import React, {
   useCallback,
   useEffect,
-  useMemo,
-  useReducer,
   useRef,
   useState,
 } from "react";
 import VexFlow from "vexflow";
 import SnackbarToast from "../components/SnackbarToast";
 import { useClef } from "../context/ClefContext";
-import { modifyKeySigActionTypes } from "../lib/actionTypes";
 import { buildKeySignature } from "../lib/buildKeySignature";
-import { buttonGroup, clearKeySignature } from "../lib/buttonsAndButtonGroups";
+import { useButtonStates } from '../lib/useButtonStates';
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { keySigArray } from "../lib/data/keySigArray";
 import { staveData } from "../lib/data/stavesData";
 import getUserClickInfo from "../lib/getUserClickInfo";
 import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
-import {
-  initialNotesAndCoordsState,
-  keySigInitialState,
-} from "../lib/initialStates";
+import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { initializeRenderer } from "../lib/initializeRenderer";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
-import { reducer } from "../lib/reducer";
+
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
 import {
   GlyphProps,
@@ -45,20 +39,15 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const hasScaled = useRef(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState("No note found at click position");
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const [state, dispatch] = useReducer(reducer, keySigInitialState);
   const [glyphs, setGlyphs] = useState<GlyphProps[]>([]);
   const [keySig, setKeySig] = useState<string[]>([]);
   const renderCount = useRef(0);
   const { chosenClef } = useClef();
-
-  const keySigButtonGroup = useMemo(
-    () => buttonGroup(dispatch, state, modifyKeySigActionTypes),
-    [dispatch, state]
-  );
+  const { states, setters, clearAllStates } = useButtonStates();
 
   const renderer = rendererRef.current;
   renderer?.resize(470, 200);
@@ -126,42 +115,33 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
     }
   }, [glyphs]);
 
-  // useEffect(() => {
-  //   console.log("Key signature state changed:", keySig);
-  // }, [keySig]);
-
   useEffect(() => {
-    // Pass the updated key signature to the parent component whenever it changes
     if (setKeySignatureNotation) {
-      console.log(
-        "keySig from NotateKeySignature useEffect (will pass to parent):",
-        keySig
-      );
       setKeySignatureNotation(keySig);
     }
   }, [keySig, setKeySignatureNotation]);
 
   const clearKey = () => {
-    clearKeySignature(setGlyphs, rendererRef, container), setKeySig(() => []);
+    setGlyphs([]);
+    setKeySig([]);
+    initializeRenderer(rendererRef, container);
     const newStaves = renderStaves();
     if (newStaves) {
-      if (newStaves)
-        calculateNotesAndCoordinates(
-          chosenClef,
-          setNotesAndCoordinates,
-          newStaves,
-          keySigArray,
-          0,
-          1,
-          0
-        );
+      calculateNotesAndCoordinates(
+        chosenClef,
+        setNotesAndCoordinates,
+        newStaves,
+        keySigArray,
+        0,
+        1,
+        0
+      );
     }
-    dispatch({ type: "CLEAR_ALL" });
+    clearAllStates();
   };
 
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
-    // console.log(`Handling click, render count: ${renderCount.current}`);
     const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
       getUserClickInfo(e, container, staves[0]);
 
@@ -171,17 +151,17 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
     );
 
     if (!foundNoteData) {
-      console.log("No note found at click position");
+      setOpen(true);
+      setMessage("No note found at click position");
       return;
-    } else {
-      foundNoteData = {
-        ...foundNoteData,
-        userClickX: userClickX,
-      };
-      // console.log("Found note data:", foundNoteData.note);
     }
 
-    isClickWithinStaveBounds(
+    foundNoteData = {
+      ...foundNoteData,
+      userClickX: userClickX,
+    };
+
+    if (!isClickWithinStaveBounds(
       staves[0],
       topStaveYCoord,
       bottomStaveYCoord,
@@ -189,15 +169,16 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
       userClickY,
       setMessage,
       setOpen
-    );
+    )) {
+      return;
+    }
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
-    // console.log("Current key sig before interaction:", keySig);
 
     const { notesAndCoordinates: newNotesAndCoordinates } =
       handleKeySigInteraction(
         notesAndCoordinatesCopy,
-        state,
+        states,
         foundNoteData,
         userClickX,
         userClickY,
@@ -208,7 +189,6 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
       );
 
     setNotesAndCoordinates(() => newNotesAndCoordinates);
-    // console.log("Current glyphs after interaction:", glyphs);
   };
 
   return (
@@ -228,20 +208,38 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         sx={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr 1fr",
+          gap: 1,
+          padding: 2
         }}
       >
-        {keySigButtonGroup.map((button) => {
-          return (
-            <CustomButton
-              key={button.text}
-              onClick={button.action}
-              isEnabled={button.isEnabled}
-            >
-              {button.text}
-            </CustomButton>
-          );
-        })}
-        <CustomButton onClick={clearKey}>Erase Key Signature</CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsSharpActive(true);
+          }}
+          active={states.isSharpActive}
+        >
+          Add Sharp
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsFlatActive(true);
+          }}
+          active={states.isFlatActive}
+        >
+          Add Flat
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEraseAccidentalActive(true);
+          }}
+          active={states.isEraseAccidentalActive}
+        >
+          Erase Accidental
+        </CustomButton>
+        <CustomButton onClick={clearKey}>Clear Key</CustomButton>
       </Container>
     </>
   );

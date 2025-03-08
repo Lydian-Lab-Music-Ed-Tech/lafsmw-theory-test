@@ -10,13 +10,13 @@ import {
 } from "./modifyKeySignature";
 import {
   GlyphProps,
-  StateInteraction,
   NotesAndCoordinatesData,
+  ButtonStates,
 } from "./typesAndInterfaces";
 
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
-  state: StateInteraction,
+  state: ButtonStates,
   foundNoteData: NotesAndCoordinatesData,
   xClick: number,
   yClick: number,
