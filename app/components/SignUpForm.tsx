@@ -2,7 +2,7 @@ import { signUp } from "@/firebase/authAPI";
 import { Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FormEvent } from "../lib/typesAndInterfaces";
+import { FormEvent } from "../lib/types";
 
 export default function SignUpForm() {
   const [firstName, setFirstName] = useState("");

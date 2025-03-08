@@ -9,7 +9,7 @@ import {
   query,
 } from "firebase/firestore";
 import { db, auth } from "../config";
-import { InputState } from "@/app/lib/typesAndInterfaces";
+import { InputState } from "@/app/lib/types";
 
 export async function getUserSnapshot() {
   // only need to retrieve displayName when fetching data

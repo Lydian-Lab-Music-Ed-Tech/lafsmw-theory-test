@@ -1,4 +1,4 @@
-import { TextInput } from "./typesAndInterfaces";
+import { TextInput } from "./types";
 
 export default function isCurrentDataFilled(data: TextInput) {
   for (let item in data) {

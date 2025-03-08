@@ -34,7 +34,7 @@ import {
 import seventhChordsText from "@/app/lib/data/seventhChordsText";
 import triadsText from "@/app/lib/data/triadsText";
 import { initialFormInputState } from "@/app/lib/initialStates";
-import { InputState, Level, MouseEvent } from "@/app/lib/typesAndInterfaces";
+import { InputState, Level, MouseEvent } from "@/app/lib/types";
 import { useAuthContext } from "@/firebase/authContext";
 import {
   getUserSnapshot,
@@ -43,6 +43,7 @@ import {
 import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useButtonStates } from "../../lib/useButtonStates";
 
 const VIEW_STATES = {
   START_TEST: 0,
@@ -99,6 +100,7 @@ export default function ExamHomePage() {
   const [open, setOpen] = useState<boolean>(false);
   const [level, setLevel] = useState<Level>("select-here");
   const { chosenClef: clef, setChosenClef: setClef } = useClef();
+  const { states, setters, clearAllStates } = useButtonStates();
 
   useEffect(() => {
     const fetchSnapshot = async () => {

@@ -1,6 +1,6 @@
 "use client";
 import { savePDF } from "@/app/lib/savePDF";
-import { InputData, UserDataBluesProps } from "@/app/lib/typesAndInterfaces";
+import { InputData, UserDataBluesProps } from "@/app/lib/types";
 import { useAuthContext } from "@/firebase/authContext";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { useRef, useState } from "react";

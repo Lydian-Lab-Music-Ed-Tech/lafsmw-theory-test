@@ -1,11 +1,12 @@
 import VexFlow from "vexflow";
 import {
   Chord,
-  StateInteraction,
   NoteStringData,
   NotesAndCoordinatesData,
+  StateInteraction,
   StaveNoteType,
-} from "./typesAndInterfaces";
+} from "./types";
+
 const { Accidental, StaveNote } = VexFlow.Flow;
 
 const parseNote = (note: string) => {

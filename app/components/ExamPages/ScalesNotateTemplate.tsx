@@ -1,12 +1,13 @@
 "use client";
 import { scalesNotationInstructions } from "@/app/lib/data/instructions";
 import scalesText from "@/app/lib/data/scalesText";
-import { FormEvent, UserDataProps } from "@/app/lib/typesAndInterfaces";
+import { FormEvent, UserDataProps } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import CardFooter from "../CardFooter";
 import NotateScale from "../NotateScale";
 import TutorialModal from "../TutorialModal";
+import { useButtonStates } from "../../lib/useButtonStates";
 
 export default function ScalesNotation({
   currentUserData,
@@ -15,6 +16,7 @@ export default function ScalesNotation({
   page,
 }: UserDataProps) {
   const [scales, setScales] = useState<string[]>([]);
+  const { states, setters, clearAllStates } = useButtonStates();
 
   const scalesPropName = `scales${page - 5}`;
 

@@ -1,10 +1,6 @@
 import { parseNote } from "./modifyNotesAndCoordinates";
-import {
-  StateInteraction,
-  GlyphProps,
-  NotesAndCoordinatesData,
-} from "./typesAndInterfaces";
 import { roundToNearest5 } from "./roundToNearest5";
+import { GlyphProps, NotesAndCoordinatesData, StateInteraction } from "./types";
 
 const tolerance = 5;
 

@@ -16,7 +16,7 @@ import {
   ScaleData,
   StaveNoteType,
   errorMessages,
-} from "./typesAndInterfaces";
+} from "./types";
 const { StaveNote } = VexFlow.Flow;
 
 export const HandleScaleInteraction = (
@@ -24,7 +24,14 @@ export const HandleScaleInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
   barOfScaleData: ScaleData[],
   scaleDataMatrix: ScaleData[][],
-  scaleInteractionState: StateInteraction,
+  buttonStates: {
+    isEnterNoteActive: boolean;
+    isEraseNoteActive: boolean;
+    isChangeNoteActive: boolean;
+    isSharpActive: boolean;
+    isFlatActive: boolean;
+    isEraseAccidentalActive: boolean;
+  },
   userClickX: number,
   userClickY: number,
   barIndex: number,
@@ -34,24 +41,21 @@ export const HandleScaleInteraction = (
   errorMessages: errorMessages
 ) => {
   const scaleLength = scaleDataMatrix[0].length;
-  if (
-    scaleInteractionState.isSharpActive ||
-    scaleInteractionState.isFlatActive
-  ) {
+  if (buttonStates.isSharpActive || buttonStates.isFlatActive) {
     notesAndCoordinates = updateNotesAndCoordsWithAccidental(
-      scaleInteractionState,
+      buttonStates,
       foundNoteData,
       notesAndCoordinates
     );
     const { updatedNoteObject, noteIndex } = addAccidentalToStaveNoteAndKeys(
-      scaleInteractionState,
+      buttonStates,
       barOfScaleData,
       userClickX,
       chosenClef
     );
     barOfScaleData[noteIndex] = updatedNoteObject;
     scaleDataMatrix[barIndex] = barOfScaleData;
-  } else if (scaleInteractionState.isEraseAccidentalActive) {
+  } else if (buttonStates.isEraseAccidentalActive) {
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(
       notesAndCoordinates,
       foundNoteData
@@ -63,14 +67,14 @@ export const HandleScaleInteraction = (
     );
     barOfScaleData[noteIndex] = updatedNoteObject;
     scaleDataMatrix[barIndex] = barOfScaleData;
-  } else if (scaleInteractionState.isEraseNoteActive) {
+  } else if (buttonStates.isEraseNoteActive) {
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(
       notesAndCoordinates,
       foundNoteData
     );
     removeNoteFromScale(barOfScaleData, userClickX);
     scaleDataMatrix[barIndex] = barOfScaleData;
-  } else if (scaleInteractionState.isChangeNoteActive) {
+  } else if (buttonStates.isChangeNoteActive) {
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(
       notesAndCoordinates,
       foundNoteData

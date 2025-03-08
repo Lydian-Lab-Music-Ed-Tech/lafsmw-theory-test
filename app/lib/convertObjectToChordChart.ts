@@ -1,4 +1,4 @@
-import { InputData } from "./typesAndInterfaces";
+import { InputData } from "./types";
 
 export default function convertObjectToChordChart(inputObject: InputData) {
   const numBars = 12;

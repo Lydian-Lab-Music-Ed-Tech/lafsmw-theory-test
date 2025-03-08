@@ -4,7 +4,7 @@ import { ForwardedRef, forwardRef, useEffect, useState } from "react";
 import { useClef } from "../context/ClefContext";
 import createInitialState from "../lib/createInitialState";
 import isCurrentDataFilled from "../lib/isCurrentDataFilled";
-import { ChangeEvent, FormEvent, WriteProps } from "../lib/typesAndInterfaces";
+import { ChangeEvent, FormEvent, WriteProps } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
 

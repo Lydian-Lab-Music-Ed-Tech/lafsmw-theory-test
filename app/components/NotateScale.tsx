@@ -1,20 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Container from "@mui/material/Container";
+import Button from "@mui/material/Button";
 import React, {
   Dispatch,
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
-  useReducer,
   useRef,
   useState,
 } from "react";
 import VexFlow from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { modifyNotesActionTypes } from "../lib/actionTypes";
-import { buttonGroup } from "../lib/buttonsAndButtonGroups";
+import { useButtonStates } from "../lib/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { errorMessages } from "../lib/data/errorMessages";
 import {
@@ -25,18 +23,11 @@ import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
 import getUserClickInfo from "../lib/getUserClickInfo";
 import { HandleScaleInteraction } from "../lib/handleScaleInteraction";
-import {
-  initialNotesAndCoordsState,
-  noteInteractionInitialState,
-} from "../lib/initialStates";
+import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { initializeRenderer } from "../lib/initializeRenderer";
-import { reducer } from "../lib/reducer";
+
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
-import {
-  NotesAndCoordinatesData,
-  ScaleData,
-  StaveType,
-} from "../lib/typesAndInterfaces";
+import { NotesAndCoordinatesData, ScaleData, StaveType } from "../lib/types";
 import CustomButton from "./CustomButton";
 import SnackbarToast from "./SnackbarToast";
 
@@ -56,14 +47,9 @@ const NotateScale = ({
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const [state, dispatch] = useReducer(reducer, noteInteractionInitialState);
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
+  const { states, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
-
-  const modifyStaveNotesButtonGroup = useMemo(
-    () => buttonGroup(dispatch, state, modifyNotesActionTypes),
-    [dispatch, state]
-  );
 
   const renderStavesAndNotes = useCallback(
     (): StaveType[] =>
@@ -121,7 +107,7 @@ const NotateScale = ({
         true
       );
     }
-  }, [scaleDataMatrix, state]);
+  }, [scaleDataMatrix]);
 
   const eraseMeasures = () => {
     setScaleDataMatrix((): ScaleData[][] => {
@@ -188,7 +174,7 @@ const NotateScale = ({
         notesAndCoordinatesCopy,
         barOfScaleData,
         scaleDataMatrixCopy,
-        state,
+        states,
         userClickX,
         userClickY,
         barIndex,
@@ -231,20 +217,61 @@ const NotateScale = ({
           marginTop: 2,
         }}
       >
-        {modifyStaveNotesButtonGroup.map((button) => {
-          return (
-            <CustomButton
-              key={button.text}
-              onClick={() => {
-                button.action();
-              }}
-              isEnabled={button.isEnabled}
-            >
-              {button.text}
-            </CustomButton>
-          );
-        })}
-        <CustomButton onClick={eraseMeasures}>Erase Measure</CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEnterNoteActive(true);
+          }}
+          active={states.isEnterNoteActive}
+        >
+          Enter Note
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEraseNoteActive(true);
+          }}
+          active={states.isEraseNoteActive}
+        >
+          Erase Note
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsChangeNoteActive(true);
+          }}
+          active={states.isChangeNoteActive}
+        >
+          Change Note
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsSharpActive(true);
+          }}
+          active={states.isSharpActive}
+        >
+          Add Sharp
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsFlatActive(true);
+          }}
+          active={states.isFlatActive}
+        >
+          Add Flat
+        </CustomButton>
+        <CustomButton
+          onClick={() => {
+            clearAllStates();
+            setters.setIsEraseAccidentalActive(true);
+          }}
+          active={states.isEraseAccidentalActive}
+        >
+          Erase Accidental
+        </CustomButton>
+        <Button onClick={eraseMeasures}>Clear All</Button>
       </Container>
     </>
   );
