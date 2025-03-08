@@ -1,5 +1,5 @@
 import createBlankStaves from "./createBlankStaves";
-import { BlankStaves, RenderStaves } from "./typesAndInterfaces";
+import { BlankStaves, RenderStaves } from "./types";
 
 export const setupRendererAndDrawStaves = (
   params: RenderStaves

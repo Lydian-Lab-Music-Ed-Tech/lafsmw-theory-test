@@ -5,7 +5,7 @@ import { useClef } from "../context/ClefContext";
 import keyNames from "../lib/data/keyNamesText";
 import { initialProgressionInputState } from "../lib/initialStates";
 import isCurrentDataFilled from "../lib/isCurrentDataFilled";
-import { ChangeEvent, FormEvent, WriteProps } from "../lib/typesAndInterfaces";
+import { ChangeEvent, FormEvent, WriteProps } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
 

@@ -6,7 +6,7 @@ import {
   NoteInteractionState,
   NotesAndCoordinatesData,
   ScaleData,
-} from "./typesAndInterfaces";
+} from "./types";
 
 export const initialChordData: Chord = {
   keys: [],

@@ -4,7 +4,7 @@ import {
   RadioGroup,
   FormControlLabel,
 } from "@mui/material";
-import { chosenClef } from "../lib/typesAndInterfaces";
+import { chosenClef } from "../lib/types";
 import { ChangeEvent } from "react";
 
 const ClefPreferenceSelector = ({

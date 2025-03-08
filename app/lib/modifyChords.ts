@@ -5,7 +5,7 @@ import {
   NotesAndCoordinatesData,
   StateInteraction,
   StaveNoteType,
-} from "./typesAndInterfaces";
+} from "./types";
 
 const { Accidental, StaveNote } = VexFlow.Flow;
 

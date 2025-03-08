@@ -1,4 +1,4 @@
-import { StaveType } from "./typesAndInterfaces";
+import { StaveType } from "./types";
 
 const isClickWithinStaveBounds = (
   stave: StaveType,

@@ -8,11 +8,7 @@ import {
   deleteGlyphFromStave,
   updateKeySigArrayForGrading,
 } from "./modifyKeySignature";
-import {
-  GlyphProps,
-  NotesAndCoordinatesData,
-  ButtonStates,
-} from "./typesAndInterfaces";
+import { GlyphProps, NotesAndCoordinatesData, ButtonStates } from "./types";
 
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],

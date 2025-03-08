@@ -1,5 +1,5 @@
 "use client";
-import { InputData, UserDataProps } from "@/app/lib/typesAndInterfaces";
+import { InputData, UserDataProps } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useRef } from "react";
 import CardFooter from "../CardFooter";

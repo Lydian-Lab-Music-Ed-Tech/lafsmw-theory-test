@@ -54,10 +54,6 @@ export type SetStavesForChords = Dispatch<SetStateAction<StaveType[]>>;
 export type BlankStaves = StaveType[];
 export type NoteData = StaveNoteData[][];
 
-
-
-
-
 export type BarMetrics = {
   barWidth: number;
   xMaxCoordinate: number;

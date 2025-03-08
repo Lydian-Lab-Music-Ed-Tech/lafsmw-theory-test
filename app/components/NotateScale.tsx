@@ -12,7 +12,7 @@ import React, {
 } from "react";
 import VexFlow from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { useButtonStates } from '../lib/useButtonStates';
+import { useButtonStates } from "../lib/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { errorMessages } from "../lib/data/errorMessages";
 import {
@@ -23,17 +23,11 @@ import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
 import getUserClickInfo from "../lib/getUserClickInfo";
 import { HandleScaleInteraction } from "../lib/handleScaleInteraction";
-import {
-  initialNotesAndCoordsState,
-} from "../lib/initialStates";
+import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { initializeRenderer } from "../lib/initializeRenderer";
 
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
-import {
-  NotesAndCoordinatesData,
-  ScaleData,
-  StaveType,
-} from "../lib/typesAndInterfaces";
+import { NotesAndCoordinatesData, ScaleData, StaveType } from "../lib/types";
 import CustomButton from "./CustomButton";
 import SnackbarToast from "./SnackbarToast";
 
@@ -53,11 +47,9 @@ const NotateScale = ({
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);  
+  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
   const { states, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
-
-
 
   const renderStavesAndNotes = useCallback(
     (): StaveType[] =>

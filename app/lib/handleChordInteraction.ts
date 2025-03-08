@@ -7,11 +7,7 @@ import {
   removeNoteFromChord,
   updateNoteWithAccidental,
 } from "@/app/lib/modifyChords";
-import {
-  Chord,
-  StateInteraction,
-  NotesAndCoordinatesData,
-} from "./typesAndInterfaces";
+import { Chord, StateInteraction, NotesAndCoordinatesData } from "./types";
 
 export const handleChordInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
@@ -24,7 +20,10 @@ export const handleChordInteraction = (
   let updatedChordData = { ...chordData };
   let updatedNotesAndCoordinates = [...notesAndCoordinates];
 
-  if (chordInteractionState.isSharpActive || chordInteractionState.isFlatActive) {
+  if (
+    chordInteractionState.isSharpActive ||
+    chordInteractionState.isFlatActive
+  ) {
     if (foundNoteIndex !== -1) {
       updatedNotesAndCoordinates = updateNoteWithAccidental(
         chordInteractionState,

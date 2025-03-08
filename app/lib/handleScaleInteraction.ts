@@ -16,7 +16,7 @@ import {
   ScaleData,
   StaveNoteType,
   errorMessages,
-} from "./typesAndInterfaces";
+} from "./types";
 const { StaveNote } = VexFlow.Flow;
 
 export const HandleScaleInteraction = (
@@ -41,10 +41,7 @@ export const HandleScaleInteraction = (
   errorMessages: errorMessages
 ) => {
   const scaleLength = scaleDataMatrix[0].length;
-  if (
-    buttonStates.isSharpActive ||
-    buttonStates.isFlatActive
-  ) {
+  if (buttonStates.isSharpActive || buttonStates.isFlatActive) {
     notesAndCoordinates = updateNotesAndCoordsWithAccidental(
       buttonStates,
       foundNoteData,

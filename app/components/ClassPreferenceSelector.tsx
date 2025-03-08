@@ -6,7 +6,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
-import { Level } from "../lib/typesAndInterfaces";
+import { Level } from "../lib/types";
 
 export default function ClassPreferenceSelector({
   setLevel,

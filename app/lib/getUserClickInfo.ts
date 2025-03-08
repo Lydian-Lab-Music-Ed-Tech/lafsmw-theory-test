@@ -1,5 +1,5 @@
 import React from "react";
-import { StaveType } from "../lib/typesAndInterfaces";
+import { StaveType } from "./types";
 
 const getUserClickInfo = (
   e: React.MouseEvent,

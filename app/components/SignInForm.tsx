@@ -3,7 +3,7 @@ import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FormEvent } from "../lib/typesAndInterfaces";
+import { FormEvent } from "../lib/types";
 
 export default function SignInForm() {
   const [email, setEmail] = useState("");

@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import * as Flow from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { Chord } from "../lib/typesAndInterfaces";
+import { Chord } from "../lib/types";
 
 type StaffProps = {
   clef?: string;

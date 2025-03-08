@@ -1,17 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Container } from "@mui/material";
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import VexFlow from "vexflow";
 import SnackbarToast from "../components/SnackbarToast";
 import { useClef } from "../context/ClefContext";
 import { buildKeySignature } from "../lib/buildKeySignature";
-import { useButtonStates } from '../lib/useButtonStates';
+import { useButtonStates } from "../lib/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { keySigArray } from "../lib/data/keySigArray";
 import { staveData } from "../lib/data/stavesData";
@@ -22,11 +17,7 @@ import { initializeRenderer } from "../lib/initializeRenderer";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
-import {
-  GlyphProps,
-  NotesAndCoordinatesData,
-  StaveType,
-} from "../lib/typesAndInterfaces";
+import { GlyphProps, NotesAndCoordinatesData, StaveType } from "../lib/types";
 import CustomButton from "./CustomButton";
 
 const { Renderer } = VexFlow.Flow;
@@ -161,15 +152,17 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
       userClickX: userClickX,
     };
 
-    if (!isClickWithinStaveBounds(
-      staves[0],
-      topStaveYCoord,
-      bottomStaveYCoord,
-      userClickX,
-      userClickY,
-      setMessage,
-      setOpen
-    )) {
+    if (
+      !isClickWithinStaveBounds(
+        staves[0],
+        topStaveYCoord,
+        bottomStaveYCoord,
+        userClickX,
+        userClickY,
+        setMessage,
+        setOpen
+      )
+    ) {
       return;
     }
 
@@ -209,7 +202,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr 1fr",
           gap: 1,
-          padding: 2
+          padding: 2,
         }}
       >
         <CustomButton

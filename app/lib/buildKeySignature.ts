@@ -1,5 +1,5 @@
 import VexFlow, { RenderContext } from "vexflow";
-import { GlyphProps, StaveType } from "./typesAndInterfaces";
+import { GlyphProps, StaveType } from "./types";
 import { roundToNearest5 } from "./roundToNearest5";
 const VF = VexFlow.Flow;
 const { Glyph } = VF;

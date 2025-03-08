@@ -1,4 +1,4 @@
-import { ScaleData, StaveNoteData } from "./typesAndInterfaces";
+import { ScaleData, StaveNoteData } from "./types";
 
 export const indexOfNoteToModify = (
   scaleData: ScaleData[] | StaveNoteData[],

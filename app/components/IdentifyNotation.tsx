@@ -2,12 +2,7 @@
 import { ForwardedRef, forwardRef, useEffect, useMemo, useState } from "react";
 import createInitialState from "../lib/createInitialState";
 import isCurrentDataFilled from "../lib/isCurrentDataFilled";
-import {
-  ChangeEvent,
-  Chord,
-  FormEvent,
-  InputData,
-} from "../lib/typesAndInterfaces";
+import { ChangeEvent, Chord, FormEvent, InputData } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
 import { useClef } from "../context/ClefContext";

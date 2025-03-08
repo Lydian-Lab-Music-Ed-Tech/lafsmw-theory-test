@@ -1,11 +1,7 @@
 "use client";
 import { chordsNotationInstructions } from "@/app/lib/data/instructions";
 import seventhChordsText from "@/app/lib/data/seventhChordsText";
-import {
-  FormEvent,
-  InputState,
-  UserDataProps,
-} from "@/app/lib/typesAndInterfaces";
+import { FormEvent, InputState, UserDataProps } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CardFooter from "../CardFooter";

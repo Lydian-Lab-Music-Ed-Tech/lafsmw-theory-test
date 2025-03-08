@@ -1,4 +1,4 @@
-import { NotesAndCoordinatesData } from "./typesAndInterfaces";
+import { NotesAndCoordinatesData } from "./types";
 
 const tolerance = 5;
 const generateYMinAndYMaxForKeySig = (

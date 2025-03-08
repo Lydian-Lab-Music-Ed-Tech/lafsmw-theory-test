@@ -1,7 +1,4 @@
-import {
-  NotesAndCoordinatesData,
-  StateInteraction,
-} from "./typesAndInterfaces";
+import { NotesAndCoordinatesData, StateInteraction } from "./types";
 
 export const parseNote = (note: string) => {
   const noteBase = note.split("/")[0];

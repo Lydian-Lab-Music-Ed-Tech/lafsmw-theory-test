@@ -26,11 +26,7 @@ import {
 } from "../lib/initialStates";
 import { initializeRenderer } from "../lib/initializeRenderer";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
-import {
-  Chord,
-  NotesAndCoordinatesData,
-  StaveType,
-} from "../lib/typesAndInterfaces";
+import { Chord, NotesAndCoordinatesData, StaveType } from "../lib/types";
 import CustomButton from "./CustomButton";
 import SnackbarToast from "./SnackbarToast";
 import { errorMessages } from "../lib/data/errorMessages";

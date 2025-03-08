@@ -1,4 +1,4 @@
-import { EmailData } from "./typesAndInterfaces";
+import { EmailData } from "./types";
 
 export async function sendEmail(data: EmailData) {
   const apiEndpoint = "/api/email";
