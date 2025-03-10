@@ -1,8 +1,7 @@
 "use client";
 import { sendSignInEmail } from "@/firebase/authAPI";
 import { useAuthContext } from "@/firebase/authContext";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
-import Link from "next/link";
+import { Box, Button, Stack, TextField, Typography, Link } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, FormEvent } from "react";
 
@@ -44,7 +43,15 @@ export default function Login() {
       sx={{ fontFamily: "Monospace", paddingTop: "4rem" }}
     >
       {message === "" && error === "" && (
-        <Box width={"575px"}>
+        <Box
+          width={"575px"}
+          sx={{
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
           <Typography variant="body1" align="center">
             Please enter your email address to receive a sign-in link.
           </Typography>
@@ -69,6 +76,14 @@ export default function Login() {
               {disabled ? "Sent" : "Send Sign-In Link"}
             </Button>
           </form>
+          <Link
+            href="/registration"
+            color="secondary"
+            variant="subtitle1"
+            sx={{ mt: 3 }}
+          >
+            Returning students, click here.
+          </Link>
         </Box>
       )}
       {message && (
