@@ -3,30 +3,28 @@
 import { Container } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import VexFlow from "vexflow";
-import SnackbarToast from "../components/SnackbarToast";
 import { useClef } from "../context/ClefContext";
 import { buildKeySignature } from "../lib/buildKeySignature";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { keySigArray } from "../lib/data/keySigArray";
 import { staveData } from "../lib/data/stavesData";
-import getUserClickInfo from "../lib/getUserClickInfo";
 import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
-import { initializeRenderer } from "../lib/initializeRenderer";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
 import { GlyphProps, NotesAndCoordinatesData, StaveType } from "../lib/types";
 import { useButtonStates } from "../lib/useButtonStates";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import CustomButton from "./CustomButton";
+import NotationContainer from "./NotationContainer";
 
 const { Renderer } = VexFlow.Flow;
 
 //weird glitch is still happening. Figure out why!
 
 const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
-  const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
-  const hasScaled = useRef(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("No note found at click position");
@@ -39,72 +37,88 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const { chosenClef } = useClef();
   const { states, setters, clearAllStates } = useButtonStates();
 
-  const renderer = rendererRef.current;
-  renderer?.resize(470, 200);
+  // Set up rendering function with the circular dependency pattern
+  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(null);
+  
+  // Initialize the renderer with a stable renderFunction that uses renderFunctionRef
+  const { rendererRef, render } = useNotationRenderer({
+    containerRef: container,
+    renderFunction: () => {
+      if (renderFunctionRef.current) {
+        return renderFunctionRef.current();
+      }
+      return undefined;
+    },
+    width: 470,
+    height: 200,
+  });
 
   const context = rendererRef.current?.getContext();
 
-  const renderStaves = useCallback(
-    (): StaveType[] | undefined =>
-      setupRendererAndDrawStaves({
+  // Define the actual rendering logic - this will be called via the ref
+  renderFunctionRef.current = useCallback(
+    (): StaveType[] | undefined => {
+      if (!rendererRef.current) return undefined;
+      
+      return setupRendererAndDrawStaves({
         rendererRef,
         ...staveData,
         chosenClef,
         staves,
         firstStaveWidth: 450,
-      }),
-    [chosenClef]
+      });
+    },
+    [chosenClef, staves, rendererRef]
   );
 
-  useEffect(() => {
-    initializeRenderer(rendererRef, container);
-    const newStaves = renderStaves();
-    if (newStaves) {
-      setStaves(newStaves);
-      calculateNotesAndCoordinates(
-        chosenClef,
-        setNotesAndCoordinates,
-        newStaves,
-        keySigArray,
-        0,
-        1,
-        0
-      );
-    }
-  }, [chosenClef, renderStaves]);
+  // Set up click handler
+  const { getClickInfo } = useNotationClickHandler({
+    containerRef: container,
+    staves,
+    notesAndCoordinates,
+    setOpen,
+    setMessage,
+  });
 
+  // Initial load - happens only when chosenClef changes, not on every render
+  // We're removing render from the dependency array to avoid infinite loops
   useEffect(() => {
-    if (!hasScaled.current && container.current) {
-      const svgElement = container.current.querySelector("svg");
-      if (svgElement) {
-        svgElement.style.transform = "scale(1.5)";
-        svgElement.style.transformOrigin = "0 0";
-        // Adjust container size to accommodate scaled SVG
-        container.current.style.height = "300px"; // 200px * 1.5
-        container.current.style.width = "705px"; // 470px * 1.5
-        hasScaled.current = true;
+    const loadStaves = () => {
+      // Use the explicit render function from the hook
+      const newStaves = render();
+      if (newStaves) {
+        setStaves(newStaves);
+        calculateNotesAndCoordinates(
+          chosenClef,
+          setNotesAndCoordinates,
+          newStaves,
+          keySigArray,
+          0,
+          1,
+          0
+        );
       }
-    }
-  }, []);
+    };
+    
+    loadStaves();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenClef]); // Intentionally removing render from deps to prevent loops
 
+  // Update glyphs when changed
   useEffect(() => {
     if (context && staves.length > 0) {
       // Clear and redraw without recreating the staves
       context.clear();
       staves[0].setContext(context).draw();
       buildKeySignature(glyphs, 40, context, staves[0]);
-
-      // Re-apply scaling if needed
-      if (container.current) {
-        const svgElement = container.current.querySelector("svg");
-        if (svgElement) {
-          svgElement.style.transform = "scale(1.5)";
-          svgElement.style.transformOrigin = "0 0";
-        }
-      }
     }
-  }, [glyphs]);
+  }, [glyphs, context, staves]);
+  
+  // Manual re-render after glyph changes - without this effect to avoid circular dependencies
+  // We'll handle glyph persistence in the handleClick function instead
 
+
+  // Update parent component with key signature
   useEffect(() => {
     if (setKeySignatureNotation) {
       setKeySignatureNotation(keySig);
@@ -114,8 +128,10 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const clearKey = () => {
     setGlyphs([]);
     setKeySig([]);
-    initializeRenderer(rendererRef, container);
-    const newStaves = renderStaves();
+    clearAllStates();
+    
+    // Use the explicit render function from the hook
+    const newStaves = render();
     if (newStaves) {
       calculateNotesAndCoordinates(
         chosenClef,
@@ -126,30 +142,28 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         1,
         0
       );
+      
+      // Ensure staves are updated properly
+      if (context) {
+        context.clear();
+        newStaves[0].setContext(context).draw();
+      }
     }
-    clearAllStates();
   };
 
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
-    const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
-      getUserClickInfo(e, container, staves[0]);
 
-    let foundNoteData = notesAndCoordinates.find(
-      ({ yCoordinateMin, yCoordinateMax }) =>
-        userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
-    );
+    const clickInfo = getClickInfo(e);
+    if (!clickInfo) return;
 
-    if (!foundNoteData) {
-      setOpen(true);
-      setMessage("No note found at click position");
-      return;
-    }
-
-    foundNoteData = {
-      ...foundNoteData,
-      userClickX: userClickX,
-    };
+    const {
+      userClickX,
+      userClickY,
+      topStaveYCoord,
+      bottomStaveYCoord,
+      foundNoteData,
+    } = clickInfo;
 
     if (
       !isClickWithinStaveBounds(
@@ -167,72 +181,79 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-    const { notesAndCoordinates: newNotesAndCoordinates } =
-      handleKeySigInteraction(
-        notesAndCoordinatesCopy,
-        states,
-        foundNoteData,
-        userClickX,
-        userClickY,
-        setGlyphs,
-        glyphs,
-        setKeySig,
-        keySig
-      );
-
-    setNotesAndCoordinates(() => newNotesAndCoordinates);
+    // Handle the key signature interaction
+    // This will update glyphs via setGlyphs internally AND return the updated glyphs
+    const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } = handleKeySigInteraction(
+      notesAndCoordinatesCopy,
+      states,
+      foundNoteData,
+      userClickX,
+      userClickY,
+      setGlyphs,
+      glyphs,
+      setKeySig,
+      keySig
+    );
+    
+    // Update notesAndCoordinates 
+    setNotesAndCoordinates(newNotesAndCoordinates);
+    
+    // Immediately draw with our manually calculated updated glyphs
+    // This ensures we see the update immediately, not on the next click
+    if (context && staves.length > 0) {
+      context.clear();
+      staves[0].setContext(context).draw();
+      buildKeySignature(updatedGlyphs, 40, context, staves[0]);
+    }
   };
 
   return (
     <>
-      <div
-        ref={container}
+      <NotationContainer
+        containerRef={container}
         onClick={handleClick}
-        style={{
-          overflow: "visible",
-          width: "705px",
-          height: "300px",
-        }}
-      />
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
-
-      <Container
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr",
-          gap: 1,
-          padding: 2,
-        }}
+        open={open}
+        setOpen={setOpen}
+        message={message}
       >
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsSharpActive(true);
+        <Container
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr 1fr",
+            gap: 1,
+            padding: 2,
           }}
-          active={states.isSharpActive}
         >
-          Add Sharp
-        </CustomButton>
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsFlatActive(true);
-          }}
-          active={states.isFlatActive}
-        >
-          Add Flat
-        </CustomButton>
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsEraseAccidentalActive(true);
-          }}
-          active={states.isEraseAccidentalActive}
-        >
-          Erase Accidental
-        </CustomButton>
-        <CustomButton onClick={clearKey}>Clear Key</CustomButton>
-      </Container>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsSharpActive(true);
+            }}
+            active={states.isSharpActive}
+          >
+            Add Sharp
+          </CustomButton>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsFlatActive(true);
+            }}
+            active={states.isFlatActive}
+          >
+            Add Flat
+          </CustomButton>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsEraseAccidentalActive(true);
+            }}
+            active={states.isEraseAccidentalActive}
+          >
+            Erase Accidental
+          </CustomButton>
+          <CustomButton onClick={clearKey}>Clear Key</CustomButton>
+        </Container>
+      </NotationContainer>
     </>
   );
 };

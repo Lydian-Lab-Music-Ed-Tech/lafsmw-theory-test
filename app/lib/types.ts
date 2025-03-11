@@ -270,3 +270,11 @@ export interface EmailData {
   subject?: string;
   text?: string;
 }
+
+/**
+ * Represents the state of chord progressions
+ * Maps position indices to chord symbols
+ */
+export interface ProgressionState {
+  [key: string]: string;
+}

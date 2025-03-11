@@ -1,5 +1,17 @@
-import { Chord, InputState, NotesAndCoordinatesData } from "./types";
+/**
+ * This file contains initial state definitions for various components in the application.
+ * Centralizing these states here makes them easier to maintain and reuse.
+ */
 
+import { Chord, InputState, NotesAndCoordinatesData, ProgressionState } from "./types";
+
+// -----------------------------------------------------------------------------
+// Notation Component Initial States
+// -----------------------------------------------------------------------------
+
+/**
+ * Initial state for chord data
+ */
 export const initialChordData: Chord = {
   keys: [],
   duration: "w",
@@ -7,6 +19,9 @@ export const initialChordData: Chord = {
   userClickY: 0,
 };
 
+/**
+ * Initial state for notes and coordinates data
+ */
 export const initialNotesAndCoordsState: NotesAndCoordinatesData = {
   note: "",
   originalNote: "",
@@ -14,41 +29,14 @@ export const initialNotesAndCoordsState: NotesAndCoordinatesData = {
   yCoordinateMax: 0,
 };
 
-export const initialFormInputState: InputState = {
-  userId: "",
-  user: null,
-  level: "select-here",
-  keySignatures: {},
-  keySignaturesNotation1: [],
-  keySignaturesNotation2: [],
-  keySignaturesNotation3: [],
-  keySignaturesNotation4: [],
-  scales1: [],
-  scales2: [],
-  scales3: [],
-  scales4: [],
-  scales5: [],
-  scales6: [],
-  triads1: [],
-  triads2: [],
-  triads3: [],
-  triads4: [],
-  triads5: [],
-  triads6: [],
-  seventhChords1: [],
-  seventhChords2: [],
-  seventhChords3: [],
-  seventhChords4: [],
-  seventhChords5: [],
-  seventhChords6: [],
-  seventhChords7: [],
-  chords: {},
-  progressions: {},
-  blues: {},
-  bluesUrl: "",
-};
+// -----------------------------------------------------------------------------
+// Form Input Initial States
+// -----------------------------------------------------------------------------
 
-export const initialProgressionInputState = {
+/**
+ * Initial state for progression inputs
+ */
+export const initialProgressionInputState: ProgressionState = {
   0: "Dm7",
   1: "G7",
   2: "Cmaj7",
@@ -67,4 +55,52 @@ export const initialProgressionInputState = {
   15: "",
   16: "",
   17: "",
+};
+
+/**
+ * Initial state for the main form inputs
+ */
+export const initialFormInputState: InputState = {
+  // User information
+  userId: "",
+  user: null,
+  level: "select-here",
+  
+  // Key signatures section
+  keySignatures: {},
+  keySignaturesNotation1: [],
+  keySignaturesNotation2: [],
+  keySignaturesNotation3: [],
+  keySignaturesNotation4: [],
+  
+  // Scales section
+  scales1: [],
+  scales2: [],
+  scales3: [],
+  scales4: [],
+  scales5: [],
+  scales6: [],
+  
+  // Triads section
+  triads1: [],
+  triads2: [],
+  triads3: [],
+  triads4: [],
+  triads5: [],
+  triads6: [],
+  
+  // Seventh chords section
+  seventhChords1: [],
+  seventhChords2: [],
+  seventhChords3: [],
+  seventhChords4: [],
+  seventhChords5: [],
+  seventhChords6: [],
+  seventhChords7: [],
+  
+  // Other sections
+  chords: {},
+  progressions: {},
+  blues: {},
+  bluesUrl: "",
 };

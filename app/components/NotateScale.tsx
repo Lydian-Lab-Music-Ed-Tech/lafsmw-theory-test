@@ -21,26 +21,21 @@ import {
 } from "../lib/data/noteArray";
 import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
-import getUserClickInfo from "../lib/getUserClickInfo";
 import { HandleScaleInteraction } from "../lib/handleScaleInteraction";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
-import { initializeRenderer } from "../lib/initializeRenderer";
-
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
 import { NotesAndCoordinatesData, ScaleData, StaveType } from "../lib/types";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import CustomButton from "./CustomButton";
-import SnackbarToast from "./SnackbarToast";
-
-const { Renderer } = VexFlow.Flow;
+import NotationContainer from "./NotationContainer";
 
 const NotateScale = ({
   setScales,
 }: {
   setScales: Dispatch<SetStateAction<string[]>>;
 }) => {
-  const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
-  const hasScaled = useRef<boolean>(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -51,8 +46,24 @@ const NotateScale = ({
   const { states, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
 
-  const renderStavesAndNotes = useCallback(
-    (): StaveType[] =>
+  // Use our new renderer hook for VexFlow initialization
+  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(null);
+  
+  const { rendererRef } = useNotationRenderer({
+    containerRef: container,
+    renderFunction: () => {
+      if (renderFunctionRef.current) {
+        return renderFunctionRef.current();
+      }
+      return undefined;
+    },
+    width: 470,
+    height: 200
+  });
+  
+  // Setup the actual render function now that rendererRef is initialized
+  renderFunctionRef.current = useCallback(
+    (): StaveType[] | undefined => 
       setupRendererAndDrawNotes({
         rendererRef,
         ...staveData,
@@ -61,12 +72,21 @@ const NotateScale = ({
         setStaves,
         scaleDataMatrix,
       }),
-    [rendererRef, setStaves, scaleDataMatrix, staves]
+    [rendererRef, setStaves, scaleDataMatrix, staves, chosenClef]
   );
 
+  // Set up click handler
+  const { getClickInfo } = useNotationClickHandler({
+    containerRef: container,
+    staves,
+    notesAndCoordinates,
+    setOpen,
+    setMessage
+  });
+
+  // Initial load
   useEffect(() => {
-    initializeRenderer(rendererRef, container);
-    const newStave = renderStavesAndNotes();
+    const newStave = renderFunctionRef.current?.();
     if (newStave)
       calculateNotesAndCoordinates(
         chosenClef,
@@ -80,21 +100,9 @@ const NotateScale = ({
       );
   }, []);
 
+  // Update notes when scale data changes
   useEffect(() => {
-    if (!hasScaled.current && container.current) {
-      const svgElement = container.current.querySelector("svg");
-      if (svgElement) {
-        svgElement.style.transform = "scale(1.5)";
-        svgElement.style.transformOrigin = "0 0";
-        container.current.style.height = "300px";
-        container.current.style.width = "705px";
-        hasScaled.current = true;
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const newStave: StaveType[] = renderStavesAndNotes();
+    const newStave = renderFunctionRef.current?.();
     if (newStave) {
       calculateNotesAndCoordinates(
         chosenClef,
@@ -107,13 +115,13 @@ const NotateScale = ({
         true
       );
     }
-  }, [scaleDataMatrix]);
+  }, [scaleDataMatrix, chosenClef]);
 
   const eraseMeasures = () => {
     setScaleDataMatrix((): ScaleData[][] => {
       return [[]];
     });
-    const newStave = renderStavesAndNotes();
+    const newStave = renderFunctionRef.current?.();
     if (newStave) {
       calculateNotesAndCoordinates(
         chosenClef,
@@ -128,44 +136,70 @@ const NotateScale = ({
     }
   };
 
+  // Enhanced click handler with better debugging and error prevention
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      const { userClickY, userClickX } = getUserClickInfo(
-        e,
-        container,
-        staves[0]
-      );
+      console.log('Click detected in NotateScale');
+      
+      // Get click information
+      const clickInfo = getClickInfo(e);
+      if (!clickInfo) {
+        console.log('No valid click info found');
+        return;
+      }
+      
+      const { userClickX, userClickY, foundNoteData } = clickInfo;
+      console.log('Click info:', { userClickX, userClickY, note: foundNoteData.note });
 
-      let foundNoteData = notesAndCoordinates.find(
-        ({ yCoordinateMin, yCoordinateMax }) =>
-          userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
-      );
+      // Find which bar was clicked
+      const barIndex = findBarIndex(staves, userClickX);
+      console.log('Bar index:', barIndex);
 
-      if (foundNoteData) {
-        foundNoteData = {
-          ...foundNoteData,
-          userClickY,
+      // Create a safe deep clone that properly handles VexFlow objects
+      // We need to specially handle staveNote objects to avoid circular references
+      const safeCloneNote = (note: ScaleData): ScaleData => {
+        // Create a new StaveNote if needed to avoid circular references
+        let newStaveNote = null;
+        if (note.keys && note.keys.length > 0) {
+          // Create a minimal StaveNote to satisfy the type requirements
+          // The real StaveNote will be recreated in HandleScaleInteraction
+          newStaveNote = new VexFlow.Flow.StaveNote({
+            keys: [...note.keys],
+            duration: note.duration || 'q',
+            clef: chosenClef
+          });
+        }
+        
+        // Return a properly typed ScaleData object
+        return {
+          keys: note.keys ? [...note.keys] : [],
+          duration: note.duration || 'q',
+          exactX: note.exactX,
+          userClickY: note.userClickY,
+          staveNote: newStaveNote // Add the staveNote property to satisfy TypeScript
         };
-      } else {
-        setOpen(true);
-        setMessage(errorMessages.noNoteFound);
+      };
+
+      // Create clean copies without circular references
+      let scaleDataMatrixCopy = scaleDataMatrix.map(bar => 
+        bar.map(note => safeCloneNote(note))
+      );
+      let notesAndCoordinatesCopy = notesAndCoordinates.map(note => ({...note}));
+
+      // Extract the specific bar data for the clicked bar
+      // Make sure it exists to prevent errors
+      if (!scaleDataMatrixCopy[barIndex]) {
+        console.error('Invalid bar index:', barIndex);
         return;
       }
 
-      const barIndex = findBarIndex(staves, userClickX);
+      // Get bar of scale data with proper deep copy
+      const barOfScaleData = scaleDataMatrixCopy[barIndex];
+      
+      console.log('Current button states:', states);
+      console.log('Current notes in bar:', barOfScaleData.map((note: ScaleData) => note.keys?.[0]));
 
-      let scaleDataMatrixCopy = scaleDataMatrix.map((scaleData) => [
-        ...scaleData,
-      ]);
-
-      let notesAndCoordinatesCopy = [...notesAndCoordinates];
-
-      const barOfScaleData = scaleDataMatrixCopy[barIndex].map(
-        (scaleData: ScaleData) => ({
-          ...scaleData,
-        })
-      );
-
+      // Process the interaction using our handler function
       const {
         scaleDataMatrix: newScaleDataMatrix,
         notesAndCoordinates: newNotesAndCoordinates,
@@ -184,31 +218,43 @@ const NotateScale = ({
         errorMessages
       );
 
-      setNotesAndCoordinates(() => newNotesAndCoordinates);
+      console.log('After handling interaction:');
+      
+      // Safely log without triggering circular reference errors
+      try {
+        const noteKeys = newScaleDataMatrix[0].map((note: ScaleData) => note.keys?.[0] || 'unknown');
+        console.log('- New notes in bar:', noteKeys);
+      } catch (error) {
+        console.error('Error logging note data:', error);
+      }
 
-      setScaleDataMatrix(() => newScaleDataMatrix);
+      // Update state with the new values
+      // Use callback form to ensure we're working with the latest state
+      setNotesAndCoordinates(newNotesAndCoordinates);
+      setScaleDataMatrix(newScaleDataMatrix);
 
-      setScales(
-        newScaleDataMatrix[0].map((scaleDataMatrix) =>
-          scaleDataMatrix.keys.join(", ")
-        )
-      );
+      // Update the scales display - safely extract just the key strings
+      try {
+        const scaleStrings = newScaleDataMatrix[0].map((note: ScaleData) => {
+          return Array.isArray(note.keys) ? note.keys.join(", ") : '';
+        });
+        setScales(scaleStrings);
+      } catch (error) {
+        console.error('Error updating scale display:', error);
+      }
     },
     [scaleDataMatrix, notesAndCoordinates, staves, chosenClef]
   );
 
   return (
     <>
-      <div
-        ref={container}
+      <NotationContainer
+        containerRef={container}
         onClick={handleClick}
-        style={{
-          overflow: "visible",
-          width: "705px",
-          height: "300px",
-        }}
-      />
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
+        open={open}
+        setOpen={setOpen}
+        message={message}
+      >
       <Container
         sx={{
           display: "grid",
@@ -273,6 +319,7 @@ const NotateScale = ({
         </CustomButton>
         <Button onClick={eraseMeasures}>Clear All</Button>
       </Container>
+      </NotationContainer>
     </>
   );
 };
