@@ -60,10 +60,43 @@ export const setupRendererAndDrawNotes = (
 
       barOfNoteObjects.forEach((noteObj) => {
         console.log("noteObj from forEach:", noteObj);
+        
+        // CRITICAL FIX: Enhance accidental detection and rendering
+        // Check if the note has an accidental in its key name
+        const hasAccidental = noteObj.keys && noteObj.keys[0]?.includes('#') || noteObj.keys?.[0]?.includes('b');
+        console.log(`Note ${noteObj.keys?.[0]} has accidental: ${hasAccidental}`);
+        
         if (noteObj.staveNote) {
           noteObj.staveNote.setStave(currentStave);
           noteObj.staveNote.setContext(context);
-
+          
+          // CRITICAL FIX: Ensure accidentals are properly added to the staveNote
+          // We need to re-add accidentals manually if they exist in the key name
+          if (hasAccidental) {
+            const keyInfo = noteObj.keys?.[0];
+            if (keyInfo) {
+              // Extract the accidental symbol
+              const accidentalSymbol = keyInfo.includes('#') ? '#' : 'b';
+              
+              console.log(`Ensuring accidental ${accidentalSymbol} is visible on note ${keyInfo}`);
+              
+              // Create a new accidental modifier and add it to the staveNote
+              // This ensures the accidental will be visible when the note is drawn
+              const accidentalModifier = new VexFlow.Flow.Accidental(accidentalSymbol);
+              
+              // Check if this note already has an accidental (avoid duplicates)
+              const existingAccidentals = noteObj.staveNote.getModifiers();
+              const hasExistingAccidental = existingAccidentals.some(
+                mod => mod.getCategory() === 'accidentals'
+              );
+              
+              if (!hasExistingAccidental) {
+                console.log(`Adding accidental ${accidentalSymbol} to note ${keyInfo}`);
+                noteObj.staveNote.addModifier(accidentalModifier, 0);
+              }
+            }
+          }
+          
           // Position and draw the note at the exact click position
           if (noteObj.exactX) {
             // Create a separate tick context for each note to prevent them from affecting each other
