@@ -140,6 +140,12 @@ const NotateScale = ({
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       console.log('Click detected in NotateScale');
+      console.log('CURRENT BUTTON STATES at click time:', {
+        isSharpActive: states.isSharpActive,
+        isFlatActive: states.isFlatActive,
+        isEnterNoteActive: states.isEnterNoteActive,
+        isEraseNoteActive: states.isEraseNoteActive
+      });
       
       // Get click information
       const clickInfo = getClickInfo(e);
@@ -196,8 +202,44 @@ const NotateScale = ({
       // Get bar of scale data with proper deep copy
       const barOfScaleData = scaleDataMatrixCopy[barIndex];
       
-      console.log('Current button states:', states);
-      console.log('Current notes in bar:', barOfScaleData.map((note: ScaleData) => note.keys?.[0]));
+      console.log('DEBUGGING - Current button states:', {
+        isSharpActive: states.isSharpActive,
+        isFlatActive: states.isFlatActive,
+        isEnterNoteActive: states.isEnterNoteActive
+      });
+      
+      // Debug exact location of click vs existing notes
+      console.log('DEBUGGING - Click position:', { x: userClickX, y: userClickY });
+      
+      // Log exact positions of existing notes to debug distance calculation
+      console.log('DEBUGGING - Existing notes with positions:', 
+        barOfScaleData.map((note: ScaleData, index: number) => ({
+          index,
+          key: note.keys?.[0],
+          x: note.exactX,
+          distanceFromClick: note.exactX ? Math.abs(note.exactX - userClickX) : 'N/A'
+        }))
+      );
+
+      // IMPORTANT CHECK: For the first click after adding a note, make a special adjustment
+      // This ensures note positions are correctly synchronized when working with accidentals
+      const isAccidentalMode = states.isSharpActive || states.isFlatActive;
+
+      // Make sure we're working with the ACTUAL current positions of notes
+      // This is critical for the first click after adding a new note
+      if (isAccidentalMode && scaleDataMatrix[0].length > 0) {
+        console.log('ACCIDENTAL MODE DETECTED - Ensuring note positions are up to date');
+        
+        // Make sure the bar data has the correct x-coordinates from the most recently rendered state
+        for (let i = 0; i < barOfScaleData.length; i++) {
+          const originalNote = scaleDataMatrix[barIndex]?.[i];
+          if (originalNote && originalNote.exactX !== undefined) {
+            // Use the most current exactX value from the rendered note
+            barOfScaleData[i].exactX = originalNote.exactX;
+            console.log(`Updated note ${i} position to exact ${originalNote.exactX}px`);
+          }
+        }
+      }
 
       // Process the interaction using our handler function
       const {
@@ -229,9 +271,26 @@ const NotateScale = ({
       }
 
       // Update state with the new values
-      // Use callback form to ensure we're working with the latest state
-      setNotesAndCoordinates(newNotesAndCoordinates);
-      setScaleDataMatrix(newScaleDataMatrix);
+      // CRITICAL FIX: We must use setState with a function to ensure we're working with
+      // the latest state and properly merge the new values
+      setScaleDataMatrix((prevState) => {
+        console.log('STATE UPDATE: Updating scale data matrix');
+        console.log('- Previous state had:', prevState.map(bar => 
+          `${bar.length} notes (${bar.map(n => n?.keys?.[0] || 'unknown').join(', ')})`
+        ));
+        console.log('- New state has:', newScaleDataMatrix.map(bar => 
+          `${bar.length} notes (${bar.map(n => n?.keys?.[0] || 'unknown').join(', ')})`
+        ));
+        
+        // This ensures we properly replace the state with the new complete state
+        return [...newScaleDataMatrix];
+      });
+      
+      // Update the note coordinates similarly using function form
+      setNotesAndCoordinates((prevCoords) => {
+        console.log('STATE UPDATE: Updating note coordinates');
+        return [...newNotesAndCoordinates];
+      });
 
       // Update the scales display - safely extract just the key strings
       try {
@@ -243,7 +302,7 @@ const NotateScale = ({
         console.error('Error updating scale display:', error);
       }
     },
-    [scaleDataMatrix, notesAndCoordinates, staves, chosenClef]
+    [scaleDataMatrix, notesAndCoordinates, staves, chosenClef, states]
   );
 
   return (
@@ -292,8 +351,23 @@ const NotateScale = ({
         </CustomButton>
         <CustomButton
           onClick={() => {
+            console.log('\n\n ADD SHARP BUTTON CLICKED');
+            console.log('Button states before:', states);
+            // First clear all states
             clearAllStates();
+            // Then update the sharp button state
             setters.setIsSharpActive(true);
+            // Force a render to ensure state is updated before next click
+            renderFunctionRef.current?.();
+            // Log immediately and confirm after a small delay to verify state is updated
+            console.log('Sharp button should now be active');
+            setTimeout(() => {
+              console.log('Button states confirmation after update:', {
+                isSharpActive: states.isSharpActive,
+                isFlatActive: states.isFlatActive,
+                isEnterNoteActive: states.isEnterNoteActive
+              });
+            }, 100); // Slightly longer delay to ensure state updates
           }}
           active={states.isSharpActive}
         >
@@ -301,8 +375,23 @@ const NotateScale = ({
         </CustomButton>
         <CustomButton
           onClick={() => {
+            console.log('\n\n ADD FLAT BUTTON CLICKED');
+            console.log('Button states before:', states);
+            // First clear all states
             clearAllStates();
+            // Then update the flat button state
             setters.setIsFlatActive(true);
+            // Force a render to ensure state is updated before next click
+            renderFunctionRef.current?.();
+            // Log immediately and confirm after a small delay to verify state is updated
+            console.log('Flat button should now be active');
+            setTimeout(() => {
+              console.log('Button states confirmation after update:', {
+                isSharpActive: states.isSharpActive,
+                isFlatActive: states.isFlatActive,
+                isEnterNoteActive: states.isEnterNoteActive
+              });
+            }, 100); // Slightly longer delay to ensure state updates
           }}
           active={states.isFlatActive}
         >
