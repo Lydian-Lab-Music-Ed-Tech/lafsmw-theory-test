@@ -65,15 +65,29 @@ export const setupRendererAndDrawNotes = (
         // Check if the note has an accidental in its key name - use a more precise pattern
         // Fix the special case of 'b/4' (B natural) vs 'bb/4' (B flat)
         const keyName = noteObj.keys?.[0] || '';
+        
+        // Special handling for B-flat to prevent it from turning back into B natural
+        // This is critical as 'b' is both the note B and the flat accidental symbol
+        const isBFlat = keyName.length >= 2 && keyName.startsWith('bb');
+        
+        // Only consider it a sharp if it's actually a sharp
         const hasSharp = keyName.includes('#');
         
-        // For flats, we need to distinguish between 'b/4' (B natural) and 'bb/4' (B flat)
-        // A flat is only present if the lowercase 'b' is not the first character of the key part
+        // For flats, we need more careful detection now:
+        // 1. 'b/4' is B natural, not a flat
+        // 2. 'bb/4' is specifically B-flat
+        // 3. 'ab/4', 'cb/4', etc. are normal flats for other notes
         const keyPart = keyName.split('/')[0]; // Get just the note name without octave
-        const hasFlat = keyPart.includes('b') && (keyPart !== 'b'); // True for 'bb/4', 'ab/4', etc., False for 'b/4'
+        
+        // A note has a flat if:
+        // - It specifically is B-flat ('bb/4') OR
+        // - It contains 'b' but is not just the note B ('b/4')
+        const hasFlat = isBFlat || (keyPart.includes('b') && (keyPart !== 'b'));
         
         const hasAccidental = hasSharp || hasFlat;
-        console.log(`Note ${keyName} - hasSharp: ${hasSharp}, hasFlat: ${hasFlat}, hasAccidental: ${hasAccidental}`);
+        
+        // Debug log to track how we're detecting accidentals
+        console.log(`Note ${keyName} - isBFlat: ${isBFlat}, hasSharp: ${hasSharp}, hasFlat: ${hasFlat}, hasAccidental: ${hasAccidental}`);
         
         if (noteObj.staveNote) {
           noteObj.staveNote.setStave(currentStave);
@@ -94,7 +108,6 @@ export const setupRendererAndDrawNotes = (
               console.log(`Ensuring accidental ${accidentalSymbol} is visible on note ${keyName}`);
               
               // Create a new accidental modifier and add it to the staveNote
-              // This ensures the accidental will be visible when the note is drawn
               const accidentalModifier = new VexFlow.Flow.Accidental(accidentalSymbol);
               
               // Check if this note already has an accidental (avoid duplicates)

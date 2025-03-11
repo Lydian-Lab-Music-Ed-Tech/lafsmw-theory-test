@@ -231,8 +231,42 @@ export const HandleScaleInteraction = (
         
         // Determine which accidental to apply and clean the note name
         const newAccidental = stateCopy.isSharpActive ? '#' : 'b';
-        noteName = noteName.replace(/[#b]/g, ''); // Remove any existing accidentals
-        const newKey = `${noteName}${newAccidental}/${octave}`;
+        
+        // CRITICAL FIX: Special handling for B and B-flat to prevent the Bb issue
+        // The note B is a special case because 'b' is both the note name and the flat symbol
+        let newKey;
+        
+        if (noteName.startsWith('b')) {
+          // Handle special case for B notes
+          if (noteName === 'b') {
+            // This is a B natural, so just add the accidental
+            if (stateCopy.isSharpActive) {
+              // B# is actually C, but we'll keep it as B# for musical theory consistency
+              newKey = `b${newAccidental}/${octave}`;
+            } else {
+              // If adding flat to B, we get Bb
+              newKey = `bb/${octave}`;
+            }
+          } else if (noteName === 'bb') {
+            // This is already a B-flat, don't replace the first 'b'
+            if (stateCopy.isSharpActive) {
+              // If adding sharp to Bb, we get back to B natural
+              newKey = `b/${octave}`;
+            } else {
+              // If adding another flat, we get Bbb (B double-flat)
+              newKey = `bbb/${octave}`;
+            }
+          } else {
+            // Some other note with 'b' in it (like 'ab')
+            // Remove any existing accidentals and add the new one
+            const cleanNoteName = noteName.replace(/[#b]/g, '');
+            newKey = `${cleanNoteName}${newAccidental}/${octave}`;
+          }
+        } else {
+          // For all other notes, remove any existing accidentals and add the new one
+          const cleanNoteName = noteName.replace(/[#b]/g, '');
+          newKey = `${cleanNoteName}${newAccidental}/${octave}`;
+        }
         
         console.log(`Transforming note from ${key} to ${newKey}`);
         
