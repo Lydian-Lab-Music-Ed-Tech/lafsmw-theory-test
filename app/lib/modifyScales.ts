@@ -201,39 +201,6 @@ export const addNewNoteToScale = (
   return newNoteObject;
 };
 
-export const changeNotePosition = (
-  scaleData: ScaleData[],
-  userClickX: number,
-  foundNoteData: NotesAndCoordinatesData,
-  userClickY: number,
-  chosenClef: string
-) => {
-  const { noteDataObject, noteIndex } = getNoteData(scaleData, userClickX);
-  if (noteDataObject) {
-    // CRITICAL FIX: Don't use getAbsoluteX() which requires a TickContext
-    // Instead, use the stored exactX property which always exists
-    const exactX = noteDataObject.exactX;
-    
-    console.log(`Changing note at position ${exactX}px from ${noteDataObject.keys?.[0]} to ${foundNoteData.note}`);
-    
-    // Create a new StaveNote with the updated properties
-    const newStaveNote = new StaveNote({
-      keys: [foundNoteData.note],
-      duration: "q",
-      clef: chosenClef,
-    });
-    
-    // Replace the old note with the new one, preserving the exactX position
-    scaleData.splice(noteIndex, 1, {
-      staveNote: newStaveNote,
-      keys: [foundNoteData.note],
-      duration: "q",
-      exactX,
-      userClickY,
-    });
-  }
-};
-
 export const removeNoteFromScale = (
   scaleData: ScaleData[],
   userClickX: number

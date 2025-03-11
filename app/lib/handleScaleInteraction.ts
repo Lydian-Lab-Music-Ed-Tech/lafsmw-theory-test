@@ -6,7 +6,6 @@ import {
 } from "./modifyNotesAndCoordinates";
 import {
   addAccidentalToStaveNoteAndKeys,
-  changeNotePosition,
   removeAccidentalFromStaveNote,
   removeNoteFromScale,
 } from "./modifyScales";
@@ -66,7 +65,6 @@ export const HandleScaleInteraction = (
   buttonStates: {
     isEnterNoteActive: boolean;
     isEraseNoteActive: boolean;
-    isChangeNoteActive: boolean;
     isSharpActive: boolean;
     isFlatActive: boolean;
     isEraseAccidentalActive: boolean;
@@ -349,33 +347,17 @@ export const HandleScaleInteraction = (
     // Use the exact position of the found note
     removeNoteFromScale(barOfScaleData, barOfScaleData[existingNoteIndex].exactX as number);
     scaleDataMatrix[barIndex] = barOfScaleData;
-  }
-  // Changing note position
-  else if (buttonStates.isChangeNoteActive && existingNoteFound) {
-    notesAndCoordinates = removeAccidentalFromNotesAndCoords(
-      notesAndCoordinates,
-      foundNoteData
-    );
-    
-    changeNotePosition(
-      barOfScaleData,
-      barOfScaleData[existingNoteIndex].exactX as number,
-      foundNoteData,
-      userClickY,
-      chosenClef
-    );
-    
-    scaleDataMatrix[barIndex] = barOfScaleData;
-  } else if (scaleLength >= 7) {
+  } 
+  // Check if there are too many notes in the measure
+  else if (scaleLength >= 7) {
     setOpen(true);
     setMessage(errorMessages.tooManyNotesInMeasure);
-  } 
+  }
   // Only add a new note if we're not in any modification mode (sharp, flat, erase, etc.)
   else if (!buttonStates.isSharpActive && 
            !buttonStates.isFlatActive && 
            !buttonStates.isEraseAccidentalActive && 
-           !buttonStates.isEraseNoteActive && 
-           !buttonStates.isChangeNoteActive) {
+           !buttonStates.isEraseNoteActive) {
     // We're in enter note mode (default) or no mode selected
     
     const newStaveNote: StaveNoteType = new StaveNote({

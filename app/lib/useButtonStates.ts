@@ -4,7 +4,6 @@ import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 export interface ButtonStates {
   isEnterNoteActive: boolean;
   isEraseNoteActive: boolean;
-  isChangeNoteActive: boolean;
   isSharpActive: boolean;
   isFlatActive: boolean;
   isEraseAccidentalActive: boolean;
@@ -15,7 +14,6 @@ export interface ButtonStates {
 export interface ButtonSetters {
   setIsEnterNoteActive: Dispatch<SetStateAction<boolean>>;
   setIsEraseNoteActive: Dispatch<SetStateAction<boolean>>;
-  setIsChangeNoteActive: Dispatch<SetStateAction<boolean>>;
   setIsSharpActive: Dispatch<SetStateAction<boolean>>;
   setIsFlatActive: Dispatch<SetStateAction<boolean>>;
   setIsEraseAccidentalActive: Dispatch<SetStateAction<boolean>>;
@@ -41,7 +39,6 @@ type ButtonStateConfig = string[];
 export const useButtonStates = (buttonIds: ButtonStateConfig = [
   'enterNote',
   'eraseNote',
-  'changeNote',
   'sharp',
   'flat',
   'eraseAccidental'
@@ -56,7 +53,6 @@ export const useButtonStates = (buttonIds: ButtonStateConfig = [
   const defaultStates: ButtonStates = {
     isEnterNoteActive: false,
     isEraseNoteActive: false,
-    isChangeNoteActive: false,
     isSharpActive: false,
     isFlatActive: false,
     isEraseAccidentalActive: false,
@@ -67,7 +63,6 @@ export const useButtonStates = (buttonIds: ButtonStateConfig = [
   const settersMap: ButtonSetters = {
     setIsEnterNoteActive: () => {}, // Will be overridden if present in buttonStates
     setIsEraseNoteActive: () => {},
-    setIsChangeNoteActive: () => {},
     setIsSharpActive: () => {},
     setIsFlatActive: () => {},
     setIsEraseAccidentalActive: () => {},

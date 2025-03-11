@@ -370,15 +370,6 @@ const NotateScale = ({
           </CustomButton>
           <CustomButton
             onClick={() => {
-              clearAllStates();
-              setters.setIsChangeNoteActive(true);
-            }}
-            active={states.isChangeNoteActive}
-          >
-            Change Note
-          </CustomButton>
-          <CustomButton
-            onClick={() => {
               console.log("\n\n ADD SHARP BUTTON CLICKED");
               console.log("Button states before:", states);
               // First clear all states

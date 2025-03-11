@@ -16,7 +16,6 @@ export type InputData = {
 export type ButtonStates = {
   isEnterNoteActive: boolean;
   isEraseNoteActive: boolean;
-  isChangeNoteActive: boolean;
   isSharpActive: boolean;
   isFlatActive: boolean;
   isEraseAccidentalActive: boolean;
