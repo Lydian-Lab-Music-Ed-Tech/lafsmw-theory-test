@@ -62,9 +62,18 @@ export const setupRendererAndDrawNotes = (
         console.log("noteObj from forEach:", noteObj);
         
         // CRITICAL FIX: Enhance accidental detection and rendering
-        // Check if the note has an accidental in its key name
-        const hasAccidental = noteObj.keys && noteObj.keys[0]?.includes('#') || noteObj.keys?.[0]?.includes('b');
-        console.log(`Note ${noteObj.keys?.[0]} has accidental: ${hasAccidental}`);
+        // Check if the note has an accidental in its key name - use a more precise pattern
+        // Fix the special case of 'b/4' (B natural) vs 'bb/4' (B flat)
+        const keyName = noteObj.keys?.[0] || '';
+        const hasSharp = keyName.includes('#');
+        
+        // For flats, we need to distinguish between 'b/4' (B natural) and 'bb/4' (B flat)
+        // A flat is only present if the lowercase 'b' is not the first character of the key part
+        const keyPart = keyName.split('/')[0]; // Get just the note name without octave
+        const hasFlat = keyPart.includes('b') && (keyPart !== 'b'); // True for 'bb/4', 'ab/4', etc., False for 'b/4'
+        
+        const hasAccidental = hasSharp || hasFlat;
+        console.log(`Note ${keyName} - hasSharp: ${hasSharp}, hasFlat: ${hasFlat}, hasAccidental: ${hasAccidental}`);
         
         if (noteObj.staveNote) {
           noteObj.staveNote.setStave(currentStave);
@@ -73,12 +82,16 @@ export const setupRendererAndDrawNotes = (
           // CRITICAL FIX: Ensure accidentals are properly added to the staveNote
           // We need to re-add accidentals manually if they exist in the key name
           if (hasAccidental) {
-            const keyInfo = noteObj.keys?.[0];
-            if (keyInfo) {
-              // Extract the accidental symbol
-              const accidentalSymbol = keyInfo.includes('#') ? '#' : 'b';
-              
-              console.log(`Ensuring accidental ${accidentalSymbol} is visible on note ${keyInfo}`);
+            // Extract the accidental symbol from the key name
+            let accidentalSymbol = '';
+            if (hasSharp) {
+              accidentalSymbol = '#';
+            } else if (hasFlat) {
+              accidentalSymbol = 'b';
+            }
+            
+            if (accidentalSymbol) {
+              console.log(`Ensuring accidental ${accidentalSymbol} is visible on note ${keyName}`);
               
               // Create a new accidental modifier and add it to the staveNote
               // This ensures the accidental will be visible when the note is drawn
@@ -91,7 +104,7 @@ export const setupRendererAndDrawNotes = (
               );
               
               if (!hasExistingAccidental) {
-                console.log(`Adding accidental ${accidentalSymbol} to note ${keyInfo}`);
+                console.log(`Adding accidental ${accidentalSymbol} to note ${keyName}`);
                 noteObj.staveNote.addModifier(accidentalModifier, 0);
               }
             }
