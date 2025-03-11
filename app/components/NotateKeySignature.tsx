@@ -6,7 +6,6 @@ import VexFlow from "vexflow";
 import SnackbarToast from "../components/SnackbarToast";
 import { useClef } from "../context/ClefContext";
 import { buildKeySignature } from "../lib/buildKeySignature";
-import { useButtonStates } from "../lib/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { keySigArray } from "../lib/data/keySigArray";
 import { staveData } from "../lib/data/stavesData";
@@ -15,9 +14,9 @@ import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { initializeRenderer } from "../lib/initializeRenderer";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
-
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
 import { GlyphProps, NotesAndCoordinatesData, StaveType } from "../lib/types";
+import { useButtonStates } from "../lib/useButtonStates";
 import CustomButton from "./CustomButton";
 
 const { Renderer } = VexFlow.Flow;

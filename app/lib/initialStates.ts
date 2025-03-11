@@ -1,12 +1,4 @@
-import {
-  Chord,
-  ChordInteractionState,
-  InputState,
-  KeySigState,
-  NoteInteractionState,
-  NotesAndCoordinatesData,
-  ScaleData,
-} from "./types";
+import { Chord, InputState, NotesAndCoordinatesData } from "./types";
 
 export const initialChordData: Chord = {
   keys: [],
@@ -20,32 +12,6 @@ export const initialNotesAndCoordsState: NotesAndCoordinatesData = {
   originalNote: "",
   yCoordinateMin: 0,
   yCoordinateMax: 0,
-};
-
-export const noteInteractionInitialState: NoteInteractionState = {
-  isEraseNoteActive: false,
-  isEraseAccidentalActive: false,
-  isEnterNoteActive: true,
-  isSharpActive: false,
-  noNoteFound: false,
-  tooManyBeatsInMeasure: false,
-  isFlatActive: false,
-  isChangeNoteActive: false,
-};
-export const chordInteractionInitialState: ChordInteractionState = {
-  isEraseNoteActive: false,
-  isEraseAccidentalActive: false,
-  isEnterNoteActive: true,
-  isSharpActive: false,
-  noNoteFound: false,
-  isFlatActive: false,
-};
-
-export const keySigInitialState: KeySigState = {
-  isSharpActive: false,
-  isFlatActive: false,
-  isEraseAccidentalActive: false,
-  isClearKeySigActive: false,
 };
 
 export const initialFormInputState: InputState = {
