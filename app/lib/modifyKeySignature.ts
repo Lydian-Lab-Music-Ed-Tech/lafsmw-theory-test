@@ -45,16 +45,15 @@ export const addGlyphs = (
   );
 
   if (existingGlyphIndex !== -1) {
-    console.log("Glyph already exists at this position, not adding");
+    console.error("Glyph already exists at this position, not adding");
     return false;
   }
 
-  console.log("Adding new glyph:", newState);
   setGlyphState((prevState) => {
     // Double-check that the glyph doesn't already exist in the state
     // This handles race conditions where the state might have been updated but not yet reflected in glyphs
     if (prevState.some((glyph) => glyph.yPosition === newState.yPosition)) {
-      console.log("Glyph already exists in state, not adding");
+      console.error("Glyph already exists in state, not adding");
       return prevState;
     }
 
@@ -73,7 +72,6 @@ export const updateKeySigArrayForGrading = (
   const noteBase = parseNote(foundNoteData.note).noteBase;
 
   if (noteBase.length > 1) {
-    console.log("Note base length > 1, returning early:", noteBase);
     return;
   }
 
@@ -83,9 +81,7 @@ export const updateKeySigArrayForGrading = (
 
   // Use a callback function to ensure we're working with the latest state
   setKeySigState((prevState) => {
-    // Check if this note (with this accidental) is already in the key signature
     if (prevState.includes(noteWithAccidental)) {
-      console.log("Note already in key sig, not adding:", noteWithAccidental);
       return prevState;
     }
 

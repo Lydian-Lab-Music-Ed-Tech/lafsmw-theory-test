@@ -18,29 +18,26 @@ import {
 } from "../lib/data/noteArray";
 import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
-import getUserClickInfo from "../lib/getUserClickInfo";
 import { handleChordInteraction } from "../lib/handleChordInteraction";
 import {
   initialChordData,
   initialNotesAndCoordsState,
 } from "../lib/initialStates";
-import { initializeRenderer } from "../lib/initializeRenderer";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
 import { Chord, NotesAndCoordinatesData, StaveType } from "../lib/types";
-import CustomButton from "./CustomButton";
-import SnackbarToast from "./SnackbarToast";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { errorMessages } from "../lib/data/errorMessages";
 import { useButtonStates } from "../lib/useButtonStates";
-const { Renderer } = VexFlow.Flow;
+import CustomButton from "./CustomButton";
+import NotationContainer from "./NotationContainer";
 
 const NotateChord = ({
   setChords,
 }: {
   setChords: Dispatch<SetStateAction<Array<string>>>;
 }) => {
-  const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
-  const hasScaled = useRef<boolean>(false);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [barIndex, setBarIndex] = useState<number>(0);
   const [chordData, setChordData] = useState<Chord>(initialChordData);
@@ -52,8 +49,24 @@ const NotateChord = ({
   >([initialNotesAndCoordsState]);
   const { states, setters, clearAllStates } = useButtonStates();
 
-  const renderStavesAndChords = useCallback(
-    (): StaveType[] | undefined =>
+  // Use our new renderer hook for VexFlow initialization
+  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(null);
+  
+  const { rendererRef } = useNotationRenderer({
+    containerRef: container,
+    renderFunction: () => {
+      if (renderFunctionRef.current) {
+        return renderFunctionRef.current();
+      }
+      return undefined;
+    },
+    width: 470,
+    height: 200
+  });
+  
+  // Setup the actual render function now that rendererRef is initialized
+  renderFunctionRef.current = useCallback(
+    (): StaveType[] | undefined => 
       setupRendererAndDrawChords({
         rendererRef,
         ...staveData,
@@ -63,12 +76,21 @@ const NotateChord = ({
         barIndex,
         chosenClef,
       }),
-    [rendererRef, setStaves, chordData, staves, barIndex]
+    [rendererRef, setStaves, chordData, staves, barIndex, chosenClef]
   );
 
+  // Set up click handler
+  const { getClickInfo } = useNotationClickHandler({
+    containerRef: container,
+    staves,
+    notesAndCoordinates,
+    setOpen,
+    setMessage
+  });
+  
+  // Initial load
   useEffect(() => {
-    initializeRenderer(rendererRef, container);
-    const newStave = renderStavesAndChords();
+    const newStave = renderFunctionRef.current?.();
     if (newStave) {
       calculateNotesAndCoordinates(
         chosenClef,
@@ -84,25 +106,14 @@ const NotateChord = ({
   }, []);
 
   useEffect(() => {
-    if (!hasScaled.current && container.current) {
-      const svgElement = container.current.querySelector("svg");
-      if (svgElement) {
-        svgElement.style.transform = "scale(1.5)";
-        svgElement.style.transformOrigin = "0 0";
-        hasScaled.current = true;
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    renderStavesAndChords();
+    renderFunctionRef.current?.();
   }, [chordData]);
 
   const eraseChord = () => {
     setChordData((): Chord => {
       return initialChordData;
     });
-    const newStave: any = renderStavesAndChords();
+    const newStave = renderFunctionRef.current?.();
     if (newStave) {
       calculateNotesAndCoordinates(
         chosenClef,
@@ -118,22 +129,10 @@ const NotateChord = ({
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    const { userClickY, userClickX } = getUserClickInfo(
-      e,
-      container,
-      staves[0]
-    );
-
-    let foundNoteData = notesAndCoordinates.find(
-      ({ yCoordinateMin, yCoordinateMax }) =>
-        userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
-    );
-
-    if (!foundNoteData) {
-      setOpen(true);
-      setMessage(errorMessages.noNoteFound);
-      return;
-    }
+    const clickInfo = getClickInfo(e);
+    if (!clickInfo) return;
+    
+    const { userClickX, userClickY, foundNoteData } = clickInfo;
 
     let chordDataCopy = { ...chordData };
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
@@ -163,16 +162,13 @@ const NotateChord = ({
 
   return (
     <>
-      <div
-        ref={container}
+      <NotationContainer
+        containerRef={container}
         onClick={handleClick}
-        style={{
-          overflow: "visible",
-          width: "705px",
-          height: "300px",
-        }}
-      />
-      <SnackbarToast open={open} setOpen={setOpen} message={message} />
+        open={open}
+        setOpen={setOpen}
+        message={message}
+      >
       <Container
         sx={{
           display: "grid",
@@ -228,6 +224,7 @@ const NotateChord = ({
         </CustomButton>
         <Button onClick={eraseChord}>Clear All</Button>
       </Container>
+      </NotationContainer>
     </>
   );
 };

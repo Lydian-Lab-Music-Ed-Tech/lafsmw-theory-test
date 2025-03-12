@@ -43,7 +43,6 @@ import {
 import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { useButtonStates } from "../../lib/useButtonStates";
 
 const VIEW_STATES = {
   START_TEST: 0,
@@ -100,7 +99,6 @@ export default function ExamHomePage() {
   const [open, setOpen] = useState<boolean>(false);
   const [level, setLevel] = useState<Level>("select-here");
   const { chosenClef: clef, setChosenClef: setClef } = useClef();
-  const { states, setters, clearAllStates } = useButtonStates();
 
   useEffect(() => {
     const fetchSnapshot = async () => {
@@ -109,7 +107,6 @@ export default function ExamHomePage() {
         if (error) {
           console.error(message);
         } else if (res) {
-          console.log(success);
           setCurrentUserData((prevCurrentUserData) => ({
             ...prevCurrentUserData,
             ...res[0],
@@ -145,7 +142,6 @@ export default function ExamHomePage() {
       currentUserData.scales5,
       currentUserData.scales6,
     ];
-    console.log("userScales from updateAnswers on Exam page:", userScales);
     const userTriads = [
       currentUserData.triads1,
       currentUserData.triads2,

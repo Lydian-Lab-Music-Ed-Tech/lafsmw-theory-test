@@ -59,10 +59,58 @@ export const setupRendererAndDrawNotes = (
       const currentStave = staves[index] || newStaves[index];
 
       barOfNoteObjects.forEach((noteObj) => {
-        console.log("noteObj from forEach:", noteObj);
+        // CRITICAL FIX: Enhance accidental detection and rendering
+        // Check if the note has an accidental in its key name - use a more precise pattern
+        const keyName = noteObj.keys?.[0] || "";
+
+        // Fix the special case of 'b/4' (B natural) vs 'bb/4' (B flat)
+        // Special handling for B-flat to prevent it from turning back into B natural
+        const isBFlat = keyName.length >= 2 && keyName.startsWith("bb");
+
+        // Only consider it a sharp if it's actually a sharp
+        const hasSharp = keyName.includes("#");
+
+        const keyPart = keyName.split("/")[0]; // Get just the note name without octave
+
+        // For flats, we need more careful detection:
+        // A note has a flat if:
+        // - It specifically is B-flat ('bb/4') OR
+        // - It contains 'b' but is not just the note B ('b/4')
+        const hasFlat = isBFlat || (keyPart.includes("b") && keyPart !== "b");
+
+        const hasAccidental = hasSharp || hasFlat;
+
         if (noteObj.staveNote) {
           noteObj.staveNote.setStave(currentStave);
           noteObj.staveNote.setContext(context);
+
+          // Ensure accidentals are properly added to the staveNote:
+          // We need to re-add accidentals manually if they exist in the key name
+          if (hasAccidental) {
+            let accidentalSymbol = "";
+            if (hasSharp) {
+              accidentalSymbol = "#";
+            } else if (hasFlat) {
+              accidentalSymbol = "b";
+            }
+
+            if (accidentalSymbol) {
+              // Create a new accidental modifier and add it to the staveNote
+              const accidentalModifier = new VexFlow.Flow.Accidental(
+                accidentalSymbol
+              );
+
+              // Check if this note already has an accidental (avoid duplicates)
+              const existingAccidentals = noteObj.staveNote.getModifiers();
+              const hasExistingAccidental = existingAccidentals.some(
+                (mod) => mod.getCategory() === "accidentals"
+              );
+
+              if (!hasExistingAccidental) {
+                noteObj.staveNote.addModifier(accidentalModifier, 0);
+              }
+            }
+          }
 
           // Position and draw the note at the exact click position
           if (noteObj.exactX) {

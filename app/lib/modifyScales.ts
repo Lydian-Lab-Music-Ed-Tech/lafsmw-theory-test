@@ -34,7 +34,30 @@ export const getNoteData = (
   barOfScaleData: ScaleData[],
   userClickX: number
 ): ModifyScaleData => {
-  const noteIndex = indexOfNote(barOfScaleData, userClickX);
+  // First try to find the exact note using the regular index function
+  let noteIndex = indexOfNote(barOfScaleData, userClickX);
+
+  // If that fails, use a more generous approach with a larger threshold
+  if (noteIndex === -1 && barOfScaleData.length > 0) {
+    // Find the closest note within 50px
+    let closestDistance = Number.MAX_VALUE;
+    let closestIndex = -1;
+
+    barOfScaleData.forEach((note, index) => {
+      if (note.exactX !== undefined) {
+        const distance = Math.abs(note.exactX - userClickX);
+        if (distance < closestDistance && distance < 50) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      }
+    });
+
+    if (closestIndex !== -1) {
+      noteIndex = closestIndex;
+    }
+  }
+
   return { noteDataObject: barOfScaleData[noteIndex], noteIndex };
 };
 
@@ -72,19 +95,42 @@ export const addAccidentalToStaveNoteAndKeys = (
   userClickX: number,
   chosenClef: string
 ) => {
+  // Get the note to modify
   let { noteDataObject, noteIndex } = getNoteData(scaleData, userClickX);
+
+  // If no note was found or noteIndex is -1, we can't add an accidental
+  if (noteIndex === -1 || !noteDataObject) {
+    console.error("No note found to add accidental to");
+    // Return a default object that won't modify anything
+    return { updatedNoteObject: scaleData[0], noteIndex: 0 };
+  }
+
+  // Determine the accidental based on which button is active
   const accidental = noteInteractionState.isSharpActive ? "#" : "b";
-  noteDataObject.keys[0] = appendAccidentalToNote(
-    accidental,
-    noteDataObject.keys[0]
+
+  // Apply the accidental to the note
+  const updatedKey = appendAccidentalToNote(accidental, noteDataObject.keys[0]);
+
+  // Create a new stave note with the updated key
+  const newKeys = [updatedKey];
+  const newStaveNote = createStaveNoteFromScaleData(
+    noteDataObject,
+    chosenClef,
+    newKeys
   );
-  const newStaveNote = createStaveNoteFromScaleData(noteDataObject, chosenClef);
-  addAccidentalsToStaveNotes(noteDataObject.keys, newStaveNote);
+
+  // Add the accidental visual to the stave note
+  addAccidentalsToStaveNotes(newKeys, newStaveNote);
+
+  // Create the updated note object with the new keys and stave note
   const updatedNoteObject = {
     ...noteDataObject,
     staveNote: newStaveNote,
-    keys: noteDataObject.keys,
+    keys: newKeys,
+    // Make sure we preserve the exactX position
+    exactX: noteDataObject.exactX,
   };
+
   return { updatedNoteObject, noteIndex };
 };
 
@@ -125,31 +171,6 @@ export const addNewNoteToScale = (
     userClickY,
   };
   return newNoteObject;
-};
-
-export const changeNotePosition = (
-  scaleData: ScaleData[],
-  userClickX: number,
-  foundNoteData: NotesAndCoordinatesData,
-  userClickY: number,
-  chosenClef: string
-) => {
-  const { noteDataObject, noteIndex } = getNoteData(scaleData, userClickX);
-  if (noteDataObject && noteDataObject.staveNote) {
-    const exactX = noteDataObject.staveNote.getAbsoluteX();
-
-    scaleData.splice(noteIndex, 1, {
-      staveNote: new StaveNote({
-        keys: [foundNoteData.note],
-        duration: "q",
-        clef: chosenClef,
-      }),
-      keys: [foundNoteData.note],
-      duration: "q",
-      exactX,
-      userClickY,
-    });
-  }
 };
 
 export const removeNoteFromScale = (

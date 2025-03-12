@@ -16,7 +16,6 @@ export type InputData = {
 export type ButtonStates = {
   isEnterNoteActive: boolean;
   isEraseNoteActive: boolean;
-  isChangeNoteActive: boolean;
   isSharpActive: boolean;
   isFlatActive: boolean;
   isEraseAccidentalActive: boolean;
@@ -269,4 +268,12 @@ export interface EmailData {
   email: string;
   subject?: string;
   text?: string;
+}
+
+/**
+ * Represents the state of chord progressions
+ * Maps position indices to chord symbols
+ */
+export interface ProgressionState {
+  [key: string]: string;
 }
