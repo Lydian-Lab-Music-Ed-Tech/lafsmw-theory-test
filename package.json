@@ -18,15 +18,15 @@
     "@fontsource/poppins": "^5.1.0",
     "@mui/icons-material": "^6.1.9",
     "@mui/material": "^6.1.9",
-    "@next/third-parties": "^15.0.3",
+    "@next/third-parties": "^15.2.2",
     "@sentry/nextjs": "^8.42.0",
     "@types/vexflow": "^1.2.42",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.2",
-    "next": "^15.0.3",
+    "next": "^15.2.2",
     "nodemailer": "^6.9.16",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^19",
+    "react-dom": "^19",
     "react-icons": "^5.3.0",
     "typeface-montserrat": "^1.1.13",
     "vexflow": "^4.2.5"
@@ -37,8 +37,8 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22",
     "@types/nodemailer": "^6.4.17",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@types/testing-library__jest-dom": "^6.0.0",
     "autoprefixer": "^10.4.20",
     "cypress": "^13.16.0",
@@ -52,6 +52,6 @@
     "style-dictionary": "^4.2.0",
     "tailwindcss": "^3.4.15",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.8.2"
   }
 }
