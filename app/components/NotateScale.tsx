@@ -226,8 +226,7 @@ const NotateScale = ({
         errorMessages
       );
 
-      // Update state with the new values
-      // CRITICAL FIX: We must use setState with a function to ensure we're working with
+      // We must use setState with a function to ensure we're working with
       // the latest state and properly merge the new values
       setScaleDataMatrix((prevState) => {
         console.log(

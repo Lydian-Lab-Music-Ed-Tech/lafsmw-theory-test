@@ -183,7 +183,7 @@ export const HandleScaleInteraction = (
           userClickY: userY,
         };
 
-        // CRITICAL FIX: Add the updated note to our array at the SAME index
+        // Add the updated note to our array at the SAME index
         // This preserves the positioning and prevents duplicates
         freshBarData[targetNoteIndex] = updatedNote;
 
@@ -205,7 +205,7 @@ export const HandleScaleInteraction = (
           .sort((a, b) => a[0] - b[0]) // Sort by x position
           .map((entry) => entry[1]); // Extract just the note data
 
-        // CRITICAL FIX: We must update the ENTIRE matrix, not just one bar
+        // We must update the ENTIRE matrix, not just one bar
         // This ensures we don't lose state between operations
         matrixCopy[barIndex] = uniqueNotes;
 
