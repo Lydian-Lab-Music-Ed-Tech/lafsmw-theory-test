@@ -20,86 +20,80 @@ export interface ButtonSetters {
   [key: string]: Dispatch<SetStateAction<boolean>>; // Allow additional properties for extensibility
 }
 
-// New expanded button state type
+// Button state type for the new interface
 export type ButtonState = {
   id: string;
   isActive: boolean;
   setter: Dispatch<SetStateAction<boolean>>;
 };
 
-type ButtonStateConfig = string[];
-
 /**
- * A more flexible hook for managing button states in notation components
+ * A custom hook for managing button states in notation components
  * 
- * @param buttonIds - Array of button state IDs to initialize
- * @param initialActiveId - Optional ID of the initially active button
- * @returns Button states, setActive utility function, and clearAll utility function
+ * This implementation fixes the React hooks rules violation by ensuring
+ * that all useState calls are at the top level and not inside loops or conditionals.
  */
-export const useButtonStates = (buttonIds: ButtonStateConfig = [
-  'enterNote',
-  'eraseNote',
-  'sharp',
-  'flat',
-  'eraseAccidental'
-], initialActiveId?: string) => {
-  // Create state for each button
-  const buttonStates = buttonIds.map(id => {
-    const [isActive, setIsActive] = useState(id === initialActiveId);
-    return { id, isActive, setter: setIsActive };
-  });
+export const useButtonStates = (initialActiveId?: string) => {
+  // Declare each state individually at the top level
+  // This ensures hooks are always called in the same order
+  const [isEnterNoteActive, setIsEnterNoteActive] = useState(initialActiveId === 'enterNote' || initialActiveId === undefined);
+  const [isEraseNoteActive, setIsEraseNoteActive] = useState(initialActiveId === 'eraseNote');
+  const [isSharpActive, setIsSharpActive] = useState(initialActiveId === 'sharp');
+  const [isFlatActive, setIsFlatActive] = useState(initialActiveId === 'flat');
+  const [isEraseAccidentalActive, setIsEraseAccidentalActive] = useState(initialActiveId === 'eraseAccidental');
 
-  // Default values for the legacy interface, ensuring type compatibility
-  const defaultStates: ButtonStates = {
-    isEnterNoteActive: false,
-    isEraseNoteActive: false,
-    isSharpActive: false,
-    isFlatActive: false,
-    isEraseAccidentalActive: false,
+  // Combine all states into a single object for convenience
+  const states: ButtonStates = {
+    isEnterNoteActive,
+    isEraseNoteActive,
+    isSharpActive,
+    isFlatActive,
+    isEraseAccidentalActive
   };
-  
-  // Initialize with default values first
-  const statesMap = { ...defaultStates };
-  const settersMap: ButtonSetters = {
-    setIsEnterNoteActive: () => {}, // Will be overridden if present in buttonStates
-    setIsEraseNoteActive: () => {},
-    setIsSharpActive: () => {},
-    setIsFlatActive: () => {},
-    setIsEraseAccidentalActive: () => {},
+
+  // Combine all setters into a single object for convenience
+  const setters: ButtonSetters = {
+    setIsEnterNoteActive,
+    setIsEraseNoteActive,
+    setIsSharpActive,
+    setIsFlatActive,
+    setIsEraseAccidentalActive
   };
-  
-  buttonStates.forEach(state => {
-    // Convert from camelCase ids to is{PascalCase}Active format for backwards compatibility
-    const pascalCaseId = state.id.charAt(0).toUpperCase() + state.id.slice(1);
-    const legacyStateKey = `is${pascalCaseId}Active`;
-    const legacySetterKey = `setIs${pascalCaseId}Active`;
-    
-    statesMap[legacyStateKey] = state.isActive;
-    // @ts-ignore - We know this setter exists at runtime
-    settersMap[legacySetterKey] = state.setter;
-  });
+
+  // For the new interface, create an array of button states
+  const buttonStates: ButtonState[] = [
+    { id: 'enterNote', isActive: isEnterNoteActive, setter: setIsEnterNoteActive },
+    { id: 'eraseNote', isActive: isEraseNoteActive, setter: setIsEraseNoteActive },
+    { id: 'sharp', isActive: isSharpActive, setter: setIsSharpActive },
+    { id: 'flat', isActive: isFlatActive, setter: setIsFlatActive },
+    { id: 'eraseAccidental', isActive: isEraseAccidentalActive, setter: setIsEraseAccidentalActive },
+  ];
 
   // Set a specific button as active and deactivate all others
   const setActive = useCallback((buttonId: string) => {
-    buttonStates.forEach(state => {
-      state.setter(state.id === buttonId);
-    });
-  }, [buttonStates]);
+    setIsEnterNoteActive(buttonId === 'enterNote');
+    setIsEraseNoteActive(buttonId === 'eraseNote');
+    setIsSharpActive(buttonId === 'sharp');
+    setIsFlatActive(buttonId === 'flat');
+    setIsEraseAccidentalActive(buttonId === 'eraseAccidental');
+  }, []);
 
   // Clear all button states (set all to inactive)
   const clearAllStates = useCallback(() => {
-    buttonStates.forEach(state => {
-      state.setter(false);
-    });
-  }, [buttonStates]);
+    setIsEnterNoteActive(false);
+    setIsEraseNoteActive(false);
+    setIsSharpActive(false);
+    setIsFlatActive(false);
+    setIsEraseAccidentalActive(false);
+  }, []);
 
   return {
+    // Legacy interface
+    states,
+    setters,
+    clearAllStates,
     // New interface
     buttonStates,
-    setActive,
-    clearAllStates,
-    // Legacy interface for backward compatibility
-    states: statesMap,
-    setters: settersMap,
+    setActive
   };
 };

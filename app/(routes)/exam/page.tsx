@@ -634,7 +634,7 @@ export default function ExamHomePage() {
             </Stack>
           </main>
         )}
-        {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
+        {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Stack spacing={4}>
               <Button onClick={incrementViewState}>
@@ -649,7 +649,7 @@ export default function ExamHomePage() {
                 <Typography>{"Go to Progressions"}</Typography>
               </Button>
             </Stack>
-          )}
+          )} */}
       </Stack>
     </Box>
   );
