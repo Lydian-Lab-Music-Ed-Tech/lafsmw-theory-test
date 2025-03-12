@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { Button, Container } from "@mui/material";
+import { Container } from "@mui/material";
 import React, {
   Dispatch,
   SetStateAction,
@@ -9,7 +8,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import VexFlow from "vexflow";
 import { useClef } from "../context/ClefContext";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import {
@@ -27,7 +25,6 @@ import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
 import { Chord, NotesAndCoordinatesData, StaveType } from "../lib/types";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
-import { errorMessages } from "../lib/data/errorMessages";
 import { useButtonStates } from "../lib/useButtonStates";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
@@ -50,8 +47,10 @@ const NotateChord = ({
   const { states, setters, clearAllStates } = useButtonStates();
 
   // Use our new renderer hook for VexFlow initialization
-  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(null);
-  
+  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
+    null
+  );
+
   const { rendererRef } = useNotationRenderer({
     containerRef: container,
     renderFunction: () => {
@@ -61,12 +60,12 @@ const NotateChord = ({
       return undefined;
     },
     width: 470,
-    height: 200
+    height: 200,
   });
-  
+
   // Setup the actual render function now that rendererRef is initialized
   renderFunctionRef.current = useCallback(
-    (): StaveType[] | undefined => 
+    (): StaveType[] | undefined =>
       setupRendererAndDrawChords({
         rendererRef,
         ...staveData,
@@ -85,9 +84,9 @@ const NotateChord = ({
     staves,
     notesAndCoordinates,
     setOpen,
-    setMessage
+    setMessage,
   });
-  
+
   // Initial load
   useEffect(() => {
     const newStave = renderFunctionRef.current?.();
@@ -131,7 +130,7 @@ const NotateChord = ({
   const handleClick = (e: React.MouseEvent) => {
     const clickInfo = getClickInfo(e);
     if (!clickInfo) return;
-    
+
     const { userClickX, userClickY, foundNoteData } = clickInfo;
 
     let chordDataCopy = { ...chordData };
@@ -169,61 +168,61 @@ const NotateChord = ({
         setOpen={setOpen}
         message={message}
       >
-      <Container
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          paddingTop: 4,
-          marginTop: 2,
-        }}
-      >
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsEnterNoteActive(true);
+        <Container
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            paddingTop: 4,
+            marginTop: 2,
           }}
-          active={states.isEnterNoteActive}
         >
-          Enter Note
-        </CustomButton>
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsEraseNoteActive(true);
-          }}
-          active={states.isEraseNoteActive}
-        >
-          Erase Note
-        </CustomButton>
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsSharpActive(true);
-          }}
-          active={states.isSharpActive}
-        >
-          Add Sharp
-        </CustomButton>
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsFlatActive(true);
-          }}
-          active={states.isFlatActive}
-        >
-          Add Flat
-        </CustomButton>
-        <CustomButton
-          onClick={() => {
-            clearAllStates();
-            setters.setIsEraseAccidentalActive(true);
-          }}
-          active={states.isEraseAccidentalActive}
-        >
-          Erase Accidental
-        </CustomButton>
-        <Button onClick={eraseChord}>Clear All</Button>
-      </Container>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsEnterNoteActive(true);
+            }}
+            active={states.isEnterNoteActive}
+          >
+            Enter Note
+          </CustomButton>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsEraseNoteActive(true);
+            }}
+            active={states.isEraseNoteActive}
+          >
+            Erase Note
+          </CustomButton>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsSharpActive(true);
+            }}
+            active={states.isSharpActive}
+          >
+            Add Sharp
+          </CustomButton>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsFlatActive(true);
+            }}
+            active={states.isFlatActive}
+          >
+            Add Flat
+          </CustomButton>
+          <CustomButton
+            onClick={() => {
+              clearAllStates();
+              setters.setIsEraseAccidentalActive(true);
+            }}
+            active={states.isEraseAccidentalActive}
+          >
+            Erase Accidental
+          </CustomButton>
+          <CustomButton onClick={eraseChord}>Clear All</CustomButton>
+        </Container>
       </NotationContainer>
     </>
   );
