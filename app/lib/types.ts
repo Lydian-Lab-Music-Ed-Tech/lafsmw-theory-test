@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
-import VexFlow, { RenderContext, StemmableNote } from "vexflow";
+import { Flow, RenderContext, StemmableNote } from "vexflow";
 
-const VF = VexFlow.Flow;
-const { StaveNote, Stave, Renderer, Glyph, Note } = VF;
+const { StaveNote, Stave, Renderer, Glyph, Note } = Flow;
 
 export type FormEvent = React.FormEvent<HTMLFormElement>;
 export type MouseEvent = React.MouseEvent<HTMLButtonElement>;

@@ -1,8 +1,7 @@
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { BlankStaves, CreateBlankStavesParams } from "./types";
 
-const VF = VexFlow.Flow;
-const { Stave } = VF;
+const { Stave } = Flow;
 
 const createBlankStaves = (
   params: CreateBlankStavesParams,

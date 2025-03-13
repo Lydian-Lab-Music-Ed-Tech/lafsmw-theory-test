@@ -1,12 +1,10 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { initializeRenderer } from "../initializeRenderer";
 import { StaveType } from "../types";
 
-// Get the Renderer class directly from VexFlow.Flow as it's done in initializeRenderer.ts
-const { Renderer } = VexFlow.Flow;
+const { Renderer } = Flow;
 
-// Using the same flexible type as in initializeRenderer.ts
 type FlexibleDivRef = { current: HTMLDivElement | null };
 
 type UseNotationRendererProps = {

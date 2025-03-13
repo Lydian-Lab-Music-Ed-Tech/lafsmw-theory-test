@@ -1,4 +1,4 @@
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import {
   removeAccidentalFromNotesAndCoords,
   updateNotesAndCoordsWithAccidental,
@@ -17,7 +17,7 @@ import {
 // Define alias for cleaner code
 type StaveType = ScaleData;
 
-const { StaveNote } = VexFlow.Flow;
+const { StaveNote } = Flow;
 
 export const HandleScaleInteraction = (
   foundNoteData: NotesAndCoordinatesData,
@@ -161,13 +161,13 @@ export const HandleScaleInteraction = (
         }
 
         // Create a completely new StaveNote with the accidental
-        const newStaveNote = new VexFlow.Flow.StaveNote({
+        const newStaveNote = new Flow.StaveNote({
           keys: [newKey],
           duration: noteToModify.duration || "q",
           clef: chosenClef,
         });
 
-        const accidentalModifier = new VexFlow.Flow.Accidental(newAccidental);
+        const accidentalModifier = new Flow.Accidental(newAccidental);
         newStaveNote.addModifier(accidentalModifier, 0);
 
         // Save original position information

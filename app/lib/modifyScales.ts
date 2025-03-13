@@ -1,4 +1,4 @@
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { indexOfNoteToModify as indexOfNote } from "./indexOfNoteToModify";
 import {
   appendAccidentalToNote,
@@ -14,7 +14,7 @@ import {
   StaveNoteType,
 } from "./types";
 
-const { Accidental, StaveNote } = VexFlow.Flow;
+const { Accidental, StaveNote } = Flow;
 
 export const createStaveNoteFromScaleData = (
   noteObject: ScaleData,

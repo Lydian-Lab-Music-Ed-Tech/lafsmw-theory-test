@@ -1,8 +1,8 @@
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import createBlankStaves from "./createBlankStaves";
 import { BlankStaves, RenderStavesAndNotesParams } from "./types";
 
-const { Formatter, TickContext } = VexFlow.Flow;
+const { Formatter, TickContext, Accidental } = Flow;
 
 export const setupRendererAndDrawNotes = (
   params: RenderStavesAndNotesParams
@@ -97,9 +97,7 @@ export const setupRendererAndDrawNotes = (
 
             if (accidentalSymbol) {
               // Create a new accidental modifier and add it to the staveNote
-              const accidentalModifier = new VexFlow.Flow.Accidental(
-                accidentalSymbol
-              );
+              const accidentalModifier = new Accidental(accidentalSymbol);
 
               // Check if this note already has an accidental (avoid duplicates)
               const existingAccidentals = noteObj.staveNote.getModifiers();

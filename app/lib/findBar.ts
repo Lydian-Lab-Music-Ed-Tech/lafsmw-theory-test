@@ -1,8 +1,7 @@
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { BarMetrics } from "./types";
 
-const VF = VexFlow.Flow;
-const { Stave } = VF;
+const { Stave } = Flow;
 
 export const findBarIndex = (
   bars: InstanceType<typeof Stave>[],

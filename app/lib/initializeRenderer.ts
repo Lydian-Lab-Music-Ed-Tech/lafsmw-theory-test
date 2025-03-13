@@ -1,6 +1,6 @@
-import * as VexFlow from "vexflow";
+import { Flow } from "vexflow";
 
-const { Renderer } = VexFlow.Flow;
+const { Renderer } = Flow;
 
 // More flexible type that accepts any ref with a current property
 // This avoids type issues with React 19's ref implementation

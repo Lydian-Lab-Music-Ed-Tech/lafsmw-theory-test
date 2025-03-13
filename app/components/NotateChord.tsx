@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import {
@@ -68,7 +68,9 @@ const NotateChord = ({
   renderFunctionRef.current = useCallback(
     (): StaveType[] | undefined =>
       setupRendererAndDrawChords({
-        rendererRef: rendererRef as React.RefObject<InstanceType<typeof VexFlow.Flow.Renderer>>,
+        rendererRef: rendererRef as React.RefObject<
+          InstanceType<typeof Flow.Renderer>
+        >,
         ...staveData,
         setStaves,
         chordData,

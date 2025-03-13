@@ -2,7 +2,7 @@
 "use client";
 import { Container } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
 import { buildKeySignature } from "../lib/buildKeySignature";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
@@ -18,10 +18,6 @@ import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
-
-const { Renderer } = VexFlow.Flow;
-
-//weird glitch is still happening. Figure out why!
 
 const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const container = useRef<HTMLDivElement | null>(null);
@@ -63,7 +59,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
 
     return setupRendererAndDrawStaves({
       rendererRef: rendererRef as React.RefObject<
-        InstanceType<typeof VexFlow.Flow.Renderer>
+        InstanceType<typeof Flow.Renderer>
       >,
       ...staveData,
       chosenClef,

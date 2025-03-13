@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
 import { useButtonStates } from "../lib/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
@@ -67,7 +67,7 @@ const NotateScale = ({
     (): StaveType[] | undefined =>
       setupRendererAndDrawNotes({
         rendererRef: rendererRef as React.RefObject<
-          InstanceType<typeof VexFlow.Flow.Renderer>
+          InstanceType<typeof Flow.Renderer>
         >,
         ...staveData,
         chosenClef,
@@ -160,7 +160,7 @@ const NotateScale = ({
         if (note.keys && note.keys.length > 0) {
           // Create a minimal StaveNote to satisfy the type requirements
           // The real StaveNote will be recreated in HandleScaleInteraction
-          newStaveNote = new VexFlow.Flow.StaveNote({
+          newStaveNote = new Flow.StaveNote({
             keys: [...note.keys],
             duration: note.duration || "q",
             clef: chosenClef,
