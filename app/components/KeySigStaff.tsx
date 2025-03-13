@@ -2,21 +2,7 @@
 import { useEffect, useRef } from "react";
 import * as Flow from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { Chord } from "../lib/types";
-
-type StaffProps = {
-  clef?: string;
-  timeSignature?: string;
-  noTimeSignature?: boolean;
-  evenbars?: boolean;
-  width?: number;
-  height?: number;
-  addDoubleBarLine?: boolean;
-  numBars?: number;
-  chords?: Chord[];
-  keySig?: string[];
-  allDoubleBarLines?: boolean;
-};
+import { StaffProps } from "../lib/types";
 
 export default function Staff({
   timeSignature = "4/4",

@@ -1,16 +1,5 @@
-import React, { RefObject, ReactNode } from "react";
 import SnackbarToast from "./SnackbarToast";
-
-type NotationContainerProps = {
-  containerRef: RefObject<HTMLDivElement | null>;
-  onClick?: (e: React.MouseEvent) => void;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  message: string;
-  children?: ReactNode;
-  width?: string;
-  height?: string;
-};
+import { NotationContainerProps } from "../lib/types";
 
 const NotationContainer = ({
   containerRef,

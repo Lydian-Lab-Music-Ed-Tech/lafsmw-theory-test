@@ -3,22 +3,9 @@ import { ForwardedRef, forwardRef, useEffect, useMemo, useState } from "react";
 import { useClef } from "../context/ClefContext";
 import createInitialState from "../lib/createInitialState";
 import isCurrentDataFilled from "../lib/isCurrentDataFilled";
-import { ChangeEvent, Chord, FormEvent, InputData } from "../lib/types";
+import { ChangeEvent, FormEvent, IdentifyNotationProps } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
-
-interface TextInput {
-  [key: string]: string;
-}
-
-type IdentifyNotationProps = {
-  numBars?: number;
-  evenbars?: boolean;
-  chords?: Chord[];
-  width: number;
-  currentData?: TextInput;
-  handleInput: (input: InputData) => void;
-};
 
 export default forwardRef(function IdentifyNotation(
   {

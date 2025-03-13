@@ -5,15 +5,7 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
-
-type TutorialInstructions = {
-  instructionTitle: string;
-  instructionText: string;
-};
-
-interface TutorialModalProps {
-  tutorialInstructions: TutorialInstructions[];
-}
+import { TutorialModalProps } from "../lib/types";
 
 export default function TutorialModal({
   tutorialInstructions,

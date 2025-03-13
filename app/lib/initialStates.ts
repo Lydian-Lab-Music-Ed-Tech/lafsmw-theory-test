@@ -1,9 +1,9 @@
-/**
- * This file contains initial state definitions for various components in the application.
- * Centralizing these states here makes them easier to maintain and reuse.
- */
-
-import { Chord, InputState, NotesAndCoordinatesData, ProgressionState } from "./types";
+import {
+  Chord,
+  InputState,
+  NotesAndCoordinatesData,
+  ProgressionState,
+} from "./types";
 
 // -----------------------------------------------------------------------------
 // Notation Component Initial States
@@ -65,14 +65,14 @@ export const initialFormInputState: InputState = {
   userId: "",
   user: null,
   level: "select-here",
-  
+
   // Key signatures section
   keySignatures: {},
   keySignaturesNotation1: [],
   keySignaturesNotation2: [],
   keySignaturesNotation3: [],
   keySignaturesNotation4: [],
-  
+
   // Scales section
   scales1: [],
   scales2: [],
@@ -80,7 +80,7 @@ export const initialFormInputState: InputState = {
   scales4: [],
   scales5: [],
   scales6: [],
-  
+
   // Triads section
   triads1: [],
   triads2: [],
@@ -88,7 +88,7 @@ export const initialFormInputState: InputState = {
   triads4: [],
   triads5: [],
   triads6: [],
-  
+
   // Seventh chords section
   seventhChords1: [],
   seventhChords2: [],
@@ -97,7 +97,7 @@ export const initialFormInputState: InputState = {
   seventhChords5: [],
   seventhChords6: [],
   seventhChords7: [],
-  
+
   // Other sections
   chords: {},
   progressions: {},

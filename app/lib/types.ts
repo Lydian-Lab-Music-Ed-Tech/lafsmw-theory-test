@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, RefObject, ReactNode } from "react";
 import { Flow, RenderContext, StemmableNote } from "vexflow";
 
 const { StaveNote, Stave, Renderer, Glyph, Note } = Flow;
@@ -13,12 +13,28 @@ export type InputData = {
   [key: string]: string;
 };
 
-export type ButtonStates = {
+export interface ButtonStates {
   isEnterNoteActive: boolean;
   isEraseNoteActive: boolean;
   isSharpActive: boolean;
   isFlatActive: boolean;
   isEraseAccidentalActive: boolean;
+  [key: string]: boolean;
+}
+
+export interface ButtonSetters {
+  setIsEnterNoteActive: Dispatch<SetStateAction<boolean>>;
+  setIsEraseNoteActive: Dispatch<SetStateAction<boolean>>;
+  setIsSharpActive: Dispatch<SetStateAction<boolean>>;
+  setIsFlatActive: Dispatch<SetStateAction<boolean>>;
+  setIsEraseAccidentalActive: Dispatch<SetStateAction<boolean>>;
+  [key: string]: Dispatch<SetStateAction<boolean>>;
+}
+
+export type ButtonState = {
+  id: string;
+  isActive: boolean;
+  setter: Dispatch<SetStateAction<boolean>>;
 };
 
 export type StateInteraction = ButtonStates & {
@@ -277,3 +293,115 @@ export interface EmailData {
 export interface ProgressionState {
   [key: string]: string;
 }
+
+export interface CardFooterProps {
+  width?: number;
+  height?: number;
+  pageNumber: number;
+  buttonType?: "submit" | "button" | "reset" | undefined;
+  buttonText?: string;
+  handleSubmit?: any;
+  buttonForm?: string;
+}
+
+export interface CustomButtonProps {
+  onClick: () => void;
+  children: React.ReactNode;
+  isEnabled?: boolean;
+  active?: boolean;
+}
+
+export interface FormInputProps {
+  labelText?: string;
+  name: string;
+  type?: string;
+  value: string;
+  placeholder?: string;
+  maxLength?: number;
+  width?: string;
+  height?: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement> | undefined;
+  required?: boolean;
+}
+
+export type IdentifyNotationProps = {
+  numBars?: number;
+  evenbars?: boolean;
+  chords?: Chord[];
+  width: number;
+  currentData?: TextInput;
+  handleInput: (input: InputData) => void;
+};
+
+export type StaffProps = {
+  clef?: string;
+  timeSignature?: string;
+  noTimeSignature?: boolean;
+  evenbars?: boolean;
+  width?: number;
+  height?: number;
+  addDoubleBarLine?: boolean;
+  numBars?: number;
+  chords?: Chord[];
+  keySig?: string[];
+  allDoubleBarLines?: boolean;
+};
+
+export type NotationContainerProps = {
+  containerRef: RefObject<HTMLDivElement | null>;
+  onClick?: (e: React.MouseEvent) => void;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  message: string;
+  children?: ReactNode;
+  width?: string;
+  height?: string;
+};
+
+export type SimpleSnackbarProps = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  message: string;
+};
+
+export type TutorialInstructions = {
+  instructionTitle: string;
+  instructionText: string;
+};
+
+export interface TutorialModalProps {
+  tutorialInstructions: TutorialInstructions[];
+}
+
+export type ClefProviderProps = {
+  children: ReactNode;
+};
+
+export type CreateTimerContextType = {
+  timeLeft: number;
+  isRunning: boolean;
+  startTimer: (duration: SetStateAction<number>, callback: () => void) => void;
+  stopTimer: () => void;
+};
+
+export type AuthContextType = {
+  children: ReactNode;
+};
+
+export type UseNotationClickHandlerProps = {
+  containerRef: RefObject<HTMLDivElement | null>;
+  staves: StaveType[];
+  notesAndCoordinates: NotesAndCoordinatesData[];
+  setOpen: (open: boolean) => void;
+  setMessage: (message: string) => void;
+};
+
+export type FlexibleDivRef = { current: HTMLDivElement | null };
+
+export type UseNotationRendererProps = {
+  containerRef: FlexibleDivRef;
+  renderFunction: () => StaveType[] | undefined;
+  scaleFactor?: number;
+  width?: number;
+  height?: number;
+};

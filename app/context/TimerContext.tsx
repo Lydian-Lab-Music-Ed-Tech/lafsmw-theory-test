@@ -1,19 +1,12 @@
 "use client";
 import {
   createContext,
-  useState,
+  SetStateAction,
   useContext,
   useEffect,
-  ReactNode,
-  SetStateAction,
+  useState,
 } from "react";
-
-type CreateTimerContextType = {
-  timeLeft: number;
-  isRunning: boolean;
-  startTimer: (duration: SetStateAction<number>, callback: () => void) => void;
-  stopTimer: () => void;
-};
+import { AuthContextType, CreateTimerContextType } from "../lib/types";
 
 const initialState: CreateTimerContextType = {
   timeLeft: 0,
@@ -23,10 +16,6 @@ const initialState: CreateTimerContextType = {
 };
 
 const TimerContext = createContext(initialState);
-
-type AuthContextType = {
-  children: ReactNode;
-};
 
 export const TimerProvider = ({ children }: AuthContextType) => {
   const [timeLeft, setTimeLeft] = useState(0);
