@@ -13,7 +13,7 @@ import { initialNotesAndCoordsState } from "../lib/initialStates";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
 import { GlyphProps, NotesAndCoordinatesData, StaveType } from "../lib/types";
-import { useButtonStates } from "../lib/useButtonStates";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import CustomButton from "./CustomButton";

@@ -26,7 +26,7 @@ import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
 import { Chord, NotesAndCoordinatesData, StaveType } from "../lib/types";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
-import { useButtonStates } from "../lib/useButtonStates";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 

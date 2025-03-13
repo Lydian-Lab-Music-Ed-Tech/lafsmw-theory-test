@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { useButtonStates } from "../lib/useButtonStates";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { errorMessages } from "../lib/data/errorMessages";
 import {

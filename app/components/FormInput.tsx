@@ -1,5 +1,4 @@
 "use client";
-import { ChangeEventHandler } from "react";
 import { FormInputProps } from "../lib/types";
 
 export default function FormInput({

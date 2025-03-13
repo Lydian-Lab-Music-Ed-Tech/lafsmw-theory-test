@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ButtonStates, ButtonSetters, ButtonState } from "./types";
+import { ButtonStates, ButtonSetters, ButtonState } from "../types";
 
 export const useButtonStates = (initialActiveId?: string) => {
   // Declare at top to ensure hooks are always called in the same order
