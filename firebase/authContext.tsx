@@ -2,13 +2,10 @@
 import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/config";
 import CreateAuthContext from "./createAuthContext";
-
-type AuthContextType = {
-  children: ReactNode;
-};
+import { AuthContextType } from "@/app/lib/types";
 
 // AuthContextProvider is a wrapper component that will provide the auth context to all its children
 export default function AuthContextProvider({ children }: AuthContextType) {

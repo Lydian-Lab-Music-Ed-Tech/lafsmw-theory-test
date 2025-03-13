@@ -1,13 +1,7 @@
 "use client";
 import Button from "@mui/material/Button";
-import { FC, ReactNode } from "react";
-
-interface CustomButtonProps {
-  onClick: () => void;
-  children: ReactNode;
-  isEnabled?: boolean;
-  active?: boolean;
-}
+import { FC } from "react";
+import { CustomButtonProps } from "../lib/types";
 
 const CustomButton: FC<CustomButtonProps> = ({
   onClick,

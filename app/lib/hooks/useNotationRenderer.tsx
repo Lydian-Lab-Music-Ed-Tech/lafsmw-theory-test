@@ -1,19 +1,9 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
 import { Flow } from "vexflow";
 import { initializeRenderer } from "../initializeRenderer";
-import { StaveType } from "../types";
+import { UseNotationRendererProps } from "../types";
 
 const { Renderer } = Flow;
-
-type FlexibleDivRef = { current: HTMLDivElement | null };
-
-type UseNotationRendererProps = {
-  containerRef: FlexibleDivRef;
-  renderFunction: () => StaveType[] | undefined;
-  scaleFactor?: number;
-  width?: number;
-  height?: number;
-};
 
 /**
  * A custom hook for handling VexFlow notation rendering

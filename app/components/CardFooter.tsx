@@ -1,15 +1,6 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import ProgressBar from "./ProgressBar";
-
-interface CardFooterProps {
-  width?: number;
-  height?: number;
-  pageNumber: number;
-  buttonType?: "submit" | "button" | "reset" | undefined;
-  buttonText?: string;
-  handleSubmit?: any;
-  buttonForm?: string;
-}
+import { CardFooterProps } from "../lib/types";
 
 export default function CardFooter({
   width = 470,

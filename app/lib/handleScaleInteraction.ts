@@ -14,9 +14,6 @@ import {
   errorMessages,
 } from "./types";
 
-// Define alias for cleaner code
-type StaveType = ScaleData;
-
 const { StaveNote } = Flow;
 
 export const HandleScaleInteraction = (
@@ -201,7 +198,7 @@ export const HandleScaleInteraction = (
         }
 
         // Convert the map back to an array sorted by x position
-        const uniqueNotes: StaveType[] = Array.from(positionMap.entries())
+        const uniqueNotes: ScaleData[] = Array.from(positionMap.entries())
           .sort((a, b) => a[0] - b[0]) // Sort by x position
           .map((entry) => entry[1]); // Extract just the note data
 

@@ -2,13 +2,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Slide, SnackbarContent } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Snackbar from "@mui/material/Snackbar";
-import { Dispatch, SetStateAction, SyntheticEvent } from "react";
-
-type SimpleSnackbarProps = {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  message: string;
-};
+import { SyntheticEvent } from "react";
+import { SimpleSnackbarProps } from "../lib/types";
 
 export default function SimpleSnackbar({
   open,

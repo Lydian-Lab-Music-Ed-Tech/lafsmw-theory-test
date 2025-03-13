@@ -1,15 +1,7 @@
 import { RefObject, useCallback } from "react";
 import { errorMessages } from "../data/errorMessages";
 import getUserClickInfo from "../getUserClickInfo";
-import { NotesAndCoordinatesData, StaveType } from "../types";
-
-type UseNotationClickHandlerProps = {
-  containerRef: RefObject<HTMLDivElement | null>;
-  staves: StaveType[];
-  notesAndCoordinates: NotesAndCoordinatesData[];
-  setOpen: (open: boolean) => void;
-  setMessage: (message: string) => void;
-};
+import { UseNotationClickHandlerProps } from "../types";
 
 /**
  * A custom hook for handling clicks on notation components

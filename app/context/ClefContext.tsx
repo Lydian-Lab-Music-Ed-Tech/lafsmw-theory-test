@@ -1,6 +1,6 @@
 "use client";
-
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
+import { ClefProviderProps } from "../lib/types";
 
 const ClefContext = createContext<
   | {
@@ -9,10 +9,6 @@ const ClefContext = createContext<
     }
   | undefined
 >(undefined);
-
-type ClefProviderProps = {
-  children: ReactNode;
-};
 
 export const ClefProvider = ({ children }: ClefProviderProps) => {
   const [chosenClef, setChosenClef] = useState<string>("treble");

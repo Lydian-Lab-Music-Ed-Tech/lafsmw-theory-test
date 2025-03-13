@@ -1,14 +1,10 @@
 import { Flow } from "vexflow";
+import { FlexibleDivRef } from "./types";
 
 const { Renderer } = Flow;
 
-// More flexible type that accepts any ref with a current property
-// This avoids type issues with React 19's ref implementation
-type FlexibleDivRef = { current: HTMLDivElement | null };
-
 /**
  * Initializes a VexFlow renderer on the provided container element
- *
  * Updated to work with React 19's ref system
  */
 export const initializeRenderer = (

@@ -1,18 +1,5 @@
 "use client";
-import { ChangeEventHandler } from "react";
-
-interface FormInputProps {
-  labelText?: string;
-  name: string;
-  type?: string;
-  value: string;
-  placeholder?: string;
-  maxLength?: number;
-  width?: string;
-  height?: string;
-  onChange: ChangeEventHandler<HTMLInputElement> | undefined;
-  required?: boolean;
-}
+import { FormInputProps } from "../lib/types";
 
 export default function FormInput({
   labelText = "",
