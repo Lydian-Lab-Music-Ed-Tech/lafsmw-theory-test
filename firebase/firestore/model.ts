@@ -1,15 +1,15 @@
+import { InputState } from "@/app/lib/types";
 import {
   collection,
   doc,
   getDoc,
   getDocs,
+  query,
+  serverTimestamp,
   setDoc,
   updateDoc,
-  serverTimestamp,
-  query,
 } from "firebase/firestore";
-import { db, auth } from "../config";
-import { InputState } from "@/app/lib/types";
+import { auth, db } from "../config";
 
 export async function getUserSnapshot() {
   // only need to retrieve displayName when fetching data

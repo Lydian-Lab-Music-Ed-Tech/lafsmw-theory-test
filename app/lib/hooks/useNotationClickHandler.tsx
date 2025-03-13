@@ -1,10 +1,10 @@
-import { RefObject, useCallback } from 'react';
-import { NotesAndCoordinatesData, StaveType } from '../types';
-import getUserClickInfo from '../getUserClickInfo';
-import { errorMessages } from '../data/errorMessages';
+import { RefObject, useCallback } from "react";
+import { errorMessages } from "../data/errorMessages";
+import getUserClickInfo from "../getUserClickInfo";
+import { NotesAndCoordinatesData, StaveType } from "../types";
 
 type UseNotationClickHandlerProps = {
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: RefObject<HTMLDivElement | null>;
   staves: StaveType[];
   notesAndCoordinates: NotesAndCoordinatesData[];
   setOpen: (open: boolean) => void;
@@ -21,38 +21,46 @@ export const useNotationClickHandler = ({
   setOpen,
   setMessage,
 }: UseNotationClickHandlerProps) => {
-  
-  const getClickInfo = useCallback((e: React.MouseEvent) => {
-    if (!staves.length || !containerRef.current) {
-      return null;
-    }
+  const getClickInfo = useCallback(
+    (e: React.MouseEvent) => {
+      if (!staves.length || !containerRef.current) {
+        return null;
+      }
 
-    const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } = 
-      getUserClickInfo(e, containerRef, staves[0]);
+      const { userClickY, userClickX, topStaveYCoord, bottomStaveYCoord } =
+        getUserClickInfo(
+          e,
+          containerRef as RefObject<HTMLDivElement>,
+          staves[0]
+        );
 
-    let foundNoteData = notesAndCoordinates.find(
-      ({ yCoordinateMin, yCoordinateMax }) =>
-        userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
-    );
+      let foundNoteData = notesAndCoordinates.find(
+        ({ yCoordinateMin, yCoordinateMax }) =>
+          userClickY >= yCoordinateMin && userClickY <= yCoordinateMax
+      );
 
-    if (!foundNoteData) {
-      setOpen(true);
-      setMessage(errorMessages.noNoteFound || "No note found at click position");
-      return null;
-    }
+      if (!foundNoteData) {
+        setOpen(true);
+        setMessage(
+          errorMessages.noNoteFound || "No note found at click position"
+        );
+        return null;
+      }
 
-    return {
-      userClickX,
-      userClickY,
-      topStaveYCoord,
-      bottomStaveYCoord,
-      foundNoteData: {
-        ...foundNoteData,
+      return {
         userClickX,
         userClickY,
-      },
-    };
-  }, [staves, notesAndCoordinates, containerRef, setOpen, setMessage]);
+        topStaveYCoord,
+        bottomStaveYCoord,
+        foundNoteData: {
+          ...foundNoteData,
+          userClickX,
+          userClickY,
+        },
+      };
+    },
+    [staves, notesAndCoordinates, containerRef, setOpen, setMessage]
+  );
 
   return { getClickInfo };
 };

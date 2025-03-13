@@ -3,13 +3,13 @@ import { chordTextInstructions } from "@/app/lib/data/instructions";
 import { InputData, UserDataProps } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useRef } from "react";
+import { useClef } from "../../context/ClefContext";
 import {
-  seventhChordsTreble,
   seventhChordsBass,
+  seventhChordsTreble,
 } from "../../lib/data/seventhChords";
 import CardFooter from "../CardFooter";
 import IdentifyNotation from "../IdentifyNotation";
-import { useClef } from "../../context/ClefContext";
 import TutorialModal from "../TutorialModal";
 
 export default function ChordsIdentification({

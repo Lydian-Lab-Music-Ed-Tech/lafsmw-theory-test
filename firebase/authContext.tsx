@@ -1,10 +1,10 @@
 "use client";
+import { Stack } from "@mui/material";
+import Box from "@mui/material/Box";
 import { User, onAuthStateChanged } from "firebase/auth";
-import React, { useContext, useEffect, useState, ReactNode } from "react";
+import { ReactNode, useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/config";
 import CreateAuthContext from "./createAuthContext";
-import Box from "@mui/material/Box";
-import { Stack } from "@mui/material";
 
 type AuthContextType = {
   children: ReactNode;

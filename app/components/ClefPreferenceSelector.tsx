@@ -1,11 +1,12 @@
+"use client";
 import {
   FormControl,
+  FormControlLabel,
   Radio,
   RadioGroup,
-  FormControlLabel,
 } from "@mui/material";
-import { chosenClef } from "../lib/types";
 import { ChangeEvent } from "react";
+import { chosenClef } from "../lib/types";
 
 const ClefPreferenceSelector = ({
   chosenClef: clef,

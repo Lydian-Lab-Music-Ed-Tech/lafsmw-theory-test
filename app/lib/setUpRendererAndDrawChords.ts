@@ -1,6 +1,7 @@
 import VexFlow from "vexflow";
 import createBlankStaves from "./createBlankStaves";
-import { RenderStavesAndChordParams, BlankStaves } from "./types";
+import { BlankStaves, RenderStavesAndChordParams } from "./types";
+
 const { Formatter } = VexFlow.Flow;
 
 export const setupRendererAndDrawChords = (

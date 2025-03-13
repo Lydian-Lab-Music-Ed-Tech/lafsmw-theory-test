@@ -1,5 +1,6 @@
-import { Dispatch, RefObject, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 import VexFlow, { RenderContext, StemmableNote } from "vexflow";
+
 const VF = VexFlow.Flow;
 const { StaveNote, Stave, Renderer, Glyph, Note } = VF;
 
@@ -47,7 +48,7 @@ export type Level =
   | "sibelius-class"
   | "select-here";
 
-export type RendererRef = RefObject<InstanceType<typeof Renderer>>;
+export type RendererRef = React.RefObject<InstanceType<typeof Renderer>>;
 export type SetStaves = Dispatch<SetStateAction<StaveType[]>>;
 export type SetStavesForChords = Dispatch<SetStateAction<StaveType[]>>;
 export type BlankStaves = StaveType[];

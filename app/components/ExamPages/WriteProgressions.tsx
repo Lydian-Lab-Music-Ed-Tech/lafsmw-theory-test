@@ -1,11 +1,11 @@
 "use client";
+import { chordTextInstructions } from "@/app/lib/data/instructions";
 import { InputData, UserDataProps } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useRef } from "react";
 import CardFooter from "../CardFooter";
-import WriteProgression from "../WriteProgression";
 import TutorialModal from "../TutorialModal";
-import { chordTextInstructions } from "@/app/lib/data/instructions";
+import WriteProgression from "../WriteProgression";
 
 export default function WriteProgressions({
   currentUserData,

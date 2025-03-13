@@ -1,5 +1,5 @@
-import React, { createContext } from "react";
 import { User } from "firebase/auth";
+import React, { createContext } from "react";
 
 type CreateAuthContextType = {
   user: User | null;

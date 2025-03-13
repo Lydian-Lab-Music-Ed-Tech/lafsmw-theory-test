@@ -38,8 +38,10 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const { states, setters, clearAllStates } = useButtonStates();
 
   // Set up rendering function with the circular dependency pattern
-  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(null);
-  
+  const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
+    null
+  );
+
   // Initialize the renderer with a stable renderFunction that uses renderFunctionRef
   const { rendererRef, render } = useNotationRenderer({
     containerRef: container,
@@ -56,20 +58,19 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const context = rendererRef.current?.getContext();
 
   // Define the actual rendering logic - this will be called via the ref
-  renderFunctionRef.current = useCallback(
-    (): StaveType[] | undefined => {
-      if (!rendererRef.current) return undefined;
-      
-      return setupRendererAndDrawStaves({
-        rendererRef,
-        ...staveData,
-        chosenClef,
-        staves,
-        firstStaveWidth: 450,
-      });
-    },
-    [chosenClef, staves, rendererRef]
-  );
+  renderFunctionRef.current = useCallback((): StaveType[] | undefined => {
+    if (!rendererRef.current) return undefined;
+
+    return setupRendererAndDrawStaves({
+      rendererRef: rendererRef as React.RefObject<
+        InstanceType<typeof VexFlow.Flow.Renderer>
+      >,
+      ...staveData,
+      chosenClef,
+      staves,
+      firstStaveWidth: 450,
+    });
+  }, [chosenClef, staves, rendererRef]);
 
   // Set up click handler
   const { getClickInfo } = useNotationClickHandler({
@@ -99,7 +100,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         );
       }
     };
-    
+
     loadStaves();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chosenClef]); // Intentionally removing render from deps to prevent loops
@@ -113,10 +114,9 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
       buildKeySignature(glyphs, 40, context, staves[0]);
     }
   }, [glyphs, context, staves]);
-  
+
   // Manual re-render after glyph changes - without this effect to avoid circular dependencies
   // We'll handle glyph persistence in the handleClick function instead
-
 
   // Update parent component with key signature
   useEffect(() => {
@@ -129,7 +129,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
     setGlyphs([]);
     setKeySig([]);
     clearAllStates();
-    
+
     // Use the explicit render function from the hook
     const newStaves = render();
     if (newStaves) {
@@ -142,7 +142,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         1,
         0
       );
-      
+
       // Ensure staves are updated properly
       if (context) {
         context.clear();
@@ -183,21 +183,22 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
 
     // Handle the key signature interaction
     // This will update glyphs via setGlyphs internally AND return the updated glyphs
-    const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } = handleKeySigInteraction(
-      notesAndCoordinatesCopy,
-      states,
-      foundNoteData,
-      userClickX,
-      userClickY,
-      setGlyphs,
-      glyphs,
-      setKeySig,
-      keySig
-    );
-    
-    // Update notesAndCoordinates 
+    const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } =
+      handleKeySigInteraction(
+        notesAndCoordinatesCopy,
+        states,
+        foundNoteData,
+        userClickX,
+        userClickY,
+        setGlyphs,
+        glyphs,
+        setKeySig,
+        keySig
+      );
+
+    // Update notesAndCoordinates
     setNotesAndCoordinates(newNotesAndCoordinates);
-    
+
     // Immediately draw with our manually calculated updated glyphs
     // This ensures we see the update immediately, not on the next click
     if (context && staves.length > 0) {

@@ -1,6 +1,7 @@
 import VexFlow from "vexflow";
 import createBlankStaves from "./createBlankStaves";
-import { RenderStavesAndNotesParams, BlankStaves } from "./types";
+import { BlankStaves, RenderStavesAndNotesParams } from "./types";
+
 const { Formatter, TickContext } = VexFlow.Flow;
 
 export const setupRendererAndDrawNotes = (

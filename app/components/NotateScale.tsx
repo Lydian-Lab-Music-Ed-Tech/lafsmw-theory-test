@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
 import React, {
   Dispatch,
   SetStateAction,
@@ -67,7 +66,9 @@ const NotateScale = ({
   renderFunctionRef.current = useCallback(
     (): StaveType[] | undefined =>
       setupRendererAndDrawNotes({
-        rendererRef,
+        rendererRef: rendererRef as React.RefObject<
+          InstanceType<typeof VexFlow.Flow.Renderer>
+        >,
         ...staveData,
         chosenClef,
         staves,
