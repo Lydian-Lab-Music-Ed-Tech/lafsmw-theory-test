@@ -1,8 +1,8 @@
-import VexFlow, { RenderContext } from "vexflow";
-import { GlyphProps, StaveType } from "./types";
+import { Flow, RenderContext } from "vexflow";
 import { roundToNearest5 } from "./roundToNearest5";
-const VF = VexFlow.Flow;
-const { Glyph } = VF;
+import { GlyphProps, StaveType } from "./types";
+
+const { Glyph } = Flow;
 
 export const buildKeySignature = (
   glyphs: GlyphProps[],

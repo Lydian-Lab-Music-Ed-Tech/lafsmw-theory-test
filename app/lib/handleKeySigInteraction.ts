@@ -3,12 +3,10 @@ import {
   updateNotesAndCoordsWithAccidental,
 } from "../lib/modifyNotesAndCoordinates";
 import {
-  addGlyphs,
   deleteAccidentalFromKeySigArray,
-  deleteGlyphFromStave,
   updateKeySigArrayForGrading,
 } from "./modifyKeySignature";
-import { GlyphProps, NotesAndCoordinatesData, ButtonStates } from "./types";
+import { ButtonStates, GlyphProps, NotesAndCoordinatesData } from "./types";
 
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],

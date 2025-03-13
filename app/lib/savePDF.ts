@@ -1,8 +1,8 @@
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { InputState } from "./types";
 import { storage } from "../../firebase/config";
+import { InputState } from "./types";
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 

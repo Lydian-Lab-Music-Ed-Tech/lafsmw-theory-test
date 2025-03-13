@@ -1,4 +1,4 @@
-import VexFlow from "vexflow";
+import { Flow } from "vexflow";
 import {
   Chord,
   NoteStringData,
@@ -7,7 +7,7 @@ import {
   StaveNoteType,
 } from "./types";
 
-const { Accidental, StaveNote } = VexFlow.Flow;
+const { Accidental, StaveNote } = Flow;
 
 const parseNote = (note: string) => {
   const noteBase = note.split("/")[0];

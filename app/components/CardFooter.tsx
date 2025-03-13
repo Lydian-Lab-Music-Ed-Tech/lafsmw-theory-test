@@ -1,4 +1,4 @@
-import { Box, Divider, Stack, Typography, Button } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import ProgressBar from "./ProgressBar";
 
 interface CardFooterProps {

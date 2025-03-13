@@ -1,6 +1,6 @@
 import React from "react";
-import { NotesAndCoordinatesData, StaveType } from "./types";
 import generateYMinAndYMaxForKeySig from "./generateYMinAndMaxForKeySig";
+import { NotesAndCoordinatesData, StaveType } from "./types";
 
 const TOLERANCE: number = 2.5;
 const helperFunction = (

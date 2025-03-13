@@ -1,11 +1,11 @@
 "use client";
 import { ForwardedRef, forwardRef, useEffect, useMemo, useState } from "react";
+import { useClef } from "../context/ClefContext";
 import createInitialState from "../lib/createInitialState";
 import isCurrentDataFilled from "../lib/isCurrentDataFilled";
 import { ChangeEvent, Chord, FormEvent, InputData } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
-import { useClef } from "../context/ClefContext";
 
 interface TextInput {
   [key: string]: string;

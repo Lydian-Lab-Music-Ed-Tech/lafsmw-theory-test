@@ -1,8 +1,8 @@
-import React, { RefObject, ReactNode } from 'react';
-import SnackbarToast from './SnackbarToast';
+import React, { RefObject, ReactNode } from "react";
+import SnackbarToast from "./SnackbarToast";
 
 type NotationContainerProps = {
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: RefObject<HTMLDivElement | null>;
   onClick?: (e: React.MouseEvent) => void;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,8 +19,8 @@ const NotationContainer = ({
   setOpen,
   message,
   children,
-  width = '705px',
-  height = '300px',
+  width = "705px",
+  height = "300px",
 }: NotationContainerProps) => {
   return (
     <>
@@ -28,7 +28,7 @@ const NotationContainer = ({
         ref={containerRef}
         onClick={onClick}
         style={{
-          overflow: 'visible',
+          overflow: "visible",
           width,
           height,
         }}

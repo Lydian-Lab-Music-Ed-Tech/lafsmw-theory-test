@@ -6,6 +6,7 @@ import isCurrentDataFilled from "../lib/isCurrentDataFilled";
 import { ChangeEvent, Chord, FormEvent, InputData } from "../lib/types";
 import FormInput from "./FormInput";
 import KeySigStaff from "./KeySigStaff";
+
 interface TextInput {
   [key: string]: string;
 }

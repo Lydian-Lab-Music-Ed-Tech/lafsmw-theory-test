@@ -1,4 +1,5 @@
 "use client";
+import { chordTextInstructions } from "@/app/lib/data/instructions";
 import { savePDF } from "@/app/lib/savePDF";
 import { InputData, UserDataBluesProps } from "@/app/lib/types";
 import { useAuthContext } from "@/firebase/authContext";
@@ -6,9 +7,8 @@ import { Box, Button, Stack, Typography } from "@mui/material";
 import { useRef, useState } from "react";
 import CardFooter from "../CardFooter";
 import SnackbarToast from "../SnackbarToast";
-import WriteBlues from "../WriteBlues";
 import TutorialModal from "../TutorialModal";
-import { chordTextInstructions } from "@/app/lib/data/instructions";
+import WriteBlues from "../WriteBlues";
 
 export default function WriteBluesChanges({
   currentUserData,
