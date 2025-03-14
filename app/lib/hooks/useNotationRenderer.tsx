@@ -18,7 +18,6 @@ export const useNotationRenderer = ({
   width = 470,
   height = 200,
 }: UseNotationRendererProps) => {
-  // Define the renderer ref with proper type
   const rendererRef = useRef<InstanceType<typeof Renderer> | null>(null);
   const hasScaled = useRef(false);
   const renderFunctionRef = useRef(renderFunction);
@@ -31,7 +30,7 @@ export const useNotationRenderer = ({
   // Initialize the renderer - only depends on containerRef, not the render function
   useEffect(() => {
     if (containerRef.current) {
-      // Pass directly to initializeRenderer which now accepts FlexibleDivRef
+      // Pass directly to initializeRenderer
       initializeRenderer(
         rendererRef as RefObject<InstanceType<typeof Renderer> | null>,
         containerRef

@@ -7,7 +7,6 @@ import { auth } from "../firebase/config";
 import CreateAuthContext from "./createAuthContext";
 import { AuthContextType } from "@/app/lib/types";
 
-// AuthContextProvider is a wrapper component that will provide the auth context to all its children
 export default function AuthContextProvider({ children }: AuthContextType) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
