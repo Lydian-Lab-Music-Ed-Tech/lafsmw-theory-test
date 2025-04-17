@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ButtonStates, ButtonSetters } from "../types";
+import { ButtonSetters, ButtonStates } from "../types";
 
 export const useButtonStates = (initialActiveId?: string) => {
   // Declare at top to ensure hooks are always called in the same order
@@ -17,7 +17,7 @@ export const useButtonStates = (initialActiveId?: string) => {
     initialActiveId === "eraseAccidental"
   );
 
-  const states: ButtonStates = {
+  const buttonStates: ButtonStates = {
     isEnterNoteActive,
     isEraseNoteActive,
     isSharpActive,
@@ -42,7 +42,7 @@ export const useButtonStates = (initialActiveId?: string) => {
   }, []);
 
   return {
-    states,
+    buttonStates,
     setters,
     clearAllStates,
   };

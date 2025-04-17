@@ -10,7 +10,7 @@ import { ButtonStates, GlyphProps, NotesAndCoordinatesData } from "./types";
 
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
-  state: ButtonStates,
+  buttonState: ButtonStates,
   foundNoteData: NotesAndCoordinatesData,
   xClick: number,
   yClick: number,
@@ -22,22 +22,22 @@ export const handleKeySigInteraction = (
   // Create a copy of the current glyphState that we'll modify and return
   let updatedGlyphs = [...glyphState];
 
-  if (state.isSharpActive || state.isFlatActive) {
+  if (buttonState.isSharpActive || buttonState.isFlatActive) {
     notesAndCoordinates = updateNotesAndCoordsWithAccidental(
-      state,
+      buttonState,
       foundNoteData,
       notesAndCoordinates
     );
 
     // Add the new glyph
-    if (state.isSharpActive) {
+    if (buttonState.isSharpActive) {
       const newGlyph: GlyphProps = {
         xPosition: xClick - 5,
         yPosition: yClick,
         glyph: "accidentalSharp",
       };
       updatedGlyphs.push(newGlyph);
-    } else if (state.isFlatActive) {
+    } else if (buttonState.isFlatActive) {
       const newGlyph: GlyphProps = {
         xPosition: xClick - 5,
         yPosition: yClick,
@@ -50,8 +50,8 @@ export const handleKeySigInteraction = (
     setGlyphState(updatedGlyphs);
 
     // Only update the key signature array if we added a glyph
-    updateKeySigArrayForGrading(foundNoteData, state, setKeySigState);
-  } else if (state.isEraseAccidentalActive) {
+    updateKeySigArrayForGrading(foundNoteData, buttonState, setKeySigState);
+  } else if (buttonState.isEraseAccidentalActive) {
     // Remove the glyph at the click position
     updatedGlyphs = updatedGlyphs.filter((glyph) => {
       const distance = Math.sqrt(
@@ -61,7 +61,6 @@ export const handleKeySigInteraction = (
       return distance > 20; // Filter out glyphs within 20px radius of click
     });
 
-    // Update the state
     setGlyphState(updatedGlyphs);
 
     // Update other state values
@@ -74,6 +73,6 @@ export const handleKeySigInteraction = (
 
   return {
     notesAndCoordinates,
-    updatedGlyphs, // Return the updated glyphs for immediate rendering
+    updatedGlyphs,
   };
 };

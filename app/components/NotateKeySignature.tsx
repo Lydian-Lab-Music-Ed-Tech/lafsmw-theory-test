@@ -40,7 +40,7 @@ const NotateKeySignature = ({
   const [keySig, setKeySig] = useState<string[]>(initialKeySignature);
   const renderCount = useRef(0);
   const { chosenClef } = useClef();
-  const { states, setters, clearAllStates } = useButtonStates();
+  const { buttonStates, setters, clearAllStates } = useButtonStates();
 
   // Set up rendering function with the circular dependency pattern
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -103,10 +103,9 @@ const NotateKeySignature = ({
     }
   }, [chosenClef]);
 
-  // Update glyphs when changed
+  // This is to update glyphs when changed
   useEffect(() => {
     if (context && staves.length > 0) {
-      // Clear and redraw without recreating the staves
       context.clear();
       staves[0].setContext(context).draw();
       buildKeySignature(glyphs, 40, context, staves[0]);
@@ -131,7 +130,6 @@ const NotateKeySignature = ({
         0
       );
 
-      // Ensure staves are updated properly
       if (context) {
         context.clear();
         newStaves[0].setContext(context).draw();
@@ -139,6 +137,7 @@ const NotateKeySignature = ({
     }
   };
 
+  // Handle click events:
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
 
@@ -173,7 +172,7 @@ const NotateKeySignature = ({
     const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } =
       handleKeySigInteraction(
         notesAndCoordinatesCopy,
-        states,
+        buttonStates,
         foundNoteData,
         userClickX,
         userClickY,
@@ -219,7 +218,7 @@ const NotateKeySignature = ({
               clearAllStates();
               setters.setIsSharpActive(true);
             }}
-            active={states.isSharpActive}
+            active={buttonStates.isSharpActive}
           >
             Add Sharp
           </CustomButton>
@@ -228,7 +227,7 @@ const NotateKeySignature = ({
               clearAllStates();
               setters.setIsFlatActive(true);
             }}
-            active={states.isFlatActive}
+            active={buttonStates.isFlatActive}
           >
             Add Flat
           </CustomButton>
@@ -237,7 +236,7 @@ const NotateKeySignature = ({
               clearAllStates();
               setters.setIsEraseAccidentalActive(true);
             }}
-            active={states.isEraseAccidentalActive}
+            active={buttonStates.isEraseAccidentalActive}
           >
             Erase Accidental
           </CustomButton>

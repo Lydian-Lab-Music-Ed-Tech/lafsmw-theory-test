@@ -1,9 +1,14 @@
 "use client";
 import { keySigNotationInstructions } from "@/app/lib/data/instructions";
 import keySignaturesText from "@/app/lib/data/keySignaturesText";
-import { MouseEvent, UserDataProps, InputState, GlyphProps } from "@/app/lib/types";
+import {
+  GlyphProps,
+  InputState,
+  MouseEvent,
+  UserDataProps,
+} from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import CardFooter from "../CardFooter";
 import NotateKeySignature from "../NotateKeySignature";
 import TutorialModal from "../TutorialModal";
@@ -15,12 +20,17 @@ export default function KeySignaturesNotation({
   page,
 }: UserDataProps) {
   const keySigPropName = `keySignaturesNotation${page}` as keyof InputState;
-  const keySigGlyphPropName = `keySignatureGlyphsNotation${page}` as keyof InputState;
+  const keySigGlyphPropName =
+    `keySignatureGlyphsNotation${page}` as keyof InputState;
 
-  const [keySignatureNotation, setKeySignatureNotation] = useState<string[]>(currentUserData[keySigPropName] || []);
-  const [keySignatureGlyphs, setKeySignatureGlyphs] = useState<GlyphProps[]>(currentUserData[keySigGlyphPropName] || []);
+  const [keySignatureNotation, setKeySignatureNotation] = useState<string[]>(
+    currentUserData[keySigPropName] || []
+  );
+  const [keySignatureGlyphs, setKeySignatureGlyphs] = useState<GlyphProps[]>(
+    currentUserData[keySigGlyphPropName] || []
+  );
 
-  // Update local state when currentUserData changes
+  // Update local states when currentUserData changes
   useEffect(() => {
     const newNotes = currentUserData[keySigPropName] || [];
     const newGlyphs = currentUserData[keySigGlyphPropName] || [];
@@ -34,27 +44,26 @@ export default function KeySignaturesNotation({
   }, [currentUserData, keySigPropName, keySigGlyphPropName]);
 
   // Save both arrays on change
-  const handleSave = (newNotes: string[], newGlyphs: GlyphProps[]) => {
+  const handleSaveOnChange = (
+    newKeySigNotes: string[],
+    newGlyphs: GlyphProps[]
+  ) => {
     setCurrentUserData({
       ...currentUserData,
-      [keySigPropName]: newNotes,
+      [keySigPropName]: newKeySigNotes,
       [keySigGlyphPropName]: newGlyphs,
     });
-    setKeySignatureNotation(newNotes);
+    setKeySignatureNotation(newKeySigNotes);
     setKeySignatureGlyphs(newGlyphs);
   };
-
 
   const handleSubmit = async (e: MouseEvent) => {
     e.preventDefault();
     setCurrentUserData({
       ...currentUserData,
       [keySigPropName]: keySignatureNotation,
+      [keySigGlyphPropName]: keySignatureGlyphs,
     });
-    // console.log({
-    //   ...currentUserData,
-    //   [keySigPropName]: keySignatureNotation,
-    // });
     nextViewState();
   };
 
@@ -114,7 +123,7 @@ export default function KeySignaturesNotation({
             <NotateKeySignature
               initialKeySignature={keySignatureNotation}
               initialGlyphs={keySignatureGlyphs}
-              onChange={handleSave}
+              onChange={handleSaveOnChange}
             />
           </Stack>
           <CardFooter
