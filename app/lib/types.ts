@@ -1,6 +1,12 @@
 import { Dispatch, SetStateAction, RefObject, ReactNode } from "react";
 import { Flow, RenderContext, StemmableNote } from "vexflow";
 
+export interface GlyphProps {
+  xPosition: number;
+  yPosition: number;
+  glyph: string;
+}
+
 const { StaveNote, Stave, Renderer, Glyph, Note } = Flow;
 
 export type FormEvent = React.FormEvent<HTMLFormElement>;
@@ -224,6 +230,12 @@ export interface GlyphProps {
   glyph: string;
 }
 
+export interface NotateKeySignatureProps {
+  initialKeySignature?: string[];
+  initialGlyphs?: GlyphProps[];
+  onChange?: (notes: string[], glyphs: GlyphProps[]) => void;
+}
+
 export interface InputState {
   userId: string | null | undefined;
   user: any;
@@ -233,6 +245,10 @@ export interface InputState {
   keySignaturesNotation2: string[];
   keySignaturesNotation3: string[];
   keySignaturesNotation4: string[];
+  keySignatureGlyphsNotation1?: GlyphProps[];
+  keySignatureGlyphsNotation2?: GlyphProps[];
+  keySignatureGlyphsNotation3?: GlyphProps[];
+  keySignatureGlyphsNotation4?: GlyphProps[];
   scales1: string[];
   scales2: string[];
   scales3: string[];

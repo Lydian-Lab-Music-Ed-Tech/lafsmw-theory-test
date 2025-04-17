@@ -9,17 +9,26 @@ import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { keySigArray } from "../lib/data/keySigArray";
 import { staveData } from "../lib/data/stavesData";
 import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
-import { GlyphProps, NotesAndCoordinatesData, StaveType } from "../lib/types";
-import { useButtonStates } from "../lib/hooks/useButtonStates";
-import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
-import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
+import {
+  GlyphProps,
+  NotateKeySignatureProps,
+  NotesAndCoordinatesData,
+  StaveType,
+} from "../lib/types";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
-const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
+const NotateKeySignature = ({
+  initialKeySignature = [],
+  initialGlyphs = [],
+  onChange,
+}: NotateKeySignatureProps) => {
   const container = useRef<HTMLDivElement | null>(null);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState(false);
@@ -27,8 +36,8 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const [glyphs, setGlyphs] = useState<GlyphProps[]>([]);
-  const [keySig, setKeySig] = useState<string[]>([]);
+  const [glyphs, setGlyphs] = useState<GlyphProps[]>(initialGlyphs || []);
+  const [keySig, setKeySig] = useState<string[]>(initialKeySignature);
   const renderCount = useRef(0);
   const { chosenClef } = useClef();
   const { states, setters, clearAllStates } = useButtonStates();
@@ -78,28 +87,21 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   });
 
   // Initial load - happens only when chosenClef changes, not on every render
-  // We're removing render from the dependency array to avoid infinite loops
   useEffect(() => {
-    const loadStaves = () => {
-      // Use the explicit render function from the hook
-      const newStaves = render();
-      if (newStaves) {
-        setStaves(newStaves);
-        calculateNotesAndCoordinates(
-          chosenClef,
-          setNotesAndCoordinates,
-          newStaves,
-          keySigArray,
-          0,
-          1,
-          0
-        );
-      }
-    };
-
-    loadStaves();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chosenClef]); // Intentionally removing render from deps to prevent loops
+    const newStaves = render();
+    if (newStaves) {
+      setStaves(newStaves);
+      calculateNotesAndCoordinates(
+        chosenClef,
+        setNotesAndCoordinates,
+        newStaves,
+        keySigArray,
+        0,
+        1,
+        0
+      );
+    }
+  }, [chosenClef]);
 
   // Update glyphs when changed
   useEffect(() => {
@@ -111,22 +113,12 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
     }
   }, [glyphs, context, staves]);
 
-  // Manual re-render after glyph changes - without this effect to avoid circular dependencies
-  // We'll handle glyph persistence in the handleClick function instead
-
-  // Update parent component with key signature
-  useEffect(() => {
-    if (setKeySignatureNotation) {
-      setKeySignatureNotation(keySig);
-    }
-  }, [keySig, setKeySignatureNotation]);
-
   const clearKey = () => {
     setGlyphs([]);
     setKeySig([]);
+    if (onChange) onChange([], []);
     clearAllStates();
 
-    // Use the explicit render function from the hook
     const newStaves = render();
     if (newStaves) {
       calculateNotesAndCoordinates(
@@ -177,7 +169,6 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-    // Handle the key signature interaction
     // This will update glyphs via setGlyphs internally AND return the updated glyphs
     const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } =
       handleKeySigInteraction(
@@ -192,7 +183,6 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         keySig
       );
 
-    // Update notesAndCoordinates
     setNotesAndCoordinates(newNotesAndCoordinates);
 
     // Immediately draw with our manually calculated updated glyphs
@@ -202,6 +192,9 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
       staves[0].setContext(context).draw();
       buildKeySignature(updatedGlyphs, 40, context, staves[0]);
     }
+
+    // Call onChange with updated glyphs
+    if (onChange) onChange(keySig, updatedGlyphs);
   };
 
   return (

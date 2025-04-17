@@ -230,10 +230,32 @@ export default function ExamHomePage() {
     });
   };
 
-  const decrementViewState = () => {
-    setViewState((prevState) => {
-      return prevState - 1;
-    });
+  const decrementViewState = async () => {
+    try {
+      if (userName) {
+        // Save current state before going back
+        await setOrUpdateStudentData(currentUserData, userName);
+
+        // Get latest data from Firebase
+        const { success, message, error, res } = await getUserSnapshot();
+        if (error) {
+          console.error(message);
+        } else if (res) {
+          setCurrentUserData((prevData) => ({
+            ...prevData,
+            ...res[0],
+          }));
+          console.log(
+            "Current user data from decrementViewState:",
+            currentUserData
+          );
+        }
+      }
+
+      setViewState((prevState) => prevState - 1);
+    } catch (error) {
+      console.error("Error in decrementViewState:", error);
+    }
   };
 
   const handleTimeUp = () => {
