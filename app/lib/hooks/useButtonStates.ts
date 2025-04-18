@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ButtonStates, ButtonSetters, ButtonState } from "../types";
+import { ButtonSetters, ButtonStates } from "../types";
 
 export const useButtonStates = (initialActiveId?: string) => {
   // Declare at top to ensure hooks are always called in the same order
@@ -17,8 +17,7 @@ export const useButtonStates = (initialActiveId?: string) => {
     initialActiveId === "eraseAccidental"
   );
 
-  // Combine all states into a single object for convenience
-  const states: ButtonStates = {
+  const buttonStates: ButtonStates = {
     isEnterNoteActive,
     isEraseNoteActive,
     isSharpActive,
@@ -26,7 +25,6 @@ export const useButtonStates = (initialActiveId?: string) => {
     isEraseAccidentalActive,
   };
 
-  // Combine all setters into a single object for convenience
   const setters: ButtonSetters = {
     setIsEnterNoteActive,
     setIsEraseNoteActive,
@@ -35,37 +33,6 @@ export const useButtonStates = (initialActiveId?: string) => {
     setIsEraseAccidentalActive,
   };
 
-  // For the new interface, create an array of button states
-  const buttonStates: ButtonState[] = [
-    {
-      id: "enterNote",
-      isActive: isEnterNoteActive,
-      setter: setIsEnterNoteActive,
-    },
-    {
-      id: "eraseNote",
-      isActive: isEraseNoteActive,
-      setter: setIsEraseNoteActive,
-    },
-    { id: "sharp", isActive: isSharpActive, setter: setIsSharpActive },
-    { id: "flat", isActive: isFlatActive, setter: setIsFlatActive },
-    {
-      id: "eraseAccidental",
-      isActive: isEraseAccidentalActive,
-      setter: setIsEraseAccidentalActive,
-    },
-  ];
-
-  // Set a specific button as active and deactivate all others
-  const setActive = useCallback((buttonId: string) => {
-    setIsEnterNoteActive(buttonId === "enterNote");
-    setIsEraseNoteActive(buttonId === "eraseNote");
-    setIsSharpActive(buttonId === "sharp");
-    setIsFlatActive(buttonId === "flat");
-    setIsEraseAccidentalActive(buttonId === "eraseAccidental");
-  }, []);
-
-  // Clear all button states (set all to inactive)
   const clearAllStates = useCallback(() => {
     setIsEnterNoteActive(false);
     setIsEraseNoteActive(false);
@@ -75,12 +42,8 @@ export const useButtonStates = (initialActiveId?: string) => {
   }, []);
 
   return {
-    // Legacy interface
-    states,
+    buttonStates,
     setters,
     clearAllStates,
-    // New interface
-    buttonStates,
-    setActive,
   };
 };

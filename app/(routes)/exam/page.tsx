@@ -230,10 +230,28 @@ export default function ExamHomePage() {
     });
   };
 
-  const decrementViewState = () => {
-    setViewState((prevState) => {
-      return prevState - 1;
-    });
+  const decrementViewState = async () => {
+    try {
+      if (userName) {
+        // Save current state before going back
+        await setOrUpdateStudentData(currentUserData, userName);
+
+        // Get latest data from Firebase
+        const { success, message, error, res } = await getUserSnapshot();
+        if (error) {
+          console.error(message);
+        } else if (res) {
+          setCurrentUserData((prevData) => ({
+            ...prevData,
+            ...res[0],
+          }));
+        }
+      }
+
+      setViewState((prevState) => prevState - 1);
+    } catch (error) {
+      console.error("Error in decrementViewState:", error);
+    }
   };
 
   const handleTimeUp = () => {
@@ -647,6 +665,9 @@ export default function ExamHomePage() {
                 onClick={() => setViewState(VIEW_STATES.WRITE_PROGRESSIONS)}
               >
                 <Typography>{"Go to Progressions"}</Typography>
+              </Button>
+              <Button onClick={() => console.log("Data:", currentUserData)}>
+                <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
           )}

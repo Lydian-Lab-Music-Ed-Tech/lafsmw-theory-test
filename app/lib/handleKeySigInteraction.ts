@@ -2,15 +2,11 @@ import {
   removeAccidentalFromNotesAndCoords,
   updateNotesAndCoordsWithAccidental,
 } from "../lib/modifyNotesAndCoordinates";
-import {
-  deleteAccidentalFromKeySigArray,
-  updateKeySigArrayForGrading,
-} from "./modifyKeySignature";
 import { ButtonStates, GlyphProps, NotesAndCoordinatesData } from "./types";
 
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
-  state: ButtonStates,
+  buttonState: ButtonStates,
   foundNoteData: NotesAndCoordinatesData,
   xClick: number,
   yClick: number,
@@ -22,22 +18,22 @@ export const handleKeySigInteraction = (
   // Create a copy of the current glyphState that we'll modify and return
   let updatedGlyphs = [...glyphState];
 
-  if (state.isSharpActive || state.isFlatActive) {
+  if (buttonState.isSharpActive || buttonState.isFlatActive) {
     notesAndCoordinates = updateNotesAndCoordsWithAccidental(
-      state,
+      buttonState,
       foundNoteData,
       notesAndCoordinates
     );
 
     // Add the new glyph
-    if (state.isSharpActive) {
+    if (buttonState.isSharpActive) {
       const newGlyph: GlyphProps = {
         xPosition: xClick - 5,
         yPosition: yClick,
         glyph: "accidentalSharp",
       };
       updatedGlyphs.push(newGlyph);
-    } else if (state.isFlatActive) {
+    } else if (buttonState.isFlatActive) {
       const newGlyph: GlyphProps = {
         xPosition: xClick - 5,
         yPosition: yClick,
@@ -50,8 +46,20 @@ export const handleKeySigInteraction = (
     setGlyphState(updatedGlyphs);
 
     // Only update the key signature array if we added a glyph
-    updateKeySigArrayForGrading(foundNoteData, state, setKeySigState);
-  } else if (state.isEraseAccidentalActive) {
+    // updateKeySigArrayForGrading(foundNoteData, buttonState, setKeySigState);
+
+    const noteBase = foundNoteData.note.charAt(0);
+    const accidental = buttonState.isSharpActive ? "#" : "b";
+    const noteWithAccidental = `${noteBase}${accidental}`;
+
+    // Update the key signature array with the new note
+    // Create a new array with the updated key signature to ensure immediate update
+    const updatedKeySig = keySig.filter((note) => note.charAt(0) !== noteBase);
+    updatedKeySig.push(noteWithAccidental);
+
+    // Set the state with the new array
+    setKeySigState(updatedKeySig);
+  } else if (buttonState.isEraseAccidentalActive) {
     // Remove the glyph at the click position
     updatedGlyphs = updatedGlyphs.filter((glyph) => {
       const distance = Math.sqrt(
@@ -61,11 +69,16 @@ export const handleKeySigInteraction = (
       return distance > 20; // Filter out glyphs within 20px radius of click
     });
 
-    // Update the state
     setGlyphState(updatedGlyphs);
 
     // Update other state values
-    deleteAccidentalFromKeySigArray(foundNoteData, keySig, setKeySigState);
+    // Create a new array with the note removed to ensure immediate update
+    const noteBase = foundNoteData.note.charAt(0);
+    const updatedKeySig = keySig.filter((note) => note.charAt(0) !== noteBase);
+
+    // Set the state with the new array
+    setKeySigState(updatedKeySig);
+
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(
       notesAndCoordinates,
       foundNoteData
@@ -74,6 +87,6 @@ export const handleKeySigInteraction = (
 
   return {
     notesAndCoordinates,
-    updatedGlyphs, // Return the updated glyphs for immediate rendering
+    updatedGlyphs,
   };
 };

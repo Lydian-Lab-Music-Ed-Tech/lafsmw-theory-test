@@ -9,17 +9,26 @@ import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { keySigArray } from "../lib/data/keySigArray";
 import { staveData } from "../lib/data/stavesData";
 import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
-import { GlyphProps, NotesAndCoordinatesData, StaveType } from "../lib/types";
-import { useButtonStates } from "../lib/hooks/useButtonStates";
-import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
-import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
+import {
+  GlyphProps,
+  NotateKeySignatureProps,
+  NotesAndCoordinatesData,
+  StaveType,
+} from "../lib/types";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
-const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
+const NotateKeySignature = ({
+  initialKeySignature = [],
+  initialGlyphs = [],
+  onChange,
+}: NotateKeySignatureProps) => {
   const container = useRef<HTMLDivElement | null>(null);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState(false);
@@ -27,11 +36,11 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const [glyphs, setGlyphs] = useState<GlyphProps[]>([]);
-  const [keySig, setKeySig] = useState<string[]>([]);
+  const [glyphs, setGlyphs] = useState<GlyphProps[]>(initialGlyphs || []);
+  const [keySig, setKeySig] = useState<string[]>(initialKeySignature);
   const renderCount = useRef(0);
   const { chosenClef } = useClef();
-  const { states, setters, clearAllStates } = useButtonStates();
+  const { buttonStates, setters, clearAllStates } = useButtonStates();
 
   // Set up rendering function with the circular dependency pattern
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -78,55 +87,37 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
   });
 
   // Initial load - happens only when chosenClef changes, not on every render
-  // We're removing render from the dependency array to avoid infinite loops
   useEffect(() => {
-    const loadStaves = () => {
-      // Use the explicit render function from the hook
-      const newStaves = render();
-      if (newStaves) {
-        setStaves(newStaves);
-        calculateNotesAndCoordinates(
-          chosenClef,
-          setNotesAndCoordinates,
-          newStaves,
-          keySigArray,
-          0,
-          1,
-          0
-        );
-      }
-    };
+    const newStaves = render();
+    if (newStaves) {
+      setStaves(newStaves);
+      calculateNotesAndCoordinates(
+        chosenClef,
+        setNotesAndCoordinates,
+        newStaves,
+        keySigArray,
+        0,
+        1,
+        0
+      );
+    }
+  }, [chosenClef]);
 
-    loadStaves();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chosenClef]); // Intentionally removing render from deps to prevent loops
-
-  // Update glyphs when changed
+  // This is to update glyphs when changed
   useEffect(() => {
     if (context && staves.length > 0) {
-      // Clear and redraw without recreating the staves
       context.clear();
       staves[0].setContext(context).draw();
       buildKeySignature(glyphs, 40, context, staves[0]);
     }
   }, [glyphs, context, staves]);
 
-  // Manual re-render after glyph changes - without this effect to avoid circular dependencies
-  // We'll handle glyph persistence in the handleClick function instead
-
-  // Update parent component with key signature
-  useEffect(() => {
-    if (setKeySignatureNotation) {
-      setKeySignatureNotation(keySig);
-    }
-  }, [keySig, setKeySignatureNotation]);
-
   const clearKey = () => {
     setGlyphs([]);
     setKeySig([]);
+    if (onChange) onChange([], []);
     clearAllStates();
 
-    // Use the explicit render function from the hook
     const newStaves = render();
     if (newStaves) {
       calculateNotesAndCoordinates(
@@ -139,7 +130,6 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         0
       );
 
-      // Ensure staves are updated properly
       if (context) {
         context.clear();
         newStaves[0].setContext(context).draw();
@@ -147,6 +137,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
     }
   };
 
+  // Handle click events:
   const handleClick = (e: React.MouseEvent) => {
     renderCount.current += 1;
 
@@ -177,12 +168,11 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-    // Handle the key signature interaction
     // This will update glyphs via setGlyphs internally AND return the updated glyphs
     const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } =
       handleKeySigInteraction(
         notesAndCoordinatesCopy,
-        states,
+        buttonStates,
         foundNoteData,
         userClickX,
         userClickY,
@@ -192,7 +182,6 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
         keySig
       );
 
-    // Update notesAndCoordinates
     setNotesAndCoordinates(newNotesAndCoordinates);
 
     // Immediately draw with our manually calculated updated glyphs
@@ -201,6 +190,37 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
       context.clear();
       staves[0].setContext(context).draw();
       buildKeySignature(updatedGlyphs, 40, context, staves[0]);
+    }
+
+    // Call onChange with updated keySig value
+    if (onChange) {
+      // If we're adding an accidental, we need to calculate the updated keySig value
+      if (buttonStates.isSharpActive || buttonStates.isFlatActive) {
+        const noteBase = foundNoteData.note.charAt(0);
+        const accidental = buttonStates.isSharpActive ? "#" : "b";
+        const noteWithAccidental = `${noteBase}${accidental}`;
+
+        // Calculate the updated keySig value
+        const updatedKeySig = keySig.filter(
+          (note) => note.charAt(0) !== noteBase
+        );
+        updatedKeySig.push(noteWithAccidental);
+
+        // Call onChange with the calculated value
+        onChange(updatedKeySig, updatedGlyphs);
+      } else if (buttonStates.isEraseAccidentalActive) {
+        // For erasing, we can calculate the updated keySig by removing the note
+        const noteBase = foundNoteData.note.charAt(0);
+        const updatedKeySig = keySig.filter(
+          (note) => note.charAt(0) !== noteBase
+        );
+
+        // Call onChange with the calculated value
+        onChange(updatedKeySig, updatedGlyphs);
+      } else {
+        // For other cases, use the current keySig
+        onChange(keySig, updatedGlyphs);
+      }
     }
   };
 
@@ -226,7 +246,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
               clearAllStates();
               setters.setIsSharpActive(true);
             }}
-            active={states.isSharpActive}
+            active={buttonStates.isSharpActive}
           >
             Add Sharp
           </CustomButton>
@@ -235,7 +255,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
               clearAllStates();
               setters.setIsFlatActive(true);
             }}
-            active={states.isFlatActive}
+            active={buttonStates.isFlatActive}
           >
             Add Flat
           </CustomButton>
@@ -244,7 +264,7 @@ const NotateKeySignature = ({ setKeySignatureNotation }: any) => {
               clearAllStates();
               setters.setIsEraseAccidentalActive(true);
             }}
-            active={states.isEraseAccidentalActive}
+            active={buttonStates.isEraseAccidentalActive}
           >
             Erase Accidental
           </CustomButton>

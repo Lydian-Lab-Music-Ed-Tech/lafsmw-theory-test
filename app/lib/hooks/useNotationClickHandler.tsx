@@ -3,9 +3,6 @@ import { errorMessages } from "../data/errorMessages";
 import getUserClickInfo from "../getUserClickInfo";
 import { UseNotationClickHandlerProps } from "../types";
 
-/**
- * A custom hook for handling clicks on notation components
- */
 export const useNotationClickHandler = ({
   containerRef,
   staves,
