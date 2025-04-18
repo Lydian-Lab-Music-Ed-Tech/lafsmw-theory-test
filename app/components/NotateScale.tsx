@@ -11,7 +11,6 @@ import React, {
 } from "react";
 import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
-import { useButtonStates } from "../lib/hooks/useButtonStates";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import { errorMessages } from "../lib/data/errorMessages";
 import {
@@ -21,11 +20,12 @@ import {
 import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
 import { HandleScaleInteraction } from "../lib/handleScaleInteraction";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
 import { NotesAndCoordinatesData, ScaleData, StaveType } from "../lib/types";
-import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
-import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
@@ -42,7 +42,7 @@ const NotateScale = ({
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
-  const { states, setters, clearAllStates } = useButtonStates();
+  const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
 
   // Use our new renderer hook for VexFlow initialization
@@ -195,7 +195,8 @@ const NotateScale = ({
       // Get bar of scale data with proper deep copy
       const barOfScaleData = scaleDataMatrixCopy[barIndex];
 
-      const isAccidentalMode = states.isSharpActive || states.isFlatActive;
+      const isAccidentalMode =
+        buttonStates.isSharpActive || buttonStates.isFlatActive;
 
       if (isAccidentalMode && scaleDataMatrix[0].length > 0) {
         // Make sure the bar data has the correct x-coordinates from the most recently rendered state
@@ -217,7 +218,7 @@ const NotateScale = ({
         notesAndCoordinatesCopy,
         barOfScaleData,
         scaleDataMatrixCopy,
-        states,
+        buttonStates,
         userClickX,
         userClickY,
         barIndex,
@@ -263,7 +264,7 @@ const NotateScale = ({
         console.error("Error updating scale display:", error);
       }
     },
-    [scaleDataMatrix, notesAndCoordinates, staves, chosenClef, states]
+    [scaleDataMatrix, notesAndCoordinates, staves, chosenClef, buttonStates]
   );
 
   return (
@@ -288,7 +289,7 @@ const NotateScale = ({
               clearAllStates();
               setters.setIsEnterNoteActive(true);
             }}
-            active={states.isEnterNoteActive}
+            active={buttonStates.isEnterNoteActive}
           >
             Enter Note
           </CustomButton>
@@ -297,7 +298,7 @@ const NotateScale = ({
               clearAllStates();
               setters.setIsEraseNoteActive(true);
             }}
-            active={states.isEraseNoteActive}
+            active={buttonStates.isEraseNoteActive}
           >
             Erase Note
           </CustomButton>
@@ -309,13 +310,13 @@ const NotateScale = ({
               renderFunctionRef.current?.();
               setTimeout(() => {
                 console.log("Button states confirmation after update:", {
-                  isSharpActive: states.isSharpActive,
-                  isFlatActive: states.isFlatActive,
-                  isEnterNoteActive: states.isEnterNoteActive,
+                  isSharpActive: buttonStates.isSharpActive,
+                  isFlatActive: buttonStates.isFlatActive,
+                  isEnterNoteActive: buttonStates.isEnterNoteActive,
                 });
               }, 100); // Slightly longer delay to ensure state updates
             }}
-            active={states.isSharpActive}
+            active={buttonStates.isSharpActive}
           >
             Add Sharp
           </CustomButton>
@@ -326,13 +327,13 @@ const NotateScale = ({
               renderFunctionRef.current?.();
               setTimeout(() => {
                 console.log("Button states confirmation after update:", {
-                  isSharpActive: states.isSharpActive,
-                  isFlatActive: states.isFlatActive,
-                  isEnterNoteActive: states.isEnterNoteActive,
+                  isSharpActive: buttonStates.isSharpActive,
+                  isFlatActive: buttonStates.isFlatActive,
+                  isEnterNoteActive: buttonStates.isEnterNoteActive,
                 });
               }, 100);
             }}
-            active={states.isFlatActive}
+            active={buttonStates.isFlatActive}
           >
             Add Flat
           </CustomButton>
@@ -341,7 +342,7 @@ const NotateScale = ({
               clearAllStates();
               setters.setIsEraseAccidentalActive(true);
             }}
-            active={states.isEraseAccidentalActive}
+            active={buttonStates.isEraseAccidentalActive}
           >
             Erase Accidental
           </CustomButton>
