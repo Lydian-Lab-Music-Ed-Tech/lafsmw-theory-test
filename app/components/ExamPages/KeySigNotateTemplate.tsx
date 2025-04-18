@@ -30,6 +30,34 @@ export default function KeySignaturesNotation({
     currentUserData[keySigGlyphPropName] || []
   );
 
+  // Save both arrays on change
+  const handleSaveOnChange = (
+    newKeySigNotes: string[],
+    newGlyphs: GlyphProps[]
+  ) => {
+    setKeySignatureNotation(newKeySigNotes);
+    setKeySignatureGlyphs(newGlyphs);
+    setCurrentUserData({
+      ...currentUserData,
+      [keySigPropName]: newKeySigNotes,
+      [keySigGlyphPropName]: newGlyphs,
+    });
+  };
+
+  const handleSubmit = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    // Simply use the current state values which should now be up-to-date
+    // due to our fixes in the NotateKeySignature component
+    setCurrentUserData({
+      ...currentUserData,
+      [keySigPropName]: keySignatureNotation,
+      [keySigGlyphPropName]: keySignatureGlyphs,
+    });
+
+    nextViewState();
+  };
+
   // Update local states when currentUserData changes
   useEffect(() => {
     const newNotes = currentUserData[keySigPropName] || [];
@@ -42,30 +70,6 @@ export default function KeySignaturesNotation({
       setKeySignatureGlyphs(newGlyphs);
     }
   }, [currentUserData, keySigPropName, keySigGlyphPropName]);
-
-  // Save both arrays on change
-  const handleSaveOnChange = (
-    newKeySigNotes: string[],
-    newGlyphs: GlyphProps[]
-  ) => {
-    setCurrentUserData({
-      ...currentUserData,
-      [keySigPropName]: newKeySigNotes,
-      [keySigGlyphPropName]: newGlyphs,
-    });
-    setKeySignatureNotation(newKeySigNotes);
-    setKeySignatureGlyphs(newGlyphs);
-  };
-
-  const handleSubmit = async (e: MouseEvent) => {
-    e.preventDefault();
-    setCurrentUserData({
-      ...currentUserData,
-      [keySigPropName]: keySignatureNotation,
-      [keySigGlyphPropName]: keySignatureGlyphs,
-    });
-    nextViewState();
-  };
 
   const boxStyle = {
     display: "flex",

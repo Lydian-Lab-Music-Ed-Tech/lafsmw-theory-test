@@ -192,8 +192,36 @@ const NotateKeySignature = ({
       buildKeySignature(updatedGlyphs, 40, context, staves[0]);
     }
 
-    // Call onChange with updated glyphs
-    if (onChange) onChange(keySig, updatedGlyphs);
+    // Call onChange with updated keySig value
+    if (onChange) {
+      // If we're adding an accidental, we need to calculate the updated keySig value
+      if (buttonStates.isSharpActive || buttonStates.isFlatActive) {
+        const noteBase = foundNoteData.note.charAt(0);
+        const accidental = buttonStates.isSharpActive ? "#" : "b";
+        const noteWithAccidental = `${noteBase}${accidental}`;
+
+        // Calculate the updated keySig value
+        const updatedKeySig = keySig.filter(
+          (note) => note.charAt(0) !== noteBase
+        );
+        updatedKeySig.push(noteWithAccidental);
+
+        // Call onChange with the calculated value
+        onChange(updatedKeySig, updatedGlyphs);
+      } else if (buttonStates.isEraseAccidentalActive) {
+        // For erasing, we can calculate the updated keySig by removing the note
+        const noteBase = foundNoteData.note.charAt(0);
+        const updatedKeySig = keySig.filter(
+          (note) => note.charAt(0) !== noteBase
+        );
+
+        // Call onChange with the calculated value
+        onChange(updatedKeySig, updatedGlyphs);
+      } else {
+        // For other cases, use the current keySig
+        onChange(keySig, updatedGlyphs);
+      }
+    }
   };
 
   return (

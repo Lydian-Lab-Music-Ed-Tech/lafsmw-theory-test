@@ -245,10 +245,6 @@ export default function ExamHomePage() {
             ...prevData,
             ...res[0],
           }));
-          console.log(
-            "Current user data from decrementViewState:",
-            currentUserData
-          );
         }
       }
 
@@ -669,6 +665,9 @@ export default function ExamHomePage() {
                 onClick={() => setViewState(VIEW_STATES.WRITE_PROGRESSIONS)}
               >
                 <Typography>{"Go to Progressions"}</Typography>
+              </Button>
+              <Button onClick={() => console.log("Data:", currentUserData)}>
+                <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
           )}
