@@ -18,15 +18,15 @@ import {
 import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
 import { handleChordInteraction } from "../lib/handleChordInteraction";
+import { useButtonStates } from "../lib/hooks/useButtonStates";
+import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
+import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import {
   initialChordData,
   initialNotesAndCoordsState,
 } from "../lib/initialStates";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
 import { Chord, NotesAndCoordinatesData, StaveType } from "../lib/types";
-import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
-import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
-import { useButtonStates } from "../lib/hooks/useButtonStates";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
@@ -45,7 +45,7 @@ const NotateChord = ({
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const { states, setters, clearAllStates } = useButtonStates();
+  const { buttonStates, setters, clearAllStates } = useButtonStates();
 
   // Use our new renderer hook for VexFlow initialization
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -150,7 +150,7 @@ const NotateChord = ({
       notesAndCoordinates: newNotesAndCoordinates,
     } = handleChordInteraction(
       notesAndCoordinatesCopy,
-      states,
+      buttonStates,
       foundNoteData,
       chordDataCopy,
       foundNoteIndex,
@@ -184,7 +184,7 @@ const NotateChord = ({
               clearAllStates();
               setters.setIsEnterNoteActive(true);
             }}
-            active={states.isEnterNoteActive}
+            active={buttonStates.isEnterNoteActive}
           >
             Enter Note
           </CustomButton>
@@ -193,7 +193,7 @@ const NotateChord = ({
               clearAllStates();
               setters.setIsEraseNoteActive(true);
             }}
-            active={states.isEraseNoteActive}
+            active={buttonStates.isEraseNoteActive}
           >
             Erase Note
           </CustomButton>
@@ -202,7 +202,7 @@ const NotateChord = ({
               clearAllStates();
               setters.setIsSharpActive(true);
             }}
-            active={states.isSharpActive}
+            active={buttonStates.isSharpActive}
           >
             Add Sharp
           </CustomButton>
@@ -211,7 +211,7 @@ const NotateChord = ({
               clearAllStates();
               setters.setIsFlatActive(true);
             }}
-            active={states.isFlatActive}
+            active={buttonStates.isFlatActive}
           >
             Add Flat
           </CustomButton>
@@ -220,7 +220,7 @@ const NotateChord = ({
               clearAllStates();
               setters.setIsEraseAccidentalActive(true);
             }}
-            active={states.isEraseAccidentalActive}
+            active={buttonStates.isEraseAccidentalActive}
           >
             Erase Accidental
           </CustomButton>

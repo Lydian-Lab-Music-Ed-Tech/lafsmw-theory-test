@@ -69,7 +69,13 @@ export default function KeySignaturesNotation({
       setKeySignatureNotation(newNotes);
       setKeySignatureGlyphs(newGlyphs);
     }
-  }, [currentUserData, keySigPropName, keySigGlyphPropName]);
+  }, [
+    currentUserData,
+    keySigPropName,
+    keySigGlyphPropName,
+    keySignatureNotation,
+    keySignatureGlyphs,
+  ]);
 
   const boxStyle = {
     display: "flex",
