@@ -231,20 +231,20 @@ const NotateScale = ({
       // We must use setState with a function to ensure we're working with
       // the latest state and properly merge the new values
       setScaleDataMatrix((prevState) => {
-        console.log(
-          "- Previous state had:",
-          prevState.map(
-            (bar) =>
-              `${bar.length} notes (${bar.map((n) => n?.keys?.[0] || "unknown").join(", ")})`
-          )
-        );
-        console.log(
-          "- New state has:",
-          newScaleDataMatrix.map(
-            (bar) =>
-              `${bar.length} notes (${bar.map((n) => n?.keys?.[0] || "unknown").join(", ")})`
-          )
-        );
+        // console.log(
+        //   "- Previous state had:",
+        //   prevState.map(
+        //     (bar) =>
+        //       `${bar.length} notes (${bar.map((n) => n?.keys?.[0] || "unknown").join(", ")})`
+        //   )
+        // );
+        // console.log(
+        //   "- New state has:",
+        //   newScaleDataMatrix.map(
+        //     (bar) =>
+        //       `${bar.length} notes (${bar.map((n) => n?.keys?.[0] || "unknown").join(", ")})`
+        //   )
+        // );
 
         // This ensures we properly replace the state with the new complete state
         return [...newScaleDataMatrix];

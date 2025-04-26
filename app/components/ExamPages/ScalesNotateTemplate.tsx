@@ -1,7 +1,7 @@
 "use client";
 import { scalesNotationInstructions } from "@/app/lib/data/instructions";
 import scalesText from "@/app/lib/data/scalesText";
-import { FormEvent, UserDataProps } from "@/app/lib/types";
+import { FormEvent, UserDataProps, InputState } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import CardFooter from "../CardFooter";
@@ -16,7 +16,7 @@ export default function ScalesNotation({
 }: UserDataProps) {
   const [scales, setScales] = useState<string[]>([]);
 
-  const scalesPropName = `scales${page - 5}`;
+  const scalesPropName = `scales${page - 5}` as keyof InputState;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
