@@ -1,14 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Container from "@mui/material/Container";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
@@ -30,9 +23,11 @@ import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
 const NotateScale = ({
-  setScales,
+  initialScaleData = [[]],
+  onChange,
 }: {
-  setScales: Dispatch<SetStateAction<string[]>>;
+  initialScaleData?: ScaleData[][];
+  onChange?: (scaleData: ScaleData[][], scales: string[]) => void;
 }) => {
   const container = useRef<HTMLDivElement | null>(null);
   const [staves, setStaves] = useState<StaveType[]>([]);
@@ -41,9 +36,110 @@ const NotateScale = ({
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
+  
   const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
+  
+  // Deserialize scale data and reconstruct VexFlow objects if needed
+  const deserializeScaleData = (data: any) => {
+    // Handle legacy array format
+    if (Array.isArray(data)) {
+      if (!data || data.length === 0) return [[]];
+      
+      return data.map(bar => 
+        bar.map((note: any) => {
+          // Skip if there are no keys or the staveNote is already present
+          if (!note.keys || note.keys.length === 0 || note.staveNote) {
+            return note;
+          }
+          
+          // Recreate the VexFlow staveNote object
+          try {
+            const newStaveNote = new Flow.StaveNote({
+              keys: Array.isArray(note.keys) ? [...note.keys] : [note.keys],
+              duration: note.duration || "q",
+              clef: chosenClef
+            });
+            
+            // Add accidentals if needed
+            const keyToCheck = Array.isArray(note.keys) ? note.keys[0] : note.keys;
+            if (keyToCheck && keyToCheck.includes("#")) {
+              newStaveNote.addModifier(new Flow.Accidental("#"), 0);
+            } else if (keyToCheck && keyToCheck.includes("b")) {
+              newStaveNote.addModifier(new Flow.Accidental("b"), 0);
+            }
+            
+            return {
+              ...note,
+              staveNote: newStaveNote
+            };
+          } catch (error) {
+            console.error("Error recreating stave note:", error);
+            return note;
+          }
+        })
+      );
+    } 
+    // Handle new flat object format
+    else if (data && typeof data === 'object' && data.type === 'serialized_scale_data') {
+      const barCount = data.barCount || 1;
+      const result: ScaleData[][] = Array(barCount).fill([]).map(() => []);
+      
+      // Reconstruct the 2D array from the flat structure
+      Object.keys(data).forEach(key => {
+        if (key.startsWith('note_')) {
+          const note = data[key];
+          const barIndex = note.barIndex || 0;
+          
+          if (!result[barIndex]) {
+            result[barIndex] = [];
+          }
+          
+          // Create a proper ScaleData object with VexFlow StaveNote
+          try {
+            let keyArray = [];
+            if (note.keys) {
+              keyArray = typeof note.keys === 'string' ? [note.keys] : note.keys;
+            }
+            
+            if (keyArray.length > 0) {
+              const newStaveNote = new Flow.StaveNote({
+                keys: keyArray,
+                duration: note.duration || "q",
+                clef: chosenClef
+              });
+              
+              // Add accidentals if needed
+              const keyToCheck = keyArray[0];
+              if (keyToCheck && keyToCheck.includes("#")) {
+                newStaveNote.addModifier(new Flow.Accidental("#"), 0);
+              } else if (keyToCheck && keyToCheck.includes("b")) {
+                newStaveNote.addModifier(new Flow.Accidental("b"), 0);
+              }
+              
+              result[barIndex][note.noteIndex] = {
+                keys: keyArray,
+                duration: note.duration || "q",
+                exactX: note.exactX,
+                userClickY: note.userClickY,
+                staveNote: newStaveNote
+              };
+            }
+          } catch (error) {
+            console.error("Error reconstructing note from serialized data:", error);
+          }
+        }
+      });
+      
+      return result;
+    }
+    
+    // Default empty state
+    return [[]];
+  };
+
+  // Initialize state after we have access to chosenClef
+  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
 
   // Use our new renderer hook for VexFlow initialization
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -89,6 +185,15 @@ const NotateScale = ({
 
   // Initial load
   useEffect(() => {
+    // Initialize VexFlow staveNote objects if needed
+    if (initialScaleData) {
+      const deserializedData = deserializeScaleData(initialScaleData);
+      if (deserializedData[0]?.length > 0 || 
+          (typeof initialScaleData === 'object' && 'type' in initialScaleData && initialScaleData.type === 'serialized_scale_data')) {
+        setScaleDataMatrix(deserializedData);
+      }
+    }
+    
     const newStave = renderFunctionRef.current?.();
     if (newStave)
       calculateNotesAndCoordinates(
@@ -101,7 +206,7 @@ const NotateScale = ({
         -4,
         true
       );
-  }, []);
+  }, [initialScaleData, chosenClef]);
 
   // Update notes when scale data changes
   useEffect(() => {
@@ -137,6 +242,11 @@ const NotateScale = ({
         true
       );
     }
+
+    // Notify parent of cleared scale data
+    if (onChange) {
+      onChange([[]], []);
+    }
   };
 
   const handleClick = useCallback(
@@ -149,17 +259,11 @@ const NotateScale = ({
 
       const { userClickX, userClickY, foundNoteData } = clickInfo;
 
-      // Find which bar was clicked
       const barIndex = findBarIndex(staves, userClickX);
 
-      // Create a safe deep clone that properly handles VexFlow objects
-      // We need to specially handle staveNote objects to avoid circular references
       const safeCloneNote = (note: ScaleData): ScaleData => {
-        // Create a new StaveNote if needed to avoid circular references
         let newStaveNote = null;
         if (note.keys && note.keys.length > 0) {
-          // Create a minimal StaveNote to satisfy the type requirements
-          // The real StaveNote will be recreated in HandleScaleInteraction
           newStaveNote = new Flow.StaveNote({
             keys: [...note.keys],
             duration: note.duration || "q",
@@ -167,17 +271,15 @@ const NotateScale = ({
           });
         }
 
-        // Return a properly typed ScaleData object
         return {
           keys: note.keys ? [...note.keys] : [],
           duration: note.duration || "q",
           exactX: note.exactX,
           userClickY: note.userClickY,
-          staveNote: newStaveNote, // Add the staveNote property to satisfy TypeScript
+          staveNote: newStaveNote,
         };
       };
 
-      // Create clean copies without circular references
       let scaleDataMatrixCopy = scaleDataMatrix.map((bar) =>
         bar.map((note) => safeCloneNote(note))
       );
@@ -185,21 +287,17 @@ const NotateScale = ({
         ...note,
       }));
 
-      // Extract the specific bar data for the clicked bar
-      // Make sure it exists to prevent errors
       if (!scaleDataMatrixCopy[barIndex]) {
         console.error("Invalid bar index:", barIndex);
         return;
       }
 
-      // Get bar of scale data with proper deep copy
       const barOfScaleData = scaleDataMatrixCopy[barIndex];
 
       const isAccidentalMode =
         buttonStates.isSharpActive || buttonStates.isFlatActive;
 
       if (isAccidentalMode && scaleDataMatrix[0].length > 0) {
-        // Make sure the bar data has the correct x-coordinates from the most recently rendered state
         for (let i = 0; i < barOfScaleData.length; i++) {
           const originalNote = scaleDataMatrix[barIndex]?.[i];
           if (originalNote && originalNote.exactX !== undefined) {
@@ -254,12 +352,29 @@ const NotateScale = ({
         return [...newNotesAndCoordinates];
       });
 
-      // Update the scales display - safely extract just the key strings
+      // Update the scales display and notify parent via onChange - safely extract just the key strings
       try {
-        const scaleStrings = newScaleDataMatrix[0].map((note: ScaleData) => {
-          return Array.isArray(note.keys) ? note.keys.join(", ") : "";
-        });
-        setScales(scaleStrings);
+        // Log the matrix structure for debugging
+        console.log("Current scale matrix structure:", JSON.stringify({
+          barCount: newScaleDataMatrix.length,
+          notesInFirstBar: newScaleDataMatrix[0]?.length || 0,
+          hasKeys: newScaleDataMatrix[0]?.some(note => note.keys && note.keys.length > 0)
+        }));
+        
+        // Extract the note keys for display
+        const scaleStrings = newScaleDataMatrix[0]
+          .map((note: ScaleData) => {
+            const keyString = Array.isArray(note.keys) ? note.keys[0] : "";
+            return keyString;
+          })
+          .filter((note) => note !== "");
+        
+        console.log("Extracted scale strings:", scaleStrings);
+
+        if (onChange) {
+          console.log("Calling onChange with scale data");
+          onChange(newScaleDataMatrix, scaleStrings);
+        }
       } catch (error) {
         console.error("Error updating scale display:", error);
       }
