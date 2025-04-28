@@ -36,10 +36,6 @@ export default function NotateSeventhChords({
       ...currentUserDataRef.current,
       [seventhChordsPropName]: chords,
     });
-    // console.log({
-    //   ...currentUserDataRef.current,
-    //   [seventhChordsPropName]: chords,
-    // });
     nextViewState();
   };
 

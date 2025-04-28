@@ -36,42 +36,44 @@ const NotateScale = ({
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
-  
+
   const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
-  
+
   // Deserialize scale data and reconstruct VexFlow objects if needed
   const deserializeScaleData = (data: any) => {
     // Handle legacy array format
     if (Array.isArray(data)) {
       if (!data || data.length === 0) return [[]];
-      
-      return data.map(bar => 
+
+      return data.map((bar) =>
         bar.map((note: any) => {
           // Skip if there are no keys or the staveNote is already present
           if (!note.keys || note.keys.length === 0 || note.staveNote) {
             return note;
           }
-          
+
           // Recreate the VexFlow staveNote object
           try {
             const newStaveNote = new Flow.StaveNote({
               keys: Array.isArray(note.keys) ? [...note.keys] : [note.keys],
               duration: note.duration || "q",
-              clef: chosenClef
+              clef: chosenClef,
             });
-            
+
             // Add accidentals if needed
-            const keyToCheck = Array.isArray(note.keys) ? note.keys[0] : note.keys;
+            const keyToCheck = Array.isArray(note.keys)
+              ? note.keys[0]
+              : note.keys;
             if (keyToCheck && keyToCheck.includes("#")) {
               newStaveNote.addModifier(new Flow.Accidental("#"), 0);
             } else if (keyToCheck && keyToCheck.includes("b")) {
               newStaveNote.addModifier(new Flow.Accidental("b"), 0);
             }
-            
+
             return {
               ...note,
-              staveNote: newStaveNote
+              staveNote: newStaveNote,
             };
           } catch (error) {
             console.error("Error recreating stave note:", error);
@@ -79,36 +81,43 @@ const NotateScale = ({
           }
         })
       );
-    } 
+    }
     // Handle new flat object format
-    else if (data && typeof data === 'object' && data.type === 'serialized_scale_data') {
+    else if (
+      data &&
+      typeof data === "object" &&
+      data.type === "serialized_scale_data"
+    ) {
       const barCount = data.barCount || 1;
-      const result: ScaleData[][] = Array(barCount).fill([]).map(() => []);
-      
+      const result: ScaleData[][] = Array(barCount)
+        .fill([])
+        .map(() => []);
+
       // Reconstruct the 2D array from the flat structure
-      Object.keys(data).forEach(key => {
-        if (key.startsWith('note_')) {
+      Object.keys(data).forEach((key) => {
+        if (key.startsWith("note_")) {
           const note = data[key];
           const barIndex = note.barIndex || 0;
-          
+
           if (!result[barIndex]) {
             result[barIndex] = [];
           }
-          
+
           // Create a proper ScaleData object with VexFlow StaveNote
           try {
             let keyArray = [];
             if (note.keys) {
-              keyArray = typeof note.keys === 'string' ? [note.keys] : note.keys;
+              keyArray =
+                typeof note.keys === "string" ? [note.keys] : note.keys;
             }
-            
+
             if (keyArray.length > 0) {
               const newStaveNote = new Flow.StaveNote({
                 keys: keyArray,
                 duration: note.duration || "q",
-                clef: chosenClef
+                clef: chosenClef,
               });
-              
+
               // Add accidentals if needed
               const keyToCheck = keyArray[0];
               if (keyToCheck && keyToCheck.includes("#")) {
@@ -116,24 +125,27 @@ const NotateScale = ({
               } else if (keyToCheck && keyToCheck.includes("b")) {
                 newStaveNote.addModifier(new Flow.Accidental("b"), 0);
               }
-              
+
               result[barIndex][note.noteIndex] = {
                 keys: keyArray,
                 duration: note.duration || "q",
                 exactX: note.exactX,
                 userClickY: note.userClickY,
-                staveNote: newStaveNote
+                staveNote: newStaveNote,
               };
             }
           } catch (error) {
-            console.error("Error reconstructing note from serialized data:", error);
+            console.error(
+              "Error reconstructing note from serialized data:",
+              error
+            );
           }
         }
       });
-      
+
       return result;
     }
-    
+
     // Default empty state
     return [[]];
   };
@@ -183,17 +195,20 @@ const NotateScale = ({
     setMessage,
   });
 
-  // Initial load
   useEffect(() => {
     // Initialize VexFlow staveNote objects if needed
     if (initialScaleData) {
       const deserializedData = deserializeScaleData(initialScaleData);
-      if (deserializedData[0]?.length > 0 || 
-          (typeof initialScaleData === 'object' && 'type' in initialScaleData && initialScaleData.type === 'serialized_scale_data')) {
+      if (
+        deserializedData[0]?.length > 0 ||
+        (typeof initialScaleData === "object" &&
+          "type" in initialScaleData &&
+          initialScaleData.type === "serialized_scale_data")
+      ) {
         setScaleDataMatrix(deserializedData);
       }
     }
-    
+
     const newStave = renderFunctionRef.current?.();
     if (newStave)
       calculateNotesAndCoordinates(
@@ -355,12 +370,17 @@ const NotateScale = ({
       // Update the scales display and notify parent via onChange - safely extract just the key strings
       try {
         // Log the matrix structure for debugging
-        console.log("Current scale matrix structure:", JSON.stringify({
-          barCount: newScaleDataMatrix.length,
-          notesInFirstBar: newScaleDataMatrix[0]?.length || 0,
-          hasKeys: newScaleDataMatrix[0]?.some(note => note.keys && note.keys.length > 0)
-        }));
-        
+        console.log(
+          "Current scale matrix structure:",
+          JSON.stringify({
+            barCount: newScaleDataMatrix.length,
+            notesInFirstBar: newScaleDataMatrix[0]?.length || 0,
+            hasKeys: newScaleDataMatrix[0]?.some(
+              (note) => note.keys && note.keys.length > 0
+            ),
+          })
+        );
+
         // Extract the note keys for display
         const scaleStrings = newScaleDataMatrix[0]
           .map((note: ScaleData) => {
@@ -368,11 +388,8 @@ const NotateScale = ({
             return keyString;
           })
           .filter((note) => note !== "");
-        
-        console.log("Extracted scale strings:", scaleStrings);
 
         if (onChange) {
-          console.log("Calling onChange with scale data");
           onChange(newScaleDataMatrix, scaleStrings);
         }
       } catch (error) {
@@ -423,13 +440,6 @@ const NotateScale = ({
               setters.setIsSharpActive(true);
               // Force a render to ensure state is updated before next click
               renderFunctionRef.current?.();
-              setTimeout(() => {
-                console.log("Button states confirmation after update:", {
-                  isSharpActive: buttonStates.isSharpActive,
-                  isFlatActive: buttonStates.isFlatActive,
-                  isEnterNoteActive: buttonStates.isEnterNoteActive,
-                });
-              }, 100); // Slightly longer delay to ensure state updates
             }}
             active={buttonStates.isSharpActive}
           >
@@ -440,13 +450,6 @@ const NotateScale = ({
               clearAllStates();
               setters.setIsFlatActive(true);
               renderFunctionRef.current?.();
-              setTimeout(() => {
-                console.log("Button states confirmation after update:", {
-                  isSharpActive: buttonStates.isSharpActive,
-                  isFlatActive: buttonStates.isFlatActive,
-                  isEnterNoteActive: buttonStates.isEnterNoteActive,
-                });
-              }, 100);
             }}
             active={buttonStates.isFlatActive}
           >
