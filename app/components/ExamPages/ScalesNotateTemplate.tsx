@@ -1,9 +1,14 @@
 "use client";
 import { scalesNotationInstructions } from "@/app/lib/data/instructions";
 import scalesText from "@/app/lib/data/scalesText";
-import { FormEvent, UserDataProps } from "@/app/lib/types";
+import {
+  FormEvent,
+  InputState,
+  ScaleData,
+  UserDataProps,
+} from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardFooter from "../CardFooter";
 import NotateScale from "../NotateScale";
 import TutorialModal from "../TutorialModal";
@@ -14,20 +19,158 @@ export default function ScalesNotation({
   nextViewState,
   page,
 }: UserDataProps) {
-  const [scales, setScales] = useState<string[]>([]);
+  const scalesPropName = `scales${page - 5}` as keyof InputState;
+  const scaleDataPropName = `scaleData${page - 5}` as keyof InputState;
 
-  const scalesPropName = `scales${page - 5}`;
+  const [scales, setScales] = useState<string[]>(
+    currentUserData[scalesPropName] || []
+  );
+
+  const [scaleData, setScaleData] = useState<ScaleData[][]>(() => {
+    const savedData = currentUserData[scaleDataPropName];
+    if (savedData && typeof savedData === "object") {
+      // For flat object format (from serializeScaleDataForStorage)
+      if ("type" in savedData && savedData.type === "serialized_scale_data") {
+        return [[]]; // Will be properly reconstructed by NotateScale
+      }
+    }
+    return [[]];
+  });
+
+  // Serialize scale data for storage, avoiding circular references and nested arrays
+  const serializeScaleDataForStorage = (data: ScaleData[][] | any) => {
+    try {
+      // Create a simplified flat object structure for Firebase
+      // Convert the nested arrays into an object with numeric keys
+      const result: Record<string, any> = { type: "serialized_scale_data" };
+
+      // Handle empty or invalid data
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        console.warn(
+          "Empty or invalid data, returning empty serialized result"
+        );
+        return result;
+      }
+
+      // Count how many notes we found for debugging
+      let noteCount = 0;
+
+      // Process each bar
+      data.forEach((bar, barIndex) => {
+        // Skip if bar is not an array
+        if (!Array.isArray(bar)) {
+          return;
+        }
+
+        // For each note in the bar, create a flat object with unique keys
+        bar.forEach((note, noteIndex) => {
+          if (!note || typeof note !== "object") return;
+
+          noteCount++;
+          const noteKey = `note_${barIndex}_${noteIndex}`;
+
+          // Safely extract key information
+          let keyValue = "";
+          if (note.keys) {
+            if (Array.isArray(note.keys) && note.keys.length > 0) {
+              keyValue = note.keys[0];
+            } else if (typeof note.keys === "string") {
+              keyValue = note.keys;
+            }
+          }
+
+          result[noteKey] = {
+            keys: keyValue,
+            duration: note.duration || "q",
+            exactX: note.exactX !== undefined ? note.exactX : 0,
+            userClickY: note.userClickY !== undefined ? note.userClickY : 0,
+            barIndex,
+            noteIndex,
+          };
+        });
+      });
+
+      // Store the dimensions for reconstruction
+      result.barCount = data.length;
+      result.noteCount = noteCount;
+
+      return result;
+    } catch (error) {
+      console.error("Error serializing scale data:", error);
+      return { type: "serialized_scale_data", barCount: 0, noteCount: 0 };
+    }
+  };
+
+  // Save both arrays on change
+  const handleSaveOnChange = (
+    newScaleData: ScaleData[][],
+    newScales: string[]
+  ) => {
+    // Don't save empty data
+    if (
+      newScaleData.length === 0 ||
+      (newScaleData.length === 1 && newScaleData[0].length === 0)
+    ) {
+      console.log("Skipping save of empty scale data");
+      return;
+    }
+
+    setScaleData(newScaleData);
+    setScales(newScales);
+
+    // Serialize scale data before storing in userData
+    const serializedData = serializeScaleDataForStorage(newScaleData);
+
+    // Only update if we have actual data to save
+    if (serializedData.noteCount > 0) {
+      setCurrentUserData({
+        ...currentUserData,
+        [scalesPropName]: newScales,
+        [scaleDataPropName]: serializedData,
+      });
+    }
+  };
+
+  // Update local states when currentUserData changes
+  useEffect(() => {
+    const newScales = currentUserData[scalesPropName] || [];
+    const newScaleData = currentUserData[scaleDataPropName] || [[]];
+
+    // Only update if there are actual changes to avoid infinite loops
+    // We need to do a shallow comparison here since deep comparison will fail
+    // with the complex objects
+    const scalesChanged = JSON.stringify(newScales) !== JSON.stringify(scales);
+    const scaleDataLengthChanged =
+      !scaleData ||
+      !scaleData[0] ||
+      !newScaleData ||
+      !newScaleData[0] ||
+      scaleData[0].length !== newScaleData[0].length;
+
+    if (scalesChanged || scaleDataLengthChanged) {
+      setScales(newScales);
+      setScaleData(newScaleData);
+    }
+  }, [currentUserData, scalesPropName, scaleDataPropName, scales, scaleData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setCurrentUserData({
-      ...currentUserData,
-      [scalesPropName]: scales,
-    });
-    // console.log({
-    //   ...currentUserData,
-    //   [scalesPropName]: scales,
-    // });
+    // Only serialize and save if we have data to save
+    if (scaleData.length > 0 && scaleData[0].length > 0) {
+      // Simply use the current state values which should now be up-to-date
+      const serializedData = serializeScaleDataForStorage(scaleData);
+
+      if (serializedData.noteCount > 0) {
+        setCurrentUserData({
+          ...currentUserData,
+          [scalesPropName]: scales,
+          [scaleDataPropName]: serializedData,
+        });
+      }
+    } else {
+      console.log("No scale data to save on submit");
+    }
+
     nextViewState();
   };
 
@@ -83,7 +226,10 @@ export default function ScalesNotation({
               <Typography variant="h6">
                 {`Write the following scale: ${scalesText[page - 6]}`}
               </Typography>
-              <NotateScale setScales={setScales} />
+              <NotateScale
+                initialScaleData={scaleData}
+                onChange={handleSaveOnChange}
+              />
             </Stack>
             <CardFooter
               width={630}

@@ -36,10 +36,6 @@ export default function TriadsNotation({
       ...currentUserDataRef.current,
       [triadsPropName]: chords,
     });
-    // console.log("object from TriadsNotateTemplate.tsx:", {
-    //   ...currentUserDataRef.current,
-    //   [triadsPropName]: chords,
-    // });
     nextViewState();
   };
 

@@ -272,8 +272,25 @@ export const HandleScaleInteraction = (
   ) {
     // We're in enter note mode (default) or no mode selected
 
+    // Handle note names and ensure correct representation
+    // In VexFlow, lowercase 'b' can mean both the note 'B' and the flat accidental
+    // We need to ensure B natural is represented properly
+    let noteKey = foundNoteData.note;
+    let keyParts = noteKey.split('/');
+    let noteName = keyParts[0];
+    let octave = keyParts[1];
+
+    // Fix for B natural - use uppercase B to avoid confusion with flat sign
+    // This ensures it's interpreted as B natural, not B-flat
+    if (noteName === 'b') {
+      // Replace with uppercase B, which VexFlow will treat as B natural
+      noteKey = `B/${octave}`;
+      // Update foundNoteData as well to ensure consistency
+      foundNoteData.note = noteKey;
+    }
+    
     const newStaveNote: StaveNoteType = new StaveNote({
-      keys: [foundNoteData.note],
+      keys: [noteKey],
       duration: "q",
       clef: chosenClef,
     });
@@ -282,7 +299,7 @@ export const HandleScaleInteraction = (
     let newNoteObject = [
       ...barOfScaleData,
       {
-        keys: [foundNoteData.note],
+        keys: [noteKey],  // Use the possibly modified note key
         duration: "q",
         staveNote: newStaveNote,
         exactX: userClickX, // Use exactX for positioning

@@ -45,9 +45,6 @@ export const handleKeySigInteraction = (
     // Update the state with our new glyphs
     setGlyphState(updatedGlyphs);
 
-    // Only update the key signature array if we added a glyph
-    // updateKeySigArrayForGrading(foundNoteData, buttonState, setKeySigState);
-
     const noteBase = foundNoteData.note.charAt(0);
     const accidental = buttonState.isSharpActive ? "#" : "b";
     const noteWithAccidental = `${noteBase}${accidental}`;
