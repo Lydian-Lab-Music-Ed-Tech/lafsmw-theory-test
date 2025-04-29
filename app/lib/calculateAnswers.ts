@@ -113,7 +113,13 @@ export const checkAndFormatArrOfArrsAnswers = (
         .map((answer, j) => {
           const userNote = answer.split("/")[0];
           const correctNote = correctAnswers[i][j];
-          if (userNote !== correctNote) {
+          
+          // Normalize note name for case-insensitive comparison
+          // This handles the special B/b case and any other case differences
+          const normalizedUserNote = userNote.toLowerCase();
+          const normalizedCorrectNote = correctNote.toLowerCase();
+          
+          if (normalizedUserNote !== normalizedCorrectNote) {
             isCorrect = false;
             return `<b>${userNote}</b>`;
           }
