@@ -30,29 +30,29 @@ export default function ScalesNotation({
     currentUserData[scalesPropName] || []
   );
 
-  const [scaleData, setScaleData] = useState<ScaleData[][]>(() => {
-    // Initialize with empty nested array structure for the UI
-    return [[]];
-  });
+  const [scaleData, setScaleData] = useState<ScaleData[][]>([[]]);
 
   // Convert 2D ScaleData array to flat SimpleScaleData array for storage
   const convertToFlatScaleData = useCallback((data: ScaleData[][]) => {
     try {
       const flatData: SimpleScaleData[] = [];
-      
       // Process each bar
-      data.forEach((bar, barIndex) => {
-        // Skip if bar is not an array
+      for (let barIndex = 0; barIndex < data.length; barIndex++) {
+        const bar = data[barIndex];
         if (!Array.isArray(bar)) {
-          return;
+          continue;
         }
-
         // For each note in the bar, create a SimpleScaleData object
-        bar.forEach((note, noteIndex) => {
-          if (!note || typeof note !== "object" || !note.keys || note.keys.length === 0) {
-            return;
+        for (let noteIndex = 0; noteIndex < bar.length; noteIndex++) {
+          const note = bar[noteIndex];
+          if (
+            !note ||
+            typeof note !== "object" ||
+            !note.keys ||
+            note.keys.length === 0
+          ) {
+            continue;
           }
-          
           flatData.push({
             keys: note.keys,
             duration: note.duration || "q",
@@ -61,126 +61,132 @@ export default function ScalesNotation({
             barIndex,
             noteIndex,
           });
-        });
-      });
-      
+        }
+      }
       return flatData;
     } catch (error) {
       console.error("Error converting scale data:", error);
       return [];
     }
-  }, []); // No dependencies since this doesn't use any external state
+  }, []);
 
   // Function to reconstruct a 2D array from flat SimpleScaleData, memoized with useCallback
-  const reconstructScaleData = useCallback((flatData: SimpleScaleData[]): ScaleData[][] => {
-    if (!flatData || !flatData.length) {
-      return [[]];
-    }
-
-    // Find the maximum barIndex to determine array size
-    const maxBarIndex = Math.max(...flatData.map(note => note.barIndex || 0));
-    
-    // Create array of arrays
-    const result: ScaleData[][] = Array(maxBarIndex + 1)
-      .fill(null)
-      .map(() => []);
-    
-    // Place each note in the correct position
-    flatData.forEach(note => {
-      if ((note.barIndex || 0) >= 0 && note.keys && note.keys.length > 0) {
-        // Create VexFlow StaveNote for UI rendering
-        let staveNote = null;
-        try {
-          staveNote = new Flow.StaveNote({
-            keys: [...note.keys],
-            duration: note.duration || "q",
-            clef: chosenClef,
-          });
-          
-          // Add accidentals if needed
-          const keyToCheck = note.keys[0];
-          if (keyToCheck && keyToCheck.includes("#")) {
-            staveNote.addModifier(new Flow.Accidental("#"), 0);
-          } else if (keyToCheck && keyToCheck.includes("b")) {
-            staveNote.addModifier(new Flow.Accidental("b"), 0);
-          }
-        } catch (error) {
-          console.error("Error creating stave note in reconstruction:", error);
-        }
-        
-        // Create the full ScaleData object with staveNote
-        const scaleData: ScaleData = {
-          keys: note.keys,
-          duration: note.duration,
-          exactX: note.exactX,
-          userClickY: note.userClickY,
-          staveNote: staveNote,
-        };
-        
-        // Add to the result array in the correct position
-        // Ensure we have indexes for the proper position
-        while (result[note.barIndex || 0].length <= (note.noteIndex || 0)) {
-          result[note.barIndex || 0].push({
-            keys: [],
-            duration: "q",
-            exactX: 0,
-            userClickY: 0,
-            staveNote: null,
-          });
-        }
-        
-        result[note.barIndex || 0][note.noteIndex || 0] = scaleData;
+  const reconstructScaleData = useCallback(
+    (flatData: SimpleScaleData[]): ScaleData[][] => {
+      if (!flatData || !flatData.length) {
+        return [[]];
       }
-    });
-    
-    return result;
-  }, [chosenClef]); // Only depends on chosenClef which doesn't change often
+      // Find the maximum barIndex to determine array size
+      const maxBarIndex = Math.max(
+        ...flatData.map((note) => note.barIndex || 0)
+      );
+      // Create array of arrays
+      const result: ScaleData[][] = Array(maxBarIndex + 1)
+        .fill(null)
+        .map(() => []);
+      // Place each note in the correct position
+      for (let i = 0; i < flatData.length; i++) {
+        const note = flatData[i];
+        if ((note.barIndex || 0) >= 0 && note.keys && note.keys.length > 0) {
+          // Create VexFlow StaveNote for UI rendering
+          let staveNote = null;
+          try {
+            staveNote = new Flow.StaveNote({
+              keys: [...note.keys],
+              duration: note.duration || "q",
+              clef: chosenClef,
+            });
+            // Add accidentals if needed
+            const keyToCheck = note.keys[0];
+            if (keyToCheck && keyToCheck.includes("#")) {
+              staveNote.addModifier(new Flow.Accidental("#"), 0);
+            } else if (keyToCheck && keyToCheck.includes("b")) {
+              staveNote.addModifier(new Flow.Accidental("b"), 0);
+            }
+          } catch (error) {
+            console.error(
+              "Error creating stave note in reconstruction:",
+              error
+            );
+          }
+          // Create the full ScaleData object with staveNote
+          const scaleData: ScaleData = {
+            keys: note.keys,
+            duration: note.duration,
+            exactX: note.exactX,
+            userClickY: note.userClickY,
+            staveNote: staveNote,
+          };
+          // Add to the result array in the correct position
+          // Ensure we have indexes for the proper position
+          while (result[note.barIndex || 0].length <= (note.noteIndex || 0)) {
+            result[note.barIndex || 0].push({
+              keys: [],
+              duration: "q",
+              exactX: 0,
+              userClickY: 0,
+              staveNote: null,
+            });
+          }
+          result[note.barIndex || 0][note.noteIndex || 0] = scaleData;
+        }
+      }
+      return result;
+    },
+    [chosenClef]
+  );
 
   // Save both arrays on change - using useCallback to prevent recreation on every render
-  const handleSaveOnChange = useCallback((
-    newFlatScaleData: SimpleScaleData[],
-    newScales: string[]
-  ) => {
-    // Don't save empty data
-    if (newFlatScaleData.length === 0) {
-      console.log("Skipping save of empty scale data");
-      return;
-    }
+  const handleSaveOnChange = useCallback(
+    (newFlatScaleData: SimpleScaleData[], newScales: string[]) => {
+      if (newFlatScaleData.length === 0) {
+        console.log("Skipping save of empty scale data");
+        return;
+      }
+      // Convert the flat data back to a 2D array for the UI component
+      const reconstructed2DArray = reconstructScaleData(newFlatScaleData);
+      setScaleData(reconstructed2DArray);
+      setScales(newScales);
+      setCurrentUserData({
+        ...currentUserData,
+        [scalesPropName]: newScales,
+        [scaleDataPropName]: newFlatScaleData,
+      });
+    },
+    [
+      reconstructScaleData,
+      currentUserData,
+      scalesPropName,
+      scaleDataPropName,
+      setScaleData,
+      setScales,
+      setCurrentUserData,
+    ]
+  );
 
-    // Convert the flat data back to a 2D array for the UI component
-    const reconstructed2DArray = reconstructScaleData(newFlatScaleData);
-    setScaleData(reconstructed2DArray);
-    setScales(newScales);
-
-    // Store the flat data directly to Firebase
-    setCurrentUserData({
-      ...currentUserData,
-      [scalesPropName]: newScales,
-      [scaleDataPropName]: newFlatScaleData,
-    });
-  }, [reconstructScaleData, currentUserData, scalesPropName, scaleDataPropName, setScaleData, setScales, setCurrentUserData]);
-
-
-  // Update local states when currentUserData changes
   useEffect(() => {
     const newScales = currentUserData[scalesPropName] || [];
-    const savedScaleData = currentUserData[scaleDataPropName] as SimpleScaleData[] | undefined;
+    const savedScaleData = currentUserData[scaleDataPropName] as
+      | SimpleScaleData[]
+      | undefined;
 
     // Only update if there are actual changes to avoid infinite loops
     const scalesChanged = JSON.stringify(newScales) !== JSON.stringify(scales);
-    
-    // Create a string representation of savedScaleData to detect changes
-    const savedDataString = savedScaleData && Array.isArray(savedScaleData) ? JSON.stringify(savedScaleData.map(item => item.keys)) : '';
-    
+
     // Store the current data signature in a ref to track changes
-    const currentDataEmpty = !scaleData || !scaleData[0] || scaleData[0].length === 0;
-    
+    const currentDataEmpty =
+      !scaleData || !scaleData[0] || scaleData[0].length === 0;
+
     // Only update if scales changed or we need to initialize data
     if (scalesChanged || currentDataEmpty) {
       setScales(newScales);
-      
+
       // If we have saved flat data, reconstruct the 2D array for UI
-      if (savedScaleData && Array.isArray(savedScaleData) && savedScaleData.length > 0) {
+      if (
+        savedScaleData &&
+        Array.isArray(savedScaleData) &&
+        savedScaleData.length > 0
+      ) {
         const reconstructed = reconstructScaleData(savedScaleData);
         setScaleData(reconstructed);
       } else {
@@ -188,12 +194,24 @@ export default function ScalesNotation({
         setScaleData([[]]);
       }
     }
-  }, [currentUserData, scalesPropName, scaleDataPropName, scales, reconstructScaleData]);
+  }, [
+    currentUserData,
+    scalesPropName,
+    scaleDataPropName,
+    scales,
+    reconstructScaleData,
+  ]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     // Only save if we have data to save
-    if (scaleData && Array.isArray(scaleData) && scaleData.length > 0 && Array.isArray(scaleData[0]) && scaleData[0].length > 0) {
+    if (
+      scaleData &&
+      Array.isArray(scaleData) &&
+      scaleData.length > 0 &&
+      Array.isArray(scaleData[0]) &&
+      scaleData[0].length > 0
+    ) {
       // Convert to flat structure for Firebase storage
       const flatData = convertToFlatScaleData(scaleData);
 
