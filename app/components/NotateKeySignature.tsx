@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Container } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
