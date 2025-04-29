@@ -12,13 +12,18 @@ import {
 } from "../lib/data/noteArray";
 import { staveData } from "../lib/data/stavesData";
 import { findBarIndex } from "../lib/findBar";
-import { HandleScaleInteraction } from "../lib/handleScaleInteraction";
+import { handleScaleInteraction } from "../lib/handleScaleInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
-import { NotesAndCoordinatesData, ScaleData, SimpleScaleData, StaveType } from "../lib/types";
+import {
+  NotesAndCoordinatesData,
+  ScaleData,
+  SimpleScaleData,
+  StaveType,
+} from "../lib/types";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
@@ -43,17 +48,15 @@ const NotateScale = ({
   // Create 2D ScaleData array with VexFlow objects from flat SimpleScaleData array
   const createScaleDataWithVexFlow = (data: SimpleScaleData[]) => {
     if (!data || data.length === 0) return [[]];
-
     // Find the maximum barIndex to determine array size
-    const maxBarIndex = Math.max(...data.map(note => note.barIndex || 0));
-    
+    const maxBarIndex = Math.max(...data.map((note) => note.barIndex || 0));
     // Create array of arrays
     const result: ScaleData[][] = Array(maxBarIndex + 1)
       .fill(null)
       .map(() => []);
-    
     // Place each note in the correct position
-    data.forEach(note => {
+    for (let i = 0; i < data.length; i++) {
+      const note = data[i];
       if ((note.barIndex || 0) >= 0 && note.keys && note.keys.length > 0) {
         // Create VexFlow StaveNote for UI rendering
         let staveNote = null;
@@ -63,7 +66,6 @@ const NotateScale = ({
             duration: note.duration || "q",
             clef: chosenClef,
           });
-          
           // Add accidentals if needed
           const keyToCheck = note.keys[0];
           if (keyToCheck && keyToCheck.includes("#")) {
@@ -74,7 +76,6 @@ const NotateScale = ({
         } catch (error) {
           console.error("Error creating stave note:", error);
         }
-        
         // Create the full ScaleData object with staveNote
         const scaleData: ScaleData = {
           keys: note.keys,
@@ -83,7 +84,6 @@ const NotateScale = ({
           userClickY: note.userClickY,
           staveNote: staveNote,
         };
-        
         // Ensure we have indexes for the proper position
         while (result[note.barIndex || 0].length <= (note.noteIndex || 0)) {
           result[note.barIndex || 0].push({
@@ -94,11 +94,9 @@ const NotateScale = ({
             staveNote: null,
           });
         }
-        
         result[note.barIndex || 0][note.noteIndex || 0] = scaleData;
       }
-    });
-    
+    }
     return result;
   };
 
@@ -152,9 +150,15 @@ const NotateScale = ({
     if (initialScaleData) {
       // Check if it's a flat array of SimpleScaleData or a nested array of ScaleData
       if (Array.isArray(initialScaleData)) {
-        if (initialScaleData.length > 0 && initialScaleData[0] && 'barIndex' in initialScaleData[0]) {
+        if (
+          initialScaleData.length > 0 &&
+          initialScaleData[0] &&
+          "barIndex" in initialScaleData[0]
+        ) {
           // It's a flat SimpleScaleData array
-          const scaleDataWithVexFlow = createScaleDataWithVexFlow(initialScaleData as SimpleScaleData[]);
+          const scaleDataWithVexFlow = createScaleDataWithVexFlow(
+            initialScaleData as SimpleScaleData[]
+          );
           setScaleDataMatrix(scaleDataWithVexFlow);
         } else {
           // It's already a nested ScaleData array
@@ -239,7 +243,6 @@ const NotateScale = ({
             clef: chosenClef,
           });
         }
-
         return {
           keys: note.keys ? [...note.keys] : [],
           duration: note.duration || "q",
@@ -280,7 +283,7 @@ const NotateScale = ({
       const {
         scaleDataMatrix: newScaleDataMatrix,
         notesAndCoordinates: newNotesAndCoordinates,
-      } = HandleScaleInteraction(
+      } = handleScaleInteraction(
         foundNoteData,
         notesAndCoordinatesCopy,
         barOfScaleData,
@@ -295,30 +298,12 @@ const NotateScale = ({
         errorMessages
       );
 
-      // We must use setState with a function to ensure we're working with
-      // the latest state and properly merge the new values
-      setScaleDataMatrix((prevState) => {
-        return [...newScaleDataMatrix];
-      });
+      setScaleDataMatrix([...newScaleDataMatrix]);
 
-      setNotesAndCoordinates((prevCoords) => {
-        return [...newNotesAndCoordinates];
-      });
+      setNotesAndCoordinates([...newNotesAndCoordinates]);
 
       // Update the scales display and notify parent via onChange - safely extract just the key strings
       try {
-        // Log the matrix structure for debugging
-        console.log(
-          "Current scale matrix structure:",
-          JSON.stringify({
-            barCount: newScaleDataMatrix.length,
-            notesInFirstBar: newScaleDataMatrix[0]?.length || 0,
-            hasKeys: newScaleDataMatrix[0]?.some(
-              (note) => note.keys && note.keys.length > 0
-            ),
-          })
-        );
-
         // Extract the note keys for display
         const scaleStrings = newScaleDataMatrix[0]
           .map((note: ScaleData) => {
@@ -328,11 +313,15 @@ const NotateScale = ({
           .filter((note) => note !== "");
 
         // Convert ScaleData array to flat SimpleScaleData array
-        const convertToFlatSimpleScaleData = (scaleData: ScaleData[][]): SimpleScaleData[] => {
+        const convertToFlatSimpleScaleData = (
+          scaleData: ScaleData[][]
+        ): SimpleScaleData[] => {
           const flatArray: SimpleScaleData[] = [];
-          
-          scaleData.forEach((bar, barIndex) => {
-            bar.forEach((note, noteIndex) => {
+
+          for (let barIndex = 0; barIndex < scaleData.length; barIndex++) {
+            const bar = scaleData[barIndex];
+            for (let noteIndex = 0; noteIndex < bar.length; noteIndex++) {
+              const note = bar[noteIndex];
               if (note.keys && note.keys.length > 0) {
                 flatArray.push({
                   keys: note.keys,
@@ -340,19 +329,22 @@ const NotateScale = ({
                   exactX: note.exactX,
                   userClickY: note.userClickY,
                   barIndex,
-                  noteIndex
+                  noteIndex,
                   // staveNote is intentionally omitted to avoid circular references
                 });
               }
-            });
-          });
-          
+            }
+          }
+
           return flatArray;
         };
-        
+
         if (onChange) {
           // Pass flat simplified data structure without VexFlow objects
-          onChange(convertToFlatSimpleScaleData(newScaleDataMatrix), scaleStrings);
+          onChange(
+            convertToFlatSimpleScaleData(newScaleDataMatrix),
+            scaleStrings
+          );
         }
       } catch (error) {
         console.error("Error updating scale display:", error);

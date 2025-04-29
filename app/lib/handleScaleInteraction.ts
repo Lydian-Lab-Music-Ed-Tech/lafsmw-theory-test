@@ -16,7 +16,7 @@ import {
 
 const { StaveNote } = Flow;
 
-export const HandleScaleInteraction = (
+export const handleScaleInteraction = (
   foundNoteData: NotesAndCoordinatesData,
   notesAndCoordinates: NotesAndCoordinatesData[],
   barOfScaleData: ScaleData[],
@@ -43,23 +43,19 @@ export const HandleScaleInteraction = (
     if (!barOfScaleData || barOfScaleData.length === 0) {
       return -1;
     }
-
     let closestIndex = -1;
     let closestDistance = Number.MAX_VALUE;
-
     // Loop through notes to find the closest one
-    barOfScaleData.forEach((note, index) => {
+    for (let i = 0; i < barOfScaleData.length; i++) {
+      const note = barOfScaleData[i];
       if (note.exactX !== undefined) {
         const distance = Math.abs(note.exactX - userClickX);
-        const noteKey = note.keys && note.keys[0] ? note.keys[0] : "unknown";
-
         if (distance < closestDistance && distance < 150) {
           closestDistance = distance;
-          closestIndex = index;
+          closestIndex = i;
         }
       }
-    });
-
+    }
     return closestIndex;
   };
 
@@ -81,18 +77,19 @@ export const HandleScaleInteraction = (
     if (targetNoteIndex === -1) {
       let closestDistance = Number.MAX_VALUE;
 
-      barOfScaleData.forEach((note, index) => {
+      for (let i = 0; i < barOfScaleData.length; i++) {
+        const note = barOfScaleData[i];
         if (note.exactX !== undefined) {
           const distance = Math.abs(note.exactX - userClickX);
 
           // Extreme threshold of 350px to catch notes anywhere on screen
           if (distance < closestDistance && distance < 350) {
             closestDistance = distance;
-            targetNoteIndex = index;
+            targetNoteIndex = i;
             progressiveDetectionUsed = true;
           }
         }
-      });
+      }
     }
 
     // Last resort: take the first note if we still couldn't find one
@@ -276,19 +273,19 @@ export const HandleScaleInteraction = (
     // In VexFlow, lowercase 'b' can mean both the note 'B' and the flat accidental
     // We need to ensure B natural is represented properly
     let noteKey = foundNoteData.note;
-    let keyParts = noteKey.split('/');
+    let keyParts = noteKey.split("/");
     let noteName = keyParts[0];
     let octave = keyParts[1];
 
     // Fix for B natural - use uppercase B to avoid confusion with flat sign
     // This ensures it's interpreted as B natural, not B-flat
-    if (noteName === 'b') {
+    if (noteName === "b") {
       // Replace with uppercase B, which VexFlow will treat as B natural
       noteKey = `B/${octave}`;
       // Update foundNoteData as well to ensure consistency
       foundNoteData.note = noteKey;
     }
-    
+
     const newStaveNote: StaveNoteType = new StaveNote({
       keys: [noteKey],
       duration: "q",
@@ -299,7 +296,7 @@ export const HandleScaleInteraction = (
     let newNoteObject = [
       ...barOfScaleData,
       {
-        keys: [noteKey],  // Use the possibly modified note key
+        keys: [noteKey], // Use the possibly modified note key
         duration: "q",
         staveNote: newStaveNote,
         exactX: userClickX, // Use exactX for positioning

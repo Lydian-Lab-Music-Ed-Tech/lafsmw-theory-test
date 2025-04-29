@@ -1,22 +1,15 @@
 import { Flow } from "vexflow";
 import { indexOfNoteToModify as indexOfNote } from "./indexOfNoteToModify";
 import {
-  appendAccidentalToNote,
   getAccidentalType,
   parseNote,
   removeAccidentals,
 } from "./modifyNotesAndCoordinates";
-import {
-  ModifyScaleData,
-  NotesAndCoordinatesData,
-  ScaleData,
-  StateInteraction,
-  StaveNoteType,
-} from "./types";
+import { ModifyScaleData, ScaleData, StaveNoteType } from "./types";
 
 const { Accidental, StaveNote } = Flow;
 
-export const createStaveNoteFromScaleData = (
+const createStaveNoteFromScaleData = (
   noteObject: ScaleData,
   chosenClef: string,
   updatedKeys?: string[]
@@ -30,7 +23,7 @@ export const createStaveNoteFromScaleData = (
   return newStaveNote;
 };
 
-export const getNoteData = (
+const getNoteData = (
   barOfScaleData: ScaleData[],
   userClickX: number
 ): ModifyScaleData => {
@@ -75,65 +68,6 @@ export const addAccidentalsToStaveNotes = (
   });
 };
 
-export const reconstructScale = (
-  noteObject: ScaleData,
-  foundNoteData: NotesAndCoordinatesData,
-  chosenClef: string
-) => {
-  const newStaveNote = createStaveNoteFromScaleData(noteObject, chosenClef);
-  addAccidentalsToStaveNotes([foundNoteData.note], newStaveNote);
-  const newScale = {
-    ...noteObject,
-    staveNote: newStaveNote,
-  };
-  return newScale;
-};
-
-export const addAccidentalToStaveNoteAndKeys = (
-  noteInteractionState: StateInteraction,
-  scaleData: ScaleData[],
-  userClickX: number,
-  chosenClef: string
-) => {
-  // Get the note to modify
-  let { noteDataObject, noteIndex } = getNoteData(scaleData, userClickX);
-
-  // If no note was found or noteIndex is -1, we can't add an accidental
-  if (noteIndex === -1 || !noteDataObject) {
-    console.error("No note found to add accidental to");
-    // Return a default object that won't modify anything
-    return { updatedNoteObject: scaleData[0], noteIndex: 0 };
-  }
-
-  // Determine the accidental based on which button is active
-  const accidental = noteInteractionState.isSharpActive ? "#" : "b";
-
-  // Apply the accidental to the note
-  const updatedKey = appendAccidentalToNote(accidental, noteDataObject.keys[0]);
-
-  // Create a new stave note with the updated key
-  const newKeys = [updatedKey];
-  const newStaveNote = createStaveNoteFromScaleData(
-    noteDataObject,
-    chosenClef,
-    newKeys
-  );
-
-  // Add the accidental visual to the stave note
-  addAccidentalsToStaveNotes(newKeys, newStaveNote);
-
-  // Create the updated note object with the new keys and stave note
-  const updatedNoteObject = {
-    ...noteDataObject,
-    staveNote: newStaveNote,
-    keys: newKeys,
-    // Make sure we preserve the exactX position
-    exactX: noteDataObject.exactX,
-  };
-
-  return { updatedNoteObject, noteIndex };
-};
-
 export const removeAccidentalFromStaveNote = (
   scaleData: ScaleData[],
   userClickX: number,
@@ -149,28 +83,6 @@ export const removeAccidentalFromStaveNote = (
     staveNote: createStaveNoteFromScaleData(noteDataObject, chosenClef),
   };
   return { updatedNoteObject, noteIndex };
-};
-
-export const addNewNoteToScale = (
-  scaleData: ScaleData[],
-  foundNoteData: NotesAndCoordinatesData,
-  userClickX: number,
-  userClickY: number,
-  chosenClef: string
-) => {
-  let { noteDataObject } = getNoteData(scaleData, userClickX);
-  const newNote = createStaveNoteFromScaleData(noteDataObject, chosenClef, [
-    foundNoteData.note,
-  ]);
-  addAccidentalsToStaveNotes(noteDataObject.keys, newNote);
-  const newNoteObject = {
-    keys: [foundNoteData.note],
-    duration: "q",
-    staveNote: newNote,
-    exactX: userClickX,
-    userClickY,
-  };
-  return newNoteObject;
 };
 
 export const removeNoteFromScale = (
