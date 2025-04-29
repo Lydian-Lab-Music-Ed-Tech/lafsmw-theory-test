@@ -119,6 +119,16 @@ export interface ScaleData {
   exactX: number;
 }
 
+export interface SimpleScaleData {
+  keys: string[];
+  duration: string;
+  userClickY: number;
+  exactX: number;
+  barIndex: number; // To track which bar the note belongs to
+  noteIndex: number; // To track position within the bar
+  // No StaveNote to avoid circular references
+}
+
 export interface NoteStringData {
   note: string;
   yCoordinateMin: number;
@@ -255,6 +265,12 @@ export interface InputState {
   scales4: string[];
   scales5: string[];
   scales6: string[];
+  scaleData1?: SimpleScaleData[];
+  scaleData2?: SimpleScaleData[];
+  scaleData3?: SimpleScaleData[];
+  scaleData4?: SimpleScaleData[];
+  scaleData5?: SimpleScaleData[];
+  scaleData6?: SimpleScaleData[];
   triads1: string[];
   triads2: string[];
   triads3: string[];

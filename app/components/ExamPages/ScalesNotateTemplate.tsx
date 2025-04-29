@@ -5,10 +5,13 @@ import {
   FormEvent,
   InputState,
   ScaleData,
+  SimpleScaleData,
   UserDataProps,
 } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Flow } from "vexflow";
+import { useClef } from "../../context/ClefContext";
 import CardFooter from "../CardFooter";
 import NotateScale from "../NotateScale";
 import TutorialModal from "../TutorialModal";
@@ -19,6 +22,7 @@ export default function ScalesNotation({
   nextViewState,
   page,
 }: UserDataProps) {
+  const { chosenClef } = useClef();
   const scalesPropName = `scales${page - 5}` as keyof InputState;
   const scaleDataPropName = `scaleData${page - 5}` as keyof InputState;
 
@@ -26,145 +30,196 @@ export default function ScalesNotation({
     currentUserData[scalesPropName] || []
   );
 
-  const [scaleData, setScaleData] = useState<ScaleData[][]>(() => {
-    const savedData = currentUserData[scaleDataPropName];
-    if (savedData && typeof savedData === "object") {
-      // For flat object format (from serializeScaleDataForStorage)
-      if ("type" in savedData && savedData.type === "serialized_scale_data") {
-        return [[]]; // Will be properly reconstructed by NotateScale
-      }
-    }
-    return [[]];
-  });
+  const [scaleData, setScaleData] = useState<ScaleData[][]>([[]]);
 
-  // Serialize scale data for storage, avoiding circular references and nested arrays
-  const serializeScaleDataForStorage = (data: ScaleData[][] | any) => {
+  // Convert 2D ScaleData array to flat SimpleScaleData array for storage
+  const convertToFlatScaleData = useCallback((data: ScaleData[][]) => {
     try {
-      // Create a simplified flat object structure for Firebase
-      // Convert the nested arrays into an object with numeric keys
-      const result: Record<string, any> = { type: "serialized_scale_data" };
-
-      // Handle empty or invalid data
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        console.warn(
-          "Empty or invalid data, returning empty serialized result"
-        );
-        return result;
-      }
-
-      // Count how many notes we found for debugging
-      let noteCount = 0;
-
+      const flatData: SimpleScaleData[] = [];
       // Process each bar
-      data.forEach((bar, barIndex) => {
-        // Skip if bar is not an array
+      for (let barIndex = 0; barIndex < data.length; barIndex++) {
+        const bar = data[barIndex];
         if (!Array.isArray(bar)) {
-          return;
+          continue;
         }
-
-        // For each note in the bar, create a flat object with unique keys
-        bar.forEach((note, noteIndex) => {
-          if (!note || typeof note !== "object") return;
-
-          noteCount++;
-          const noteKey = `note_${barIndex}_${noteIndex}`;
-
-          // Safely extract key information
-          let keyValue = "";
-          if (note.keys) {
-            if (Array.isArray(note.keys) && note.keys.length > 0) {
-              keyValue = note.keys[0];
-            } else if (typeof note.keys === "string") {
-              keyValue = note.keys;
-            }
+        // For each note in the bar, create a SimpleScaleData object
+        for (let noteIndex = 0; noteIndex < bar.length; noteIndex++) {
+          const note = bar[noteIndex];
+          if (
+            !note ||
+            typeof note !== "object" ||
+            !note.keys ||
+            note.keys.length === 0
+          ) {
+            continue;
           }
-
-          result[noteKey] = {
-            keys: keyValue,
+          flatData.push({
+            keys: note.keys,
             duration: note.duration || "q",
             exactX: note.exactX !== undefined ? note.exactX : 0,
             userClickY: note.userClickY !== undefined ? note.userClickY : 0,
             barIndex,
             noteIndex,
-          };
-        });
-      });
-
-      // Store the dimensions for reconstruction
-      result.barCount = data.length;
-      result.noteCount = noteCount;
-
-      return result;
+          });
+        }
+      }
+      return flatData;
     } catch (error) {
-      console.error("Error serializing scale data:", error);
-      return { type: "serialized_scale_data", barCount: 0, noteCount: 0 };
+      console.error("Error converting scale data:", error);
+      return [];
     }
-  };
+  }, []);
 
-  // Save both arrays on change
-  const handleSaveOnChange = (
-    newScaleData: ScaleData[][],
-    newScales: string[]
-  ) => {
-    // Don't save empty data
-    if (
-      newScaleData.length === 0 ||
-      (newScaleData.length === 1 && newScaleData[0].length === 0)
-    ) {
-      console.log("Skipping save of empty scale data");
-      return;
-    }
+  // Function to reconstruct a 2D array from flat SimpleScaleData, memoized with useCallback
+  const reconstructScaleData = useCallback(
+    (flatData: SimpleScaleData[]): ScaleData[][] => {
+      if (!flatData || !flatData.length) {
+        return [[]];
+      }
+      // Find the maximum barIndex to determine array size
+      const maxBarIndex = Math.max(
+        ...flatData.map((note) => note.barIndex || 0)
+      );
+      // Create array of arrays
+      const result: ScaleData[][] = Array(maxBarIndex + 1)
+        .fill(null)
+        .map(() => []);
+      // Place each note in the correct position
+      for (let i = 0; i < flatData.length; i++) {
+        const note = flatData[i];
+        if ((note.barIndex || 0) >= 0 && note.keys && note.keys.length > 0) {
+          // Create VexFlow StaveNote for UI rendering
+          let staveNote = null;
+          try {
+            staveNote = new Flow.StaveNote({
+              keys: [...note.keys],
+              duration: note.duration || "q",
+              clef: chosenClef,
+            });
+            // Add accidentals if needed
+            const keyToCheck = note.keys[0];
+            if (keyToCheck && keyToCheck.includes("#")) {
+              staveNote.addModifier(new Flow.Accidental("#"), 0);
+            } else if (keyToCheck && keyToCheck.includes("b")) {
+              staveNote.addModifier(new Flow.Accidental("b"), 0);
+            }
+          } catch (error) {
+            console.error(
+              "Error creating stave note in reconstruction:",
+              error
+            );
+          }
+          // Create the full ScaleData object with staveNote
+          const scaleData: ScaleData = {
+            keys: note.keys,
+            duration: note.duration,
+            exactX: note.exactX,
+            userClickY: note.userClickY,
+            staveNote: staveNote,
+          };
+          // Add to the result array in the correct position
+          // Ensure we have indexes for the proper position
+          while (result[note.barIndex || 0].length <= (note.noteIndex || 0)) {
+            result[note.barIndex || 0].push({
+              keys: [],
+              duration: "q",
+              exactX: 0,
+              userClickY: 0,
+              staveNote: null,
+            });
+          }
+          result[note.barIndex || 0][note.noteIndex || 0] = scaleData;
+        }
+      }
+      return result;
+    },
+    [chosenClef]
+  );
 
-    setScaleData(newScaleData);
-    setScales(newScales);
-
-    // Serialize scale data before storing in userData
-    const serializedData = serializeScaleDataForStorage(newScaleData);
-
-    // Only update if we have actual data to save
-    if (serializedData.noteCount > 0) {
+  // Save both arrays on change - using useCallback to prevent recreation on every render
+  const handleSaveOnChange = useCallback(
+    (newFlatScaleData: SimpleScaleData[], newScales: string[]) => {
+      if (newFlatScaleData.length === 0) {
+        console.log("Skipping save of empty scale data");
+        return;
+      }
+      // Convert the flat data back to a 2D array for the UI component
+      const reconstructed2DArray = reconstructScaleData(newFlatScaleData);
+      setScaleData(reconstructed2DArray);
+      setScales(newScales);
       setCurrentUserData({
         ...currentUserData,
         [scalesPropName]: newScales,
-        [scaleDataPropName]: serializedData,
+        [scaleDataPropName]: newFlatScaleData,
       });
-    }
-  };
+    },
+    [
+      reconstructScaleData,
+      currentUserData,
+      scalesPropName,
+      scaleDataPropName,
+      setScaleData,
+      setScales,
+      setCurrentUserData,
+    ]
+  );
 
-  // Update local states when currentUserData changes
   useEffect(() => {
     const newScales = currentUserData[scalesPropName] || [];
-    const newScaleData = currentUserData[scaleDataPropName] || [[]];
+    const savedScaleData = currentUserData[scaleDataPropName] as
+      | SimpleScaleData[]
+      | undefined;
 
     // Only update if there are actual changes to avoid infinite loops
-    // We need to do a shallow comparison here since deep comparison will fail
-    // with the complex objects
     const scalesChanged = JSON.stringify(newScales) !== JSON.stringify(scales);
-    const scaleDataLengthChanged =
-      !scaleData ||
-      !scaleData[0] ||
-      !newScaleData ||
-      !newScaleData[0] ||
-      scaleData[0].length !== newScaleData[0].length;
 
-    if (scalesChanged || scaleDataLengthChanged) {
+    // Store the current data signature in a ref to track changes
+    const currentDataEmpty =
+      !scaleData || !scaleData[0] || scaleData[0].length === 0;
+
+    // Only update if scales changed or we need to initialize data
+    if (scalesChanged || currentDataEmpty) {
       setScales(newScales);
-      setScaleData(newScaleData);
+
+      // If we have saved flat data, reconstruct the 2D array for UI
+      if (
+        savedScaleData &&
+        Array.isArray(savedScaleData) &&
+        savedScaleData.length > 0
+      ) {
+        const reconstructed = reconstructScaleData(savedScaleData);
+        setScaleData(reconstructed);
+      } else {
+        // Initialize with empty array if no data
+        setScaleData([[]]);
+      }
     }
-  }, [currentUserData, scalesPropName, scaleDataPropName, scales, scaleData]);
+  }, [
+    currentUserData,
+    scalesPropName,
+    scaleDataPropName,
+    scales,
+    reconstructScaleData,
+  ]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Only serialize and save if we have data to save
-    if (scaleData.length > 0 && scaleData[0].length > 0) {
-      // Simply use the current state values which should now be up-to-date
-      const serializedData = serializeScaleDataForStorage(scaleData);
+    // Only save if we have data to save
+    if (
+      scaleData &&
+      Array.isArray(scaleData) &&
+      scaleData.length > 0 &&
+      Array.isArray(scaleData[0]) &&
+      scaleData[0].length > 0
+    ) {
+      // Convert to flat structure for Firebase storage
+      const flatData = convertToFlatScaleData(scaleData);
 
-      if (serializedData.noteCount > 0) {
+      if (flatData && Array.isArray(flatData) && flatData.length > 0) {
         setCurrentUserData({
           ...currentUserData,
           [scalesPropName]: scales,
-          [scaleDataPropName]: serializedData,
+          [scaleDataPropName]: flatData,
         });
       }
     } else {
