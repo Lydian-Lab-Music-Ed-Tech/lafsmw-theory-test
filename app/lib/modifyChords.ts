@@ -49,20 +49,6 @@ const addAccidentalsToStaveNotes = (
   });
 };
 
-// const appendAccidentalToNote = (accidental: string, note: string) => {
-//   const { noteBase, octave } = parseNote(note);
-//   if (
-//     (accidental === "#" && noteBase.length > 1 && noteBase.endsWith("b")) ||
-//     (accidental === "b" && noteBase.endsWith("#"))
-//   ) {
-//     return note;
-//   }
-//   if (noteBase.length < 3) {
-//     return `${noteBase}${accidental}/${octave}`;
-//   }
-//   return `${noteBase}/${octave}`;
-// };
-
 const removeAccidentals = (note: string) => {
   let { noteBase, octave } = parseNote(note);
   if (noteBase.length > 2) {
