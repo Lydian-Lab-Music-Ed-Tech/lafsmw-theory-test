@@ -503,7 +503,6 @@ export default function ExamHomePage() {
         )}
         {viewState === VIEW_STATES.TRIADS_NOTATE1 && (
           <TriadsNotation
-            key={viewState}
             currentUserData={currentUserData}
             setCurrentUserData={setCurrentUserData}
             nextViewState={incrementViewState}
@@ -512,7 +511,6 @@ export default function ExamHomePage() {
         )}
         {viewState === VIEW_STATES.TRIADS_NOTATE2 && (
           <TriadsNotation
-            key={viewState}
             currentUserData={currentUserData}
             setCurrentUserData={setCurrentUserData}
             nextViewState={incrementViewState}
@@ -521,7 +519,6 @@ export default function ExamHomePage() {
         )}
         {viewState === VIEW_STATES.TRIADS_NOTATE3 && (
           <TriadsNotation
-            key={viewState}
             currentUserData={currentUserData}
             setCurrentUserData={setCurrentUserData}
             nextViewState={incrementViewState}
@@ -530,7 +527,6 @@ export default function ExamHomePage() {
         )}
         {viewState === VIEW_STATES.TRIADS_NOTATE4 && (
           <TriadsNotation
-            key={viewState}
             currentUserData={currentUserData}
             setCurrentUserData={setCurrentUserData}
             nextViewState={incrementViewState}
@@ -539,7 +535,6 @@ export default function ExamHomePage() {
         )}
         {viewState === VIEW_STATES.TRIADS_NOTATE5 && (
           <TriadsNotation
-            key={viewState}
             currentUserData={currentUserData}
             setCurrentUserData={setCurrentUserData}
             nextViewState={incrementViewState}
@@ -548,7 +543,6 @@ export default function ExamHomePage() {
         )}
         {viewState === VIEW_STATES.TRIADS_NOTATE6 && (
           <TriadsNotation
-            key={viewState}
             currentUserData={currentUserData}
             setCurrentUserData={setCurrentUserData}
             nextViewState={incrementViewState}

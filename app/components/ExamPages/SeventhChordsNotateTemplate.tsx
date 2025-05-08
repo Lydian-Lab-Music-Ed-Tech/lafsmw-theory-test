@@ -2,10 +2,6 @@
 import { chordsNotationInstructions } from "@/app/lib/data/instructions";
 import seventhChordsText from "@/app/lib/data/seventhChordsText";
 import {
-  toSimpleChordData,
-  toChordWithVexFlow,
-} from "@/app/lib/chordDataConverters";
-import {
   FormEvent,
   InputState,
   SimpleChordData,
@@ -13,7 +9,6 @@ import {
 } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useClef } from "../../context/ClefContext";
 import CardFooter from "../CardFooter";
 import NotateChord from "../NotateChord";
 import TutorialModal from "../TutorialModal";
@@ -24,7 +19,6 @@ export default function NotateSeventhChords({
   nextViewState,
   page,
 }: UserDataProps) {
-  const { chosenClef } = useClef();
   const seventhChordsPropName = `seventhChords${page - 17}` as keyof InputState;
   const seventhChordsDataPropName =
     `seventhChordsData${page - 17}` as keyof InputState;
@@ -84,7 +78,6 @@ export default function NotateSeventhChords({
   // Sync chords state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-
     const newChords =
       (currentUserData[seventhChordsPropName] as string[]) || [];
     const newChordData = currentUserData[seventhChordsDataPropName] as
@@ -109,7 +102,6 @@ export default function NotateSeventhChords({
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUserData, seventhChordsPropName, seventhChordsDataPropName]);
 
   const handleSubmit = async (e: FormEvent) => {

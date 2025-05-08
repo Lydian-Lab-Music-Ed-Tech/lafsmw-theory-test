@@ -39,7 +39,6 @@ export default function ScalesNotation({
   const reconstructScaleData = useCallback(
     (flatData: SimpleScaleData[]): ScaleData[][] => {
       const result = toNestedScaleData(flatData, chosenClef);
-      console.log("reconstructed scaleData", result);
       return result;
     },
     [chosenClef]
@@ -49,18 +48,12 @@ export default function ScalesNotation({
   const handleSaveOnChange = useCallback(
     (newFlatScaleData: SimpleScaleData[], newScales: string[]) => {
       if (newFlatScaleData.length === 0) {
-        console.log("Skipping save of empty scale data");
         return;
       }
       // Convert the flat data back to a 2D array for the UI component
       const reconstructed2DArray = reconstructScaleData(newFlatScaleData);
       setScaleData(reconstructed2DArray);
       setScales(newScales);
-      console.log("currentUserData saved in handleSaveOnChange", {
-        ...currentUserData,
-        [scalesPropName]: newScales,
-        [scaleDataPropName]: newFlatScaleData,
-      });
       setCurrentUserData({
         ...currentUserData,
         [scalesPropName]: newScales,

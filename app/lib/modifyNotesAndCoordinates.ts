@@ -14,12 +14,8 @@ export const appendAccidentalToNote = (accidental: string, note: string) => {
   ) {
     return note;
   }
-
   if (noteBase.length < 3) {
     return `${noteBase}${accidental}/${octave}`;
-  }
-  if (noteBase.length > 3) {
-    // console.log("Cannot add more than 2 accidentals to a note.");
   }
   return `${noteBase}/${octave}`;
 };

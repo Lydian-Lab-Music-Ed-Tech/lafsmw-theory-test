@@ -2,11 +2,6 @@
 import { chordsNotationInstructions } from "@/app/lib/data/instructions";
 import triadsText from "@/app/lib/data/triadsText";
 import {
-  toSimpleChordData,
-  toChordWithVexFlow,
-} from "@/app/lib/chordDataConverters";
-import {
-  Chord,
   FormEvent,
   InputState,
   SimpleChordData,
@@ -14,7 +9,6 @@ import {
 } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useClef } from "../../context/ClefContext";
 import CardFooter from "../CardFooter";
 import NotateChord from "../NotateChord";
 import TutorialModal from "../TutorialModal";
@@ -25,7 +19,6 @@ export default function TriadsNotation({
   nextViewState,
   page,
 }: UserDataProps) {
-  const { chosenClef } = useClef();
   const triadsPropName = `triads${page - 11}` as keyof InputState;
   const triadsDataPropName = `triadsData${page - 11}` as keyof InputState;
 
@@ -84,7 +77,6 @@ export default function TriadsNotation({
   // Sync chords state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-
     const newChords = (currentUserData[triadsPropName] as string[]) || [];
     const newChordData = currentUserData[triadsDataPropName] as
       | SimpleChordData
@@ -96,7 +88,6 @@ export default function TriadsNotation({
     // Update local state if needed
     if (chordsChanged) {
       setChords(newChords);
-
       // If we have chord data, use it; otherwise create from chords
       if (newChordData) {
         setChordData(newChordData);
@@ -108,19 +99,16 @@ export default function TriadsNotation({
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUserData, triadsPropName, triadsDataPropName]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     // Save both the chord strings and the chord data
     setCurrentUserData({
       ...currentUserData,
       [triadsPropName]: chords,
       [triadsDataPropName]: chordData,
     });
-
     nextViewState();
   };
 

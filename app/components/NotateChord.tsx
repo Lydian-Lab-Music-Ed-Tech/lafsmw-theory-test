@@ -1,19 +1,8 @@
 "use client";
 import { Container } from "@mui/material";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
-import {
-  toChordWithVexFlow,
-  toSimpleChordData,
-} from "../lib/chordDataConverters";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
 import {
   bassClefNotesArray,
@@ -25,25 +14,17 @@ import { handleChordInteraction } from "../lib/handleChordInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
-import {
-  initialChordData,
-  initialNotesAndCoordsState,
-} from "../lib/initialStates";
+import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
+import { toChordWithVexFlow } from "../lib/toChordWithVexFlow";
 import {
   Chord,
   NotesAndCoordinatesData,
-  SimpleChordData,
+  NotateChordProps,
   StaveType,
 } from "../lib/types";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
-
-interface NotateChordProps {
-  initialChords?: string[];
-  initialChordData?: SimpleChordData;
-  onChange: (chords: string[]) => void;
-}
 
 const NotateChord = ({
   initialChords = [],
@@ -139,7 +120,6 @@ const NotateChord = ({
         userClickY: 0,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     JSON.stringify(initialChords),
     JSON.stringify(initialChordData),
@@ -161,7 +141,6 @@ const NotateChord = ({
     } else {
       onChange([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(chordData?.keys)]);
 
   useEffect(() => {

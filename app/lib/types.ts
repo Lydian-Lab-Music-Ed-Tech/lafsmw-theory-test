@@ -59,6 +59,12 @@ export type Chord = {
   flatIndexArray?: number[] | [];
 };
 
+export interface NotateChordProps {
+  initialChords?: string[];
+  initialChordData?: SimpleChordData;
+  onChange: (chords: string[]) => void;
+}
+
 /**
  * SimpleChordData is a serializable version of Chord without VexFlow objects
  * Used for storage and data transfer
