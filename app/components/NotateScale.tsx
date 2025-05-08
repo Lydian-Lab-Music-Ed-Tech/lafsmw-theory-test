@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Container from "@mui/material/Container";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -17,6 +16,7 @@ import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
+import { toFlatScaleData, toNestedScaleData } from "../lib/scaleDataConverters";
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
 import {
   NotesAndCoordinatesData,
@@ -45,60 +45,7 @@ const NotateScale = ({
   const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
 
-  // Create 2D ScaleData array with VexFlow objects from flat SimpleScaleData array
-  const createScaleDataWithVexFlow = (data: SimpleScaleData[]) => {
-    if (!data || data.length === 0) return [[]];
-    // Find the maximum barIndex to determine array size
-    const maxBarIndex = Math.max(...data.map((note) => note.barIndex || 0));
-    // Create array of arrays
-    const result: ScaleData[][] = Array(maxBarIndex + 1)
-      .fill(null)
-      .map(() => []);
-    // Place each note in the correct position
-    for (let i = 0; i < data.length; i++) {
-      const note = data[i];
-      if ((note.barIndex || 0) >= 0 && note.keys && note.keys.length > 0) {
-        // Create VexFlow StaveNote for UI rendering
-        let staveNote = null;
-        try {
-          staveNote = new Flow.StaveNote({
-            keys: note.keys,
-            duration: note.duration || "q",
-            clef: chosenClef,
-          });
-          // Add accidentals if needed
-          const keyToCheck = note.keys[0];
-          if (keyToCheck && keyToCheck.includes("#")) {
-            staveNote.addModifier(new Flow.Accidental("#"), 0);
-          } else if (keyToCheck && keyToCheck.includes("b")) {
-            staveNote.addModifier(new Flow.Accidental("b"), 0);
-          }
-        } catch (error) {
-          console.error("Error creating stave note:", error);
-        }
-        // Create the full ScaleData object with staveNote
-        const scaleData: ScaleData = {
-          keys: note.keys,
-          duration: note.duration,
-          exactX: note.exactX,
-          userClickY: note.userClickY,
-          staveNote: staveNote,
-        };
-        // Ensure we have indexes for the proper position
-        while (result[note.barIndex || 0].length <= (note.noteIndex || 0)) {
-          result[note.barIndex || 0].push({
-            keys: [],
-            duration: "q",
-            exactX: 0,
-            userClickY: 0,
-            staveNote: null,
-          });
-        }
-        result[note.barIndex || 0][note.noteIndex || 0] = scaleData;
-      }
-    }
-    return result;
-  };
+  // Use the utility function from scaleDataConverters.ts
 
   // Initialize state after we have access to chosenClef
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
@@ -155,9 +102,10 @@ const NotateScale = ({
           initialScaleData[0] &&
           "barIndex" in initialScaleData[0]
         ) {
-          // It's a flat SimpleScaleData array
-          const scaleDataWithVexFlow = createScaleDataWithVexFlow(
-            initialScaleData as SimpleScaleData[]
+          // It's a flat SimpleScaleData array - convert to nested array with VexFlow objects
+          const scaleDataWithVexFlow = toNestedScaleData(
+            initialScaleData as SimpleScaleData[],
+            chosenClef
           );
           setScaleDataMatrix(scaleDataWithVexFlow);
         } else {
@@ -312,39 +260,10 @@ const NotateScale = ({
           })
           .filter((note) => note !== "");
 
-        // Convert ScaleData array to flat SimpleScaleData array
-        const convertToFlatSimpleScaleData = (
-          scaleData: ScaleData[][]
-        ): SimpleScaleData[] => {
-          const flatArray: SimpleScaleData[] = [];
-
-          for (let barIndex = 0; barIndex < scaleData.length; barIndex++) {
-            const bar = scaleData[barIndex];
-            for (let noteIndex = 0; noteIndex < bar.length; noteIndex++) {
-              const note = bar[noteIndex];
-              if (note.keys && note.keys.length > 0) {
-                flatArray.push({
-                  keys: note.keys,
-                  duration: note.duration,
-                  exactX: note.exactX,
-                  userClickY: note.userClickY,
-                  barIndex,
-                  noteIndex,
-                  // staveNote is intentionally omitted to avoid circular references
-                });
-              }
-            }
-          }
-
-          return flatArray;
-        };
-
         if (onChange) {
           // Pass flat simplified data structure without VexFlow objects
-          onChange(
-            convertToFlatSimpleScaleData(newScaleDataMatrix),
-            scaleStrings
-          );
+          // Use our utility functions from scaleDataConverters.ts
+          onChange(toFlatScaleData(newScaleDataMatrix), scaleStrings);
         }
       } catch (error) {
         console.error("Error updating scale display:", error);

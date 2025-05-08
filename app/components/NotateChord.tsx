@@ -1,13 +1,6 @@
 "use client";
 import { Container } from "@mui/material";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Flow } from "vexflow";
 import { useClef } from "../context/ClefContext";
 import calculateNotesAndCoordinates from "../lib/calculateNotesAndCoordinates";
@@ -21,27 +14,46 @@ import { handleChordInteraction } from "../lib/handleChordInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
-import {
-  initialChordData,
-  initialNotesAndCoordsState,
-} from "../lib/initialStates";
+import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
-import { Chord, NotesAndCoordinatesData, StaveType } from "../lib/types";
+import { toChordWithVexFlow } from "../lib/toChordWithVexFlow";
+import {
+  Chord,
+  NotesAndCoordinatesData,
+  NotateChordProps,
+  StaveType,
+} from "../lib/types";
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
 const NotateChord = ({
-  setChords,
-}: {
-  setChords: Dispatch<SetStateAction<Array<string>>>;
-}) => {
+  initialChords = [],
+  initialChordData,
+  onChange,
+}: NotateChordProps) => {
   const container = useRef<HTMLDivElement | null>(null);
   const [staves, setStaves] = useState<StaveType[]>([]);
-  const [barIndex, setBarIndex] = useState<number>(0);
-  const [chordData, setChordData] = useState<Chord>(initialChordData);
+  // Always use barIndex 0 for chords since we only have one stave
+  const barIndex = 0;
+
+  const { chosenClef } = useClef();
+
+  // Hydrate chordData from initialChordData or initialChords
+  const [chordData, setChordData] = useState<Chord>(() => {
+    // If we have initialChordData, convert it to a Chord with VexFlow objects
+    if (initialChordData) {
+      return toChordWithVexFlow(initialChordData, chosenClef);
+    }
+    // Otherwise use initialChords or empty
+    return {
+      keys: initialChords || [],
+      duration: "w",
+      staveNotes: null,
+      userClickY: 0,
+    };
+  });
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const { chosenClef } = useClef();
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
@@ -91,6 +103,46 @@ const NotateChord = ({
   });
 
   // Initial load
+  // Sync chordData if initialChords or initialChordData prop changes
+  useEffect(() => {
+    if (initialChordData) {
+      // If we have initialChordData, convert it to a Chord with VexFlow objects
+      setChordData(toChordWithVexFlow(initialChordData, chosenClef));
+    } else if (initialChords && initialChords.length > 0) {
+      // Otherwise use initialChords
+      setChordData((prev) => ({ ...prev, keys: initialChords }));
+    } else {
+      // Or reset to empty
+      setChordData({
+        keys: [],
+        duration: "w",
+        staveNotes: null,
+        userClickY: 0,
+      });
+    }
+  }, [
+    JSON.stringify(initialChords),
+    JSON.stringify(initialChordData),
+    chosenClef,
+  ]);
+
+  // Trigger VexFlow render whenever chordData changes
+  useEffect(() => {
+    if (renderFunctionRef.current) {
+      renderFunctionRef.current();
+    }
+  }, [chordData]);
+
+  // Call onChange whenever chordData.keys changes
+  useEffect(() => {
+    // Make sure we have valid keys before calling onChange
+    if (chordData && Array.isArray(chordData.keys)) {
+      onChange(chordData.keys);
+    } else {
+      onChange([]);
+    }
+  }, [JSON.stringify(chordData?.keys)]);
+
   useEffect(() => {
     const newStave = renderFunctionRef.current?.();
     if (newStave) {
@@ -112,9 +164,14 @@ const NotateChord = ({
   }, [chordData]);
 
   const eraseChord = () => {
-    setChordData((): Chord => {
-      return initialChordData;
+    // Reset to empty chord
+    setChordData({
+      keys: [],
+      duration: "w",
+      staveNotes: null,
+      userClickY: 0,
     });
+
     const newStave = renderFunctionRef.current?.();
     if (newStave) {
       calculateNotesAndCoordinates(
@@ -134,12 +191,14 @@ const NotateChord = ({
     const clickInfo = getClickInfo(e);
     if (!clickInfo) return;
 
-    const { userClickX, userClickY, foundNoteData } = clickInfo;
+    const { userClickX, foundNoteData } = clickInfo;
 
     let chordDataCopy = { ...chordData };
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-    const barIndex = findBarIndex(staves, userClickX);
+    // We don't need barIndex for triads, but we'll keep the function call
+    // to maintain compatibility with the rest of the code
+    findBarIndex(staves, userClickX);
 
     const foundNoteIndex: number = chordData.keys.findIndex(
       (note) => note === foundNoteData?.note
@@ -159,7 +218,6 @@ const NotateChord = ({
 
     setNotesAndCoordinates(() => newNotesAndCoordinates);
     setChordData(() => newChordData);
-    setChords(newChordData.keys);
   };
 
   return (

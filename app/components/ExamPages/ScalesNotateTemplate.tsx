@@ -2,6 +2,10 @@
 import { scalesNotationInstructions } from "@/app/lib/data/instructions";
 import scalesText from "@/app/lib/data/scalesText";
 import {
+  toFlatScaleData,
+  toNestedScaleData,
+} from "@/app/lib/scaleDataConverters";
+import {
   FormEvent,
   InputState,
   ScaleData,
@@ -10,7 +14,6 @@ import {
 } from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { Flow } from "vexflow";
 import { useClef } from "../../context/ClefContext";
 import CardFooter from "../CardFooter";
 import NotateScale from "../NotateScale";
@@ -32,105 +35,10 @@ export default function ScalesNotation({
 
   const [scaleData, setScaleData] = useState<ScaleData[][]>([[]]);
 
-  // Convert 2D ScaleData array to flat SimpleScaleData array for storage
-  const convertToFlatScaleData = useCallback((data: ScaleData[][]) => {
-    try {
-      const flatData: SimpleScaleData[] = [];
-      // Process each bar
-      for (let barIndex = 0; barIndex < data.length; barIndex++) {
-        const bar = data[barIndex];
-        if (!Array.isArray(bar)) {
-          continue;
-        }
-        // For each note in the bar, create a SimpleScaleData object
-        for (let noteIndex = 0; noteIndex < bar.length; noteIndex++) {
-          const note = bar[noteIndex];
-          if (
-            !note ||
-            typeof note !== "object" ||
-            !note.keys ||
-            note.keys.length === 0
-          ) {
-            continue;
-          }
-          flatData.push({
-            keys: note.keys,
-            duration: note.duration || "q",
-            exactX: note.exactX !== undefined ? note.exactX : 0,
-            userClickY: note.userClickY !== undefined ? note.userClickY : 0,
-            barIndex,
-            noteIndex,
-          });
-        }
-      }
-      return flatData;
-    } catch (error) {
-      console.error("Error converting scale data:", error);
-      return [];
-    }
-  }, []);
-
-  // Function to reconstruct a 2D array from flat SimpleScaleData, memoized with useCallback
+  // Use the utility functions from scaleDataConverters.ts
   const reconstructScaleData = useCallback(
     (flatData: SimpleScaleData[]): ScaleData[][] => {
-      if (!flatData || !flatData.length) {
-        return [[]];
-      }
-      // Find the maximum barIndex to determine array size
-      const maxBarIndex = Math.max(
-        ...flatData.map((note) => note.barIndex || 0)
-      );
-      // Create array of arrays
-      const result: ScaleData[][] = Array(maxBarIndex + 1)
-        .fill(null)
-        .map(() => []);
-      // Place each note in the correct position
-      for (let i = 0; i < flatData.length; i++) {
-        const note = flatData[i];
-        if ((note.barIndex || 0) >= 0 && note.keys && note.keys.length > 0) {
-          // Create VexFlow StaveNote for UI rendering
-          let staveNote = null;
-          try {
-            staveNote = new Flow.StaveNote({
-              keys: [...note.keys],
-              duration: note.duration || "q",
-              clef: chosenClef,
-            });
-            // Add accidentals if needed
-            const keyToCheck = note.keys[0];
-            if (keyToCheck && keyToCheck.includes("#")) {
-              staveNote.addModifier(new Flow.Accidental("#"), 0);
-            } else if (keyToCheck && keyToCheck.includes("b")) {
-              staveNote.addModifier(new Flow.Accidental("b"), 0);
-            }
-          } catch (error) {
-            console.error(
-              "Error creating stave note in reconstruction:",
-              error
-            );
-          }
-          // Create the full ScaleData object with staveNote
-          const scaleData: ScaleData = {
-            keys: note.keys,
-            duration: note.duration,
-            exactX: note.exactX,
-            userClickY: note.userClickY,
-            staveNote: staveNote,
-          };
-          // Add to the result array in the correct position
-          // Ensure we have indexes for the proper position
-          while (result[note.barIndex || 0].length <= (note.noteIndex || 0)) {
-            result[note.barIndex || 0].push({
-              keys: [],
-              duration: "q",
-              exactX: 0,
-              userClickY: 0,
-              staveNote: null,
-            });
-          }
-          result[note.barIndex || 0][note.noteIndex || 0] = scaleData;
-        }
-      }
+      const result = toNestedScaleData(flatData, chosenClef);
       return result;
     },
     [chosenClef]
@@ -140,7 +48,6 @@ export default function ScalesNotation({
   const handleSaveOnChange = useCallback(
     (newFlatScaleData: SimpleScaleData[], newScales: string[]) => {
       if (newFlatScaleData.length === 0) {
-        console.log("Skipping save of empty scale data");
         return;
       }
       // Convert the flat data back to a 2D array for the UI component
@@ -213,7 +120,7 @@ export default function ScalesNotation({
       scaleData[0].length > 0
     ) {
       // Convert to flat structure for Firebase storage
-      const flatData = convertToFlatScaleData(scaleData);
+      const flatData = toFlatScaleData(scaleData);
 
       if (flatData && Array.isArray(flatData) && flatData.length > 0) {
         setCurrentUserData({
