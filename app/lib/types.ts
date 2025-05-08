@@ -59,6 +59,17 @@ export type Chord = {
   flatIndexArray?: number[] | [];
 };
 
+/**
+ * SimpleChordData is a serializable version of Chord without VexFlow objects
+ * Used for storage and data transfer
+ */
+export interface SimpleChordData {
+  keys: string[];
+  duration: string;
+  userClickY: number;
+  // No staveNotes to avoid circular references
+}
+
 export type Level =
   | "advanced-theory"
   | "advanced-improvisation"
@@ -277,6 +288,12 @@ export interface InputState {
   triads4: string[];
   triads5: string[];
   triads6: string[];
+  triadsData1?: SimpleChordData;
+  triadsData2?: SimpleChordData;
+  triadsData3?: SimpleChordData;
+  triadsData4?: SimpleChordData;
+  triadsData5?: SimpleChordData;
+  triadsData6?: SimpleChordData;
   seventhChords1: string[];
   seventhChords2: string[];
   seventhChords3: string[];
@@ -284,6 +301,13 @@ export interface InputState {
   seventhChords5: string[];
   seventhChords6: string[];
   seventhChords7: string[];
+  seventhChordsData1?: SimpleChordData;
+  seventhChordsData2?: SimpleChordData;
+  seventhChordsData3?: SimpleChordData;
+  seventhChordsData4?: SimpleChordData;
+  seventhChordsData5?: SimpleChordData;
+  seventhChordsData6?: SimpleChordData;
+  seventhChordsData7?: SimpleChordData;
   chords: InputData;
   progressions: InputData;
   blues: InputData;

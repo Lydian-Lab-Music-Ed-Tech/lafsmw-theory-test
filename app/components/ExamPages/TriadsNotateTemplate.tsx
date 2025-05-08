@@ -1,9 +1,20 @@
 "use client";
 import { chordsNotationInstructions } from "@/app/lib/data/instructions";
 import triadsText from "@/app/lib/data/triadsText";
-import { FormEvent, InputState, UserDataProps } from "@/app/lib/types";
+import {
+  toSimpleChordData,
+  toChordWithVexFlow,
+} from "@/app/lib/chordDataConverters";
+import {
+  Chord,
+  FormEvent,
+  InputState,
+  SimpleChordData,
+  UserDataProps,
+} from "@/app/lib/types";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useClef } from "../../context/ClefContext";
 import CardFooter from "../CardFooter";
 import NotateChord from "../NotateChord";
 import TutorialModal from "../TutorialModal";
@@ -14,28 +25,102 @@ export default function TriadsNotation({
   nextViewState,
   page,
 }: UserDataProps) {
-  const [chords, setChords] = useState<string[]>([]);
-  const currentUserDataRef = useRef(currentUserData);
+  const { chosenClef } = useClef();
+  const triadsPropName = `triads${page - 11}` as keyof InputState;
+  const triadsDataPropName = `triadsData${page - 11}` as keyof InputState;
 
-  const triadsPropName = `triads${page - 11}`;
-
-  const memoizedSetCurrentUserData = useCallback(
-    (data: InputState) => {
-      setCurrentUserData(data);
-    },
-    [setCurrentUserData]
+  // Always hydrate local state from currentUserData
+  const [chords, setChords] = useState<string[]>(
+    (currentUserData[triadsPropName] as string[]) || []
   );
 
+  const [chordData, setChordData] = useState<SimpleChordData>(() => {
+    // Initialize from saved data or create empty
+    const savedData = currentUserData[triadsDataPropName] as
+      | SimpleChordData
+      | undefined;
+    if (savedData) {
+      return savedData;
+    } else {
+      return {
+        keys: chords,
+        duration: "w",
+        userClickY: 0,
+      };
+    }
+  });
+
+  const currentUserDataRef = useRef(currentUserData);
+
+  // Save both to state and user data
+  const handleSaveOnChange = useCallback(
+    (newChords: string[]) => {
+      setChords(newChords);
+
+      // Create a SimpleChordData object from the new chords
+      const newChordData: SimpleChordData = {
+        ...chordData,
+        keys: newChords,
+      };
+
+      setChordData(newChordData);
+
+      // Save both the chord strings and the chord data
+      setCurrentUserData({
+        ...currentUserData,
+        [triadsPropName]: newChords,
+        [triadsDataPropName]: newChordData,
+      });
+    },
+    [
+      setCurrentUserData,
+      triadsPropName,
+      triadsDataPropName,
+      currentUserData,
+      chordData,
+    ]
+  );
+
+  // Sync chords state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-  }, [currentUserData]);
+
+    const newChords = (currentUserData[triadsPropName] as string[]) || [];
+    const newChordData = currentUserData[triadsDataPropName] as
+      | SimpleChordData
+      | undefined;
+
+    // Check if chords have changed
+    const chordsChanged = JSON.stringify(newChords) !== JSON.stringify(chords);
+
+    // Update local state if needed
+    if (chordsChanged) {
+      setChords(newChords);
+
+      // If we have chord data, use it; otherwise create from chords
+      if (newChordData) {
+        setChordData(newChordData);
+      } else if (newChords.length > 0) {
+        setChordData({
+          keys: newChords,
+          duration: "w",
+          userClickY: 0,
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUserData, triadsPropName, triadsDataPropName]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    memoizedSetCurrentUserData({
-      ...currentUserDataRef.current,
+
+    // Save both the chord strings and the chord data
+    setCurrentUserData({
+      ...currentUserData,
       [triadsPropName]: chords,
+      [triadsDataPropName]: chordData,
     });
+
     nextViewState();
   };
 
@@ -92,7 +177,11 @@ export default function TriadsNotation({
               <Typography variant="h6">
                 {`Write the following triad: ${triadsText[page - 12]}`}
               </Typography>
-              <NotateChord setChords={setChords} />
+              <NotateChord
+                initialChords={chords}
+                initialChordData={chordData}
+                onChange={handleSaveOnChange}
+              />
             </Stack>
             <CardFooter
               width={630}

@@ -43,9 +43,25 @@ export const setupRendererAndDrawChords = (
     });
     setStaves(newStaves);
   }
-  if (!chordData.staveNotes || chordData.keys.length === 0) return newStaves;
-  if (renderer && context) {
-    Formatter.FormatAndDraw(context, staves[barIndex], [chordData.staveNotes]);
+  // Only draw if we have valid staves and chord data
+  if (!chordData?.staveNotes || !chordData?.keys?.length) return newStaves;
+
+  // Make sure all required objects exist before drawing
+  if (
+    renderer &&
+    context &&
+    staves &&
+    staves.length > 0 &&
+    staves[barIndex] &&
+    chordData.staveNotes
+  ) {
+    try {
+      Formatter.FormatAndDraw(context, staves[barIndex], [
+        chordData.staveNotes,
+      ]);
+    } catch (error) {
+      console.error("Error formatting and drawing chord:", error);
+    }
   }
   return newStaves;
 };
