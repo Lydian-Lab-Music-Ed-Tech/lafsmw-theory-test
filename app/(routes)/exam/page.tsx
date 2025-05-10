@@ -40,7 +40,8 @@ import {
   getUserSnapshot,
   setOrUpdateStudentData,
 } from "@/firebase/firestore/model";
-import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -386,7 +387,7 @@ export default function ExamHomePage() {
               </Typography>
             </Box>
             <Grid container spacing={6} justifyContent="center">
-              <Grid item xs={12} md={4}>
+              <Grid>
                 <Box p={4} boxShadow={4} borderRadius={4}>
                   <Typography variant="h5" mb={2}>
                     Select Your Clef Preference
@@ -397,7 +398,7 @@ export default function ExamHomePage() {
                   />
                 </Box>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid>
                 <Box p={4} boxShadow={4} borderRadius={4}>
                   <Typography variant="h5" mb={2}>
                     Select Your Class Preference
@@ -638,7 +639,17 @@ export default function ExamHomePage() {
           />
         )}
         {viewState === VIEW_STATES.SUBMIT_AND_EXIT && (
-          <main className="flex min-h-[500px] flex-col items-center justify-center mt-12 gap-20">
+          <Box
+            sx={{
+              display: "flex",
+              minHeight: 500,
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              mt: 12,
+              gap: 4,
+            }}
+          >
             <Typography variant="h3">Submit your answers</Typography>
             <Typography variant="body1" width={550} align="center">
               To submit your answers and exit the exam, click the button below.
@@ -656,7 +667,7 @@ export default function ExamHomePage() {
                 <Typography>Back to page 1</Typography>
               </Button>
             </Stack>
-          </main>
+          </Box>
         )}
         {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (

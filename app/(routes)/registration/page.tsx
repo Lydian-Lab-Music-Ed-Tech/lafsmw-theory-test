@@ -2,6 +2,7 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box"; // Add Box import
 import { useState } from "react";
 import SignInForm from "../../components/SignInForm";
 import SignUpForm from "../../components/SignUpForm";
@@ -29,7 +30,16 @@ export default function Registration() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        p: 6,
+      }}
+    >
       <Stack spacing={8}>
         {showButtons && (
           <Stack spacing={2}>
@@ -65,6 +75,6 @@ export default function Registration() {
           </Grid>
         )}
       </Stack>
-    </main>
+    </Box>
   );
 }

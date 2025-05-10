@@ -26,15 +26,24 @@ const Header: FC = () => {
       }}
     >
       <Box>
-        <div className="text-center sm:flex left-0 top-0 w-full z-[3] ease-in duration-300 text-black">
-          <div className="flex p-4 justify-between">
-            <Link href="/">
-              <h1 className="text-3xl" data-testid="main-title">
+        <Box sx={{ zIndex: 3 }}>
+          <Stack
+            direction="row"
+            p={2}
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Link href="/" style={{ textDecoration: "none" }}>
+              <Typography
+                variant="h3"
+                data-testid="main-title"
+                sx={{ fontSize: "2.2rem", fontWeight: 400, color: "black" }}
+              >
                 Lafayette Jazz Workshop Placement Exam
-              </h1>
+              </Typography>
             </Link>
-          </div>
-        </div>
+          </Stack>
+        </Box>
         {user !== null && (
           <Box>
             <CountdownTimer />
