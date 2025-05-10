@@ -8,6 +8,7 @@ import isCurrentDataFilled from "../lib/isCurrentDataFilled";
 import { ChangeEvent, FormEvent, WriteProps } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
+import { Box, Typography } from "@mui/material";
 
 export default forwardRef(function WriteProgression(
   { width, handleInput, currentData }: WriteProps,
@@ -40,7 +41,6 @@ export default forwardRef(function WriteProgression(
   const gridInputInline2 = {
     display: "grid",
     gridTemplateColumns: `repeat(2, ${(chordWidth * 2).toString()}px)`,
-    gap: (gapWidth * 2).toString() + "px",
   };
 
   function handleNumeralSubmit(e: FormEvent) {
@@ -82,54 +82,61 @@ export default forwardRef(function WriteProgression(
 
   return (
     <div>
+      <Typography variant="caption" marginBottom={2} marginLeft={12}>
+        (example)
+      </Typography>
       <form
         ref={ref}
         id="submit-form-progression"
         onSubmit={handleNumeralSubmit}
       >
-        <Stack direction="column">
-          <Stack
-            direction="row"
-            spacing={chordGroupSpacing}
-            marginLeft="100px"
-            gap={4}
-          >
-            {renderKeyNames(0, 3)}
-          </Stack>
-          <Staff chosenClef={chosenClef} numBars={6} width={width} />
-          <Stack
-            direction="row"
-            spacing={chordGroupSpacing}
-            sx={{ paddingLeft: 13, paddingRight: 6, marginBottom: 6 }}
-          >
-            <div style={gridInputInline}>{renderNumeralInputs(0, 3)}</div>
-            <div style={gridInputInline}>{renderNumeralInputs(3, 6)}</div>
-            <div style={gridInputInline}>{renderNumeralInputs(6, 9)}</div>
-          </Stack>
-          <Stack
-            direction="row"
-            spacing={chordGroupSpacing}
-            marginLeft="100px"
-            gap={4}
-          >
-            {renderKeyNames(3, 6)}
-          </Stack>
-          <Staff
-            chosenClef={chosenClef}
-            numBars={6}
-            noTimeSignature
-            width={width}
-            addDoubleBarLine
-          />
-          <Stack
-            direction="row"
-            spacing={chordGroupSpacing}
-            sx={{ paddingLeft: 13 }}
-          >
-            <div style={gridInputInline}>{renderNumeralInputs(9, 12)}</div>
-            <div style={gridInputInline}>{renderNumeralInputs(12, 15)}</div>
-            <div style={gridInputInline}>{renderNumeralInputs(15, 18)}</div>
-          </Stack>
+        <Stack
+          direction="row"
+          spacing={chordGroupSpacing}
+          marginLeft="100px"
+          gap={4}
+        >
+          {renderKeyNames(0, 3)}
+        </Stack>
+        <Staff
+          chosenClef={chosenClef}
+          numBars={6}
+          width={width}
+          spaceAboveStaffLn={-1}
+        />
+        <Stack
+          direction="row"
+          spacing={chordGroupSpacing}
+          sx={{ paddingLeft: 13, paddingRight: 6, marginBottom: 6 }}
+        >
+          <div style={gridInputInline}>{renderNumeralInputs(0, 3)}</div>
+          <div style={gridInputInline}>{renderNumeralInputs(3, 6)}</div>
+          <div style={gridInputInline}>{renderNumeralInputs(6, 9)}</div>
+        </Stack>
+        <Stack
+          direction="row"
+          spacing={chordGroupSpacing}
+          marginLeft="100px"
+          gap={4}
+        >
+          {renderKeyNames(3, 6)}
+        </Stack>
+        <Staff
+          chosenClef={chosenClef}
+          numBars={6}
+          noTimeSignature
+          width={width}
+          addDoubleBarLine
+          spaceAboveStaffLn={-1}
+        />
+        <Stack
+          direction="row"
+          spacing={chordGroupSpacing}
+          sx={{ paddingLeft: 13 }}
+        >
+          <div style={gridInputInline}>{renderNumeralInputs(9, 12)}</div>
+          <div style={gridInputInline}>{renderNumeralInputs(12, 15)}</div>
+          <div style={gridInputInline}>{renderNumeralInputs(15, 18)}</div>
         </Stack>
       </form>
     </div>
