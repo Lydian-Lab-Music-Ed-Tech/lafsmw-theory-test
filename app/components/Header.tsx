@@ -1,7 +1,7 @@
 "use client";
 import { signOutOfApp } from "@/firebase/authAPI";
 import { useAuthContext } from "@/firebase/authContext";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
@@ -18,8 +18,15 @@ const Header: FC = () => {
   const { user } = useAuthContext();
 
   return (
-    <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
-      <Box gridColumn="span 11">
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 1,
+      }}
+    >
+      <Box>
         <div className="text-center sm:flex left-0 top-0 w-full z-[3] ease-in duration-300 text-black">
           <div className="flex p-4 justify-between">
             <Link href="/">
@@ -36,15 +43,21 @@ const Header: FC = () => {
         )}
       </Box>
 
-      <Box gridColumn="span 1" padding={2}>
+      <Box padding={2}>
         {user !== null ? (
           <div>
-            <CustomButton onClick={signOutOfAppButton}>
+            <Button
+              variant="contained"
+              size="small"
+              fullWidth
+              onClick={signOutOfAppButton}
+              sx={{ padding: "8px 24px", borderRadius: "20px" }}
+            >
               <Stack>
-                <Typography fontSize={"10px"}>{user.email}</Typography>
-                <Typography>Sign Out</Typography>
+                <Typography fontSize={"14px"}>Sign Out</Typography>
+                <Typography fontSize={"10px"}>{user.displayName}</Typography>
               </Stack>
-            </CustomButton>
+            </Button>
           </div>
         ) : null}
       </Box>

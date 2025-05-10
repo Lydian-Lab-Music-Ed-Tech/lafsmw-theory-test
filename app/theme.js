@@ -40,7 +40,8 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: `${tokens.global.md.sys["border-radius"].value}px`,
+          // borderRadius: `${tokens.global.md.sys["border-radius"].value}px`,
+          borderRadius: "20px",
           backgroundColor:
             tokens.global.md.sys.color["pressed-button-color"].value,
           color: "black",
