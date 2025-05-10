@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --primary10: #0d0e0b;
   --primary20: #2b2b2b;
@@ -26,8 +22,8 @@
   --shadowGreyBackgroundDropShadow3: 0 282px 169px 0 #000000 opacity 5%; /* box shadow 3 for grey background */
   --shadowGreyBackgroundDropShadow4: 0 125px 125px 0 #000000 opacity 9%; /* drop shadow #4 for grey background */
   --shadowGreyBackgroundDropShadow5: 0 31px 69px 0 #000000 opacity 10%; /* Drop shadow #5 for grey background */
-  --cardShadow: 0px 13px 28px 0px rgba(0, 0, 0, 0.1),
-    0px 50px 50px 0px rgba(0, 0, 0, 0.09),
+  --cardShadow:
+    0px 13px 28px 0px rgba(0, 0, 0, 0.1), 0px 50px 50px 0px rgba(0, 0, 0, 0.09),
     0px 113px 68px 0px rgba(0, 0, 0, 0.05),
     0px 201px 80px 0px rgba(0, 0, 0, 0.01), 0px 314px 88px 0px rgba(0, 0, 0, 0);
   --borderRadius: 20px; /* use the border radius of 12 for everything */

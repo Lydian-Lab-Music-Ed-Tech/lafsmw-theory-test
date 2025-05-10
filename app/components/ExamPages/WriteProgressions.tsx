@@ -44,46 +44,45 @@ export default function WriteProgressions({
         boxShadow={"0px 4px 4px rgba(0, 0, 0, 0.25)"}
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
-        <Stack spacing={4} p={2}>
-          <Box
-            width={1000}
-            height={600}
-            bgcolor={"card.background"}
-            borderRadius="var(--borderRadius)"
-            margin={"auto"}
-            boxShadow="var(--cardShadow)"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-            }}
+        <Box
+          width={1000}
+          height={600}
+          bgcolor={"card.background"}
+          borderRadius="var(--borderRadius)"
+          margin={"auto"}
+          boxShadow="var(--cardShadow)"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            // justifyContent: "space-between",
+          }}
+        >
+          <Stack
+            direction="column"
+            alignItems={"center"}
+            spacing={2}
+            sx={{ p: 3 }}
           >
-            <Stack
-              direction="column"
-              alignItems={"center"}
-              spacing={2}
-              sx={{ p: 4 }}
-            >
-              <Typography variant="h6" marginBottom={2}>
-                Write 2-5-1 Progressions in the following keys:
-              </Typography>
-              <WriteProgression
-                handleInput={handleProgressions}
-                currentData={currentUserData.progressions}
-                ref={writeProgressionsFormRef}
-                width={950}
-              />
-            </Stack>
-            <CardFooter
-              width={900}
-              height={100}
-              pageNumber={page}
-              handleSubmit={() => {
-                writeProgressionsFormRef.current?.requestSubmit();
-                nextViewState();
-              }}
+            <Typography variant="h6" marginBottom={2}>
+              Write 2-5-1 Progressions in the following keys:
+            </Typography>
+            <WriteProgression
+              handleInput={handleProgressions}
+              currentData={currentUserData.progressions}
+              ref={writeProgressionsFormRef}
+              width={950}
             />
-          </Box>
-        </Stack>
+          </Stack>
+          <CardFooter
+            width={900}
+            height={100}
+            pageNumber={page}
+            handleSubmit={() => {
+              writeProgressionsFormRef.current?.requestSubmit();
+              nextViewState();
+            }}
+          />
+        </Box>
       </Box>
     </Container>
   );

@@ -90,6 +90,7 @@ export default forwardRef(function IdentifyNotation(
           chords={chords}
           width={width}
           noTimeSignature
+          spaceAboveStaffLn={-0.5}
         />
         <div style={gridInputInline}>{renderTextInputs()}</div>
       </form>

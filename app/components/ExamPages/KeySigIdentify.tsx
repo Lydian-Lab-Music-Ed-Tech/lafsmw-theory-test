@@ -60,12 +60,11 @@ export default function KeySignaturesIdentification({
             direction="column"
             alignItems={"center"}
             justifyContent={"center"}
-            maxHeight={"60%"}
+            maxHeight={"65%"}
             spacing={4}
             sx={{
-              p: 6,
-              flex: 1,
-              width: "100%",
+              paddingTop: 4,
+              paddingBottom: 4,
             }}
           >
             <Typography variant="h6">

@@ -11,6 +11,7 @@ export default function FormInput({
   width,
   height = "30px",
   onChange,
+  fontSize = "12px",
   required = false,
 }: FormInputProps) {
   return (
@@ -24,12 +25,13 @@ export default function FormInput({
         placeholder={placeholder}
         maxLength={maxLength}
         style={{
-          fontSize: "12px",
+          fontSize,
           textAlign: "center",
           height,
           margin: "0px",
           width,
-          borderBottom: "1px solid",
+          border: "none",
+          borderBottom: "1px solid black",
           backgroundColor: "transparent",
         }}
         onChange={onChange}

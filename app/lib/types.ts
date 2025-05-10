@@ -374,6 +374,7 @@ export interface FormInputProps {
   name: string;
   type?: string;
   value: string;
+  fontSize?: string;
   placeholder?: string;
   maxLength?: number;
   width?: string;

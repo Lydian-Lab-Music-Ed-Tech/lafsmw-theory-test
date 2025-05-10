@@ -86,6 +86,7 @@ export default forwardRef(function IdentifyKeySigs(
       >
         <FormInput
           name={keySig.key}
+          fontSize="14px"
           type="text"
           value={textInput[index] || ""}
           width="45px"
@@ -96,11 +97,9 @@ export default forwardRef(function IdentifyKeySigs(
         />
         <div
           style={{
-            fontWeight: "lighter",
-            marginBottom: "-5px",
-            fontSize: "12px",
+            fontSize: "14px",
             minWidth: "30px",
-            marginLeft: "6px", // Add some margin for spacing
+            marginLeft: "6px",
           }}
         >{` ${keySig.type}`}</div>
       </div>

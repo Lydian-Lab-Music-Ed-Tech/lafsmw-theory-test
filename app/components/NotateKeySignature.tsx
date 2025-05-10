@@ -233,12 +233,13 @@ const NotateKeySignature = ({
         message={message}
       >
         <Container
+          disableGutters={false}
           sx={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr 1fr 1fr",
             gap: 1,
             padding: 2,
-            marginTop: 4,
+            width: "750px",
           }}
         >
           <CustomButton

@@ -288,6 +288,7 @@ const NotateScale = ({
             gap: 0.5,
             paddingTop: 4,
             marginTop: 2,
+            width: "760px",
           }}
         >
           <CustomButton

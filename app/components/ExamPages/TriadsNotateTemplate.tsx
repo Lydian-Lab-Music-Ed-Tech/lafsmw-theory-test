@@ -155,11 +155,10 @@ export default function TriadsNotation({
               direction="column"
               alignItems={"center"}
               justifyContent={"center"}
-              maxHeight={"70%"}
+              maxHeight={"65%"}
               sx={{
-                p: 6,
-                flex: 1,
-                width: "100%",
+                paddingTop: 4,
+                paddingBottom: 2,
               }}
             >
               <Typography variant="h6">

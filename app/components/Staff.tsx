@@ -13,6 +13,7 @@ type StaffProps = {
   addDoubleBarLine?: boolean;
   numBars?: number;
   chords?: Chord[];
+  spaceAboveStaffLn?: number;
 };
 
 export default function Staff({
@@ -25,6 +26,7 @@ export default function Staff({
   addDoubleBarLine = false,
   numBars = 4,
   chords = [],
+  spaceAboveStaffLn = -0.5,
 }: StaffProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<Flow.Renderer | null>(null);
@@ -59,7 +61,7 @@ export default function Staff({
     const contRefCurrent = containerRef.current;
 
     const spaceAboveStaff = {
-      space_above_staff_ln: -0.5,
+      space_above_staff_ln: spaceAboveStaffLn,
     };
 
     if (contRefCurrent) {

@@ -69,7 +69,12 @@ export default forwardRef(function WriteBlues(
     <div>
       <form ref={ref} id="submit-form-blues" onSubmit={handleNumeralSubmit}>
         <Stack direction="column">
-          <Staff chosenClef={chosenClef} numBars={4} width={width} />
+          <Staff
+            chosenClef={chosenClef}
+            numBars={4}
+            width={width}
+            spaceAboveStaffLn={1.3}
+          />
           <Stack
             direction="row"
             spacing={chordGroupSpacing}
@@ -85,6 +90,7 @@ export default forwardRef(function WriteBlues(
             numBars={4}
             noTimeSignature={true}
             width={width}
+            spaceAboveStaffLn={1.3}
           />
           <Stack
             direction="row"
@@ -102,6 +108,7 @@ export default forwardRef(function WriteBlues(
             noTimeSignature={true}
             addDoubleBarLine={true}
             width={width}
+            spaceAboveStaffLn={1.3}
           />
           <Stack
             direction="row"
