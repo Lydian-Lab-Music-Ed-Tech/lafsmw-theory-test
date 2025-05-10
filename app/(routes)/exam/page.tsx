@@ -362,8 +362,13 @@ export default function ExamHomePage() {
         {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Box>
-              <Button onClick={decrementViewState}>
-                <Typography variant="h4">{"<"}</Typography>
+              <Button
+                variant="outlined"
+                onClick={decrementViewState}
+                size="large"
+                sx={{ padding: "8px", borderRadius: 8 }}
+              >
+                <Typography fontSize={30}>{"<"}</Typography>
               </Button>
             </Box>
           )}
