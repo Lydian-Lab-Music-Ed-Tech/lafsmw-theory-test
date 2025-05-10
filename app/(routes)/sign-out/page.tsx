@@ -1,6 +1,6 @@
 "use client";
 import { signOutOfApp } from "@/firebase/authAPI";
-import { Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useTimer } from "@/app/context/TimerContext";
 import { useState } from "react";
@@ -19,7 +19,17 @@ export default function SignOutPage() {
   };
 
   return (
-    <main className="flex min-h-[500px] flex-col items-center justify-center mt-12 gap-20">
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: 500,
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        mt: 12,
+        gap: 4,
+      }}
+    >
       <Typography variant="h3">
         Congratulations! You have completed the exam.
       </Typography>
@@ -35,6 +45,6 @@ export default function SignOutPage() {
           </Typography>
         </Button>
       </div>
-    </main>
+    </Box>
   );
 }

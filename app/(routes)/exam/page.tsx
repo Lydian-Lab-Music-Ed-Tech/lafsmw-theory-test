@@ -639,7 +639,17 @@ export default function ExamHomePage() {
           />
         )}
         {viewState === VIEW_STATES.SUBMIT_AND_EXIT && (
-          <main className="flex min-h-[500px] flex-col items-center justify-center mt-12 gap-20">
+          <Box
+            sx={{
+              display: "flex",
+              minHeight: 500,
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              mt: 12,
+              gap: 4,
+            }}
+          >
             <Typography variant="h3">Submit your answers</Typography>
             <Typography variant="body1" width={550} align="center">
               To submit your answers and exit the exam, click the button below.
@@ -657,7 +667,7 @@ export default function ExamHomePage() {
                 <Typography>Back to page 1</Typography>
               </Button>
             </Stack>
-          </main>
+          </Box>
         )}
         {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
