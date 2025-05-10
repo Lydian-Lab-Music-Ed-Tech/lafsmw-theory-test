@@ -179,7 +179,7 @@ export default function NotateSeventhChords({
               />
             </Stack>
             <CardFooter
-              width={630}
+              width={700}
               pageNumber={page}
               handleSubmit={handleSubmit}
             />
