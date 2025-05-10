@@ -40,7 +40,8 @@ import {
   getUserSnapshot,
   setOrUpdateStudentData,
 } from "@/firebase/firestore/model";
-import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -386,7 +387,7 @@ export default function ExamHomePage() {
               </Typography>
             </Box>
             <Grid container spacing={6} justifyContent="center">
-              <Grid item xs={12} md={4}>
+              <Grid>
                 <Box p={4} boxShadow={4} borderRadius={4}>
                   <Typography variant="h5" mb={2}>
                     Select Your Clef Preference
@@ -397,7 +398,7 @@ export default function ExamHomePage() {
                   />
                 </Box>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid>
                 <Box p={4} boxShadow={4} borderRadius={4}>
                   <Typography variant="h5" mb={2}>
                     Select Your Class Preference
