@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 import CountdownTimer from "./CountdownTimer";
-import CustomButton from "./CustomButton";
 
 const Header: FC = () => {
   const router = useRouter();
@@ -49,9 +48,8 @@ const Header: FC = () => {
             <Button
               variant="contained"
               size="small"
-              fullWidth
               onClick={signOutOfAppButton}
-              sx={{ padding: "8px 24px", borderRadius: "20px" }}
+              sx={{ padding: "8px 24px", borderRadius: "50px" }}
             >
               <Stack>
                 <Typography fontSize={"14px"}>Sign Out</Typography>

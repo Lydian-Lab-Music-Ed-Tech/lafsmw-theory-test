@@ -356,6 +356,7 @@ export default function ExamHomePage() {
           display: "flex",
           justifyContent: "space-around",
           alignItems: "center",
+          marginX: "80px",
         }}
         p={4}
       >
