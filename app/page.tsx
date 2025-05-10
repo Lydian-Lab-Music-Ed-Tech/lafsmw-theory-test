@@ -1,8 +1,7 @@
 "use client";
 import { useAuthContext } from "@/firebase/authContext";
 import { app } from "@/firebase/config";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import { Button, Typography, Box } from "@mui/material";
 import { getAnalytics } from "firebase/analytics";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,7 +29,17 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-[500px] flex-col items-center justify-center mt-12 gap-20">
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: 500,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        mt: 12,
+        gap: 8,
+      }}
+    >
       <Typography variant="h3">Welcome to the LAFSMW Theory Test!</Typography>
       <Button
         variant="contained"
@@ -40,6 +49,6 @@ export default function Home() {
       >
         <Typography>{loggingIn ? "Logging in..." : "Login Here"}</Typography>
       </Button>
-    </main>
+    </Box>
   );
 }
