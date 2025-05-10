@@ -238,6 +238,7 @@ const NotateKeySignature = ({
             gridTemplateColumns: "1fr 1fr 1fr 1fr",
             gap: 1,
             padding: 2,
+            marginTop: 4,
           }}
         >
           <CustomButton

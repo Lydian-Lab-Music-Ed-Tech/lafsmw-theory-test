@@ -285,6 +285,7 @@ const NotateScale = ({
           sx={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr 1fr",
+            gap: 0.5,
             paddingTop: 4,
             marginTop: 2,
           }}
@@ -307,6 +308,7 @@ const NotateScale = ({
           >
             Erase Note
           </CustomButton>
+          <CustomButton onClick={eraseMeasures}>Clear All</CustomButton>
           <CustomButton
             onClick={() => {
               clearAllStates();
@@ -337,7 +339,6 @@ const NotateScale = ({
           >
             Erase Accidental
           </CustomButton>
-          <CustomButton onClick={eraseMeasures}>Clear All</CustomButton>
         </Container>
       </NotationContainer>
     </>

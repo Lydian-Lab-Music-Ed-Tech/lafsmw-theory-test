@@ -233,6 +233,7 @@ const NotateChord = ({
           sx={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr 1fr",
+            gap: 0.5,
             paddingTop: 4,
             marginTop: 2,
           }}
@@ -255,6 +256,7 @@ const NotateChord = ({
           >
             Erase Note
           </CustomButton>
+          <CustomButton onClick={eraseChord}>Clear All</CustomButton>
           <CustomButton
             onClick={() => {
               clearAllStates();
@@ -282,7 +284,6 @@ const NotateChord = ({
           >
             Erase Accidental
           </CustomButton>
-          <CustomButton onClick={eraseChord}>Clear All</CustomButton>
         </Container>
       </NotationContainer>
     </>

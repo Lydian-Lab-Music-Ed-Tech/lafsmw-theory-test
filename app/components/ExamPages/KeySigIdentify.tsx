@@ -80,7 +80,7 @@ export default function KeySignaturesIdentification({
             />
           </Stack>
           <CardFooter
-            width={630}
+            width={700}
             pageNumber={page}
             buttonForm="keySigs"
             handleSubmit={() => {
