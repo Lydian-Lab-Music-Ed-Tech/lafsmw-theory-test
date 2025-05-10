@@ -54,55 +54,50 @@ export default function ChordsIdentification({
         boxShadow={"0px 4px 4px rgba(0, 0, 0, 0.25)"}
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
-        <Stack spacing={4} p={2}>
-          <Box
-            width={1000}
-            height={470}
-            bgcolor={"card.background"}
-            borderRadius="var(--borderRadius)"
-            margin={"auto"}
-            boxShadow="var(--cardShadow)"
-            gap={10}
+        <Box
+          width={1000}
+          height={470}
+          bgcolor={"card.background"}
+          borderRadius="var(--borderRadius)"
+          boxShadow="var(--cardShadow)"
+          gap={12}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <Stack
+            direction="column"
+            alignItems={"center"}
+            justifyContent={"center"}
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
+              marginTop: 2,
+              padding: 4,
             }}
           >
-            <Stack
-              direction="column"
-              alignItems={"center"}
-              justifyContent={"center"}
-              maxHeight={"70%"}
-              sx={{
-                p: 6,
-                flex: 1,
-                width: "100%",
-              }}
-            >
-              <Typography variant="h6">
-                Identify the following 7th chords:
-              </Typography>
-              <IdentifyNotation
-                chords={seventhChords}
-                currentData={currentUserData.chords}
-                numBars={7}
-                handleInput={handleChords}
-                ref={chordsFormRef}
-                width={950}
-              />
-            </Stack>
-            <CardFooter
-              width={900}
-              height={200}
-              pageNumber={page}
-              handleSubmit={() => {
-                chordsFormRef.current?.requestSubmit();
-                nextViewState();
-              }}
+            <Typography variant="h6">
+              Identify the following 7th chords:
+            </Typography>
+            <IdentifyNotation
+              chords={seventhChords}
+              currentData={currentUserData.chords}
+              numBars={7}
+              handleInput={handleChords}
+              ref={chordsFormRef}
+              width={950}
             />
-          </Box>
-        </Stack>
+          </Stack>
+          <CardFooter
+            width={900}
+            height={200}
+            pageNumber={page}
+            handleSubmit={() => {
+              chordsFormRef.current?.requestSubmit();
+              nextViewState();
+            }}
+          />
+        </Box>
       </Box>
     </Container>
   );
