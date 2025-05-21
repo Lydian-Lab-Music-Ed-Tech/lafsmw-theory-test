@@ -14,6 +14,7 @@ import { handleChordInteraction } from "../lib/handleChordInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useStaffHover } from "../lib/hooks/useStaffHover";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { setupRendererAndDrawChords } from "../lib/setUpRendererAndDrawChords";
 import { toChordWithVexFlow } from "../lib/toChordWithVexFlow";
@@ -59,6 +60,12 @@ const NotateChord = ({
   >([initialNotesAndCoordsState]);
   const { buttonStates, setters, clearAllStates } = useButtonStates();
 
+  // Create a ref for staves to pass to useStaffHover
+  const stavesRef = useRef<StaveType[]>(staves);
+  useEffect(() => {
+    stavesRef.current = staves;
+  }, [staves]);
+
   // Use our new renderer hook for VexFlow initialization
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
     null
@@ -75,6 +82,15 @@ const NotateChord = ({
     width: 470,
     height: 200,
   });
+
+  // Use the staff hover hook
+  const scaleFactor = 1.5; // Matches useNotationRenderer default
+  const { hoveredStaffElement, mouseMoveHandler, mouseLeaveHandler } =
+    useStaffHover({
+      containerRef: container,
+      stavesRef,
+      scaleFactor,
+    });
 
   // Setup the actual render function now that rendererRef is initialized
   renderFunctionRef.current = useCallback(
@@ -163,6 +179,47 @@ const NotateChord = ({
     renderFunctionRef.current?.();
   }, [chordData]);
 
+  useEffect(() => {
+    if (rendererRef.current && stavesRef.current && stavesRef.current.length > 0) {
+      const context = rendererRef.current.getContext();
+      const currentStaveObject = stavesRef.current[0];
+
+      context.clear(); // Clear before redraw
+      if (renderFunctionRef.current) {
+        renderFunctionRef.current(); // Redraws staves and notes/chords
+      }
+
+      // Draw hover effect if present
+      if (hoveredStaffElement) {
+        context.save();
+        context.fillStyle = "rgba(173, 216, 230, 0.4)"; // Light blue with some transparency
+
+        const staveRenderX = currentStaveObject.getNoteStartX();
+        const staveRenderWidth =
+          currentStaveObject.getNoteEndX() - staveRenderX;
+
+        if (hoveredStaffElement.type === "line") {
+          const lineY = hoveredStaffElement.y;
+          context.fillRect(
+            staveRenderX,
+            lineY - hoveredStaffElement.height / 2,
+            staveRenderWidth,
+            hoveredStaffElement.height
+          );
+        } else { // space
+          const spaceY = hoveredStaffElement.y; // y is the line above the space
+          context.fillRect(
+            staveRenderX,
+            spaceY, // Start at the line above the space
+            staveRenderWidth,
+            hoveredStaffElement.height // Height of the space
+          );
+        }
+        context.restore();
+      }
+    }
+  }, [hoveredStaffElement, rendererRef, stavesRef, renderFunctionRef]);
+
   const eraseChord = () => {
     // Reset to empty chord
     setChordData({
@@ -225,6 +282,8 @@ const NotateChord = ({
       <NotationContainer
         containerRef={container}
         onClick={handleClick}
+        onMouseMove={mouseMoveHandler}
+        onMouseLeave={mouseLeaveHandler}
         open={open}
         setOpen={setOpen}
         message={message}
