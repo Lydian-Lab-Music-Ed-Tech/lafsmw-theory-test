@@ -15,6 +15,7 @@ import { handleScaleInteraction } from "../lib/handleScaleInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useStaffHover } from "../lib/hooks/useStaffHover";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import { toFlatScaleData, toNestedScaleData } from "../lib/scaleDataConverters";
 import { setupRendererAndDrawNotes } from "../lib/setupRendererAndDrawNotes";
@@ -50,6 +51,12 @@ const NotateScale = ({
   // Initialize state after we have access to chosenClef
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
 
+  // Create a ref for staves to pass to useStaffHover
+  const stavesRef = useRef<StaveType[]>(staves);
+  useEffect(() => {
+    stavesRef.current = staves;
+  }, [staves]);
+
   // Use our new renderer hook for VexFlow initialization
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
     null
@@ -67,6 +74,15 @@ const NotateScale = ({
     height: 200,
   });
 
+  // Use the staff hover hook
+  const scaleFactor = 1.5; // Matches useNotationRenderer default
+  const { hoveredStaffElement, mouseMoveHandler, mouseLeaveHandler } =
+    useStaffHover({
+      containerRef: container,
+      stavesRef,
+      scaleFactor,
+    });
+
   // Setup the actual render function now that rendererRef is initialized
   renderFunctionRef.current = useCallback(
     (): StaveType[] | undefined =>
@@ -82,6 +98,49 @@ const NotateScale = ({
       }),
     [rendererRef, setStaves, scaleDataMatrix, staves, chosenClef]
   );
+
+  // useEffect to draw hover effect
+  useEffect(() => {
+    if (rendererRef.current && stavesRef.current && stavesRef.current.length > 0) {
+      const context = rendererRef.current.getContext();
+      const currentStaveObject = stavesRef.current[0];
+
+      // Clear and redraw staves and notes
+      context.clear(); // Important: clear before redraw
+      if (renderFunctionRef.current) {
+        renderFunctionRef.current(); // Redraws staves and notes
+      }
+
+      // Draw hover effect if present
+      if (hoveredStaffElement) {
+        context.save();
+        context.fillStyle = "rgba(173, 216, 230, 0.4)"; // Light blue with some transparency
+
+        const staveRenderX = currentStaveObject.getNoteStartX();
+        const staveRenderWidth =
+          currentStaveObject.getNoteEndX() - staveRenderX;
+
+        if (hoveredStaffElement.type === "line") {
+          const lineY = hoveredStaffElement.y;
+          context.fillRect(
+            staveRenderX,
+            lineY - hoveredStaffElement.height / 2,
+            staveRenderWidth,
+            hoveredStaffElement.height
+          );
+        } else { // space
+          const spaceY = hoveredStaffElement.y; // y is the line above the space
+          context.fillRect(
+            staveRenderX,
+            spaceY, // Start at the line above the space
+            staveRenderWidth,
+            hoveredStaffElement.height // Height of the space
+          );
+        }
+        context.restore();
+      }
+    }
+  }, [hoveredStaffElement, rendererRef, stavesRef, renderFunctionRef]); // renderFunctionRef dependency needed for redraw
 
   // Set up click handler
   const { getClickInfo } = useNotationClickHandler({
@@ -277,6 +336,8 @@ const NotateScale = ({
       <NotationContainer
         containerRef={container}
         onClick={handleClick}
+        onMouseMove={mouseMoveHandler}
+        onMouseLeave={mouseLeaveHandler}
         open={open}
         setOpen={setOpen}
         message={message}

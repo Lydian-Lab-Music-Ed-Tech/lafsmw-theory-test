@@ -10,12 +10,16 @@ const NotationContainer = ({
   children,
   width = "705px",
   height = "300px",
+  onMouseMove,
+  onMouseLeave,
 }: NotationContainerProps) => {
   return (
     <>
       <div
         ref={containerRef}
         onClick={onClick}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
         style={{
           overflow: "visible",
           width,

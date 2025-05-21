@@ -11,6 +11,7 @@ import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useStaffHover } from "../lib/hooks/useStaffHover";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
@@ -40,6 +41,22 @@ const NotateKeySignature = ({
   const renderCount = useRef(0);
   const { chosenClef } = useClef();
   const { buttonStates, setters, clearAllStates } = useButtonStates();
+
+  const stavesRef = useRef<StaveType[]>(staves);
+  useEffect(() => {
+    stavesRef.current = staves;
+  }, [staves]);
+
+  const scaleFactor = 1.5; // This should ideally come from useNotationRenderer or be a shared constant
+  const {
+    hoveredStaffElement,
+    mouseMoveHandler,
+    mouseLeaveHandler,
+  } = useStaffHover({
+    containerRef: container,
+    stavesRef,
+    scaleFactor,
+  });
 
   // Set up rendering function with the circular dependency pattern
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -100,16 +117,45 @@ const NotateKeySignature = ({
         0
       );
     }
-  }, [chosenClef]);
+  }, [chosenClef, render]);
 
-  // This is to update glyphs when changed
+  // This is to update glyphs when changed AND draw hover effect
   useEffect(() => {
-    if (context && staves.length > 0) {
+    if (context && staves.length > 0 && staves[0]) {
+      const currentStaveObject = staves[0];
       context.clear();
-      staves[0].setContext(context).draw();
-      buildKeySignature(glyphs, 40, context, staves[0]);
+      currentStaveObject.setContext(context).draw();
+      buildKeySignature(glyphs, 40, context, currentStaveObject);
+
+      // Draw hover effect
+      if (hoveredStaffElement) {
+        context.save();
+        context.fillStyle = "rgba(173, 216, 230, 0.4)"; // Light blue with some transparency
+
+        const staveRenderX = currentStaveObject.getNoteStartX();
+        const staveRenderWidth =
+          currentStaveObject.getNoteEndX() - staveRenderX;
+
+        if (hoveredStaffElement.type === "line") {
+          const lineY = hoveredStaffElement.y;
+          context.fillRect(
+            staveRenderX,
+            lineY - hoveredStaffElement.height / 2,
+            staveRenderWidth,
+            hoveredStaffElement.height
+          );
+        } else if (hoveredStaffElement.type === "space") {
+          context.fillRect(
+            staveRenderX,
+            hoveredStaffElement.y, // y is the top line of the space
+            staveRenderWidth,
+            hoveredStaffElement.height // height is spacingBetweenLines
+          );
+        }
+        context.restore();
+      }
     }
-  }, [glyphs, context, staves]);
+  }, [context, staves, glyphs, hoveredStaffElement]); // Dependencies for redraw
 
   const clearKey = () => {
     setGlyphs([]);
@@ -228,6 +274,8 @@ const NotateKeySignature = ({
       <NotationContainer
         containerRef={container}
         onClick={handleClick}
+        onMouseMove={mouseMoveHandler}
+        onMouseLeave={mouseLeaveHandler}
         open={open}
         setOpen={setOpen}
         message={message}
