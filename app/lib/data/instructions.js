@@ -1,29 +1,26 @@
 export const keySigNotationInstructions = [
   {
     instructionTitle: "Select the accidental:",
-    instructionText:
-      "Choose the flat (b) or sharp (#) button to select the type of accidental you need to add.",
+    instructionText: `Choose the "Add Flat" or "Add Sharp" button to select the type of accidental you need to add.`,
   },
   {
     instructionTitle: "Place it on the staff:",
-    instructionText:
-      "After selecting the accidental, click on the exact line or space on the staff where the accidental belongs.",
+    instructionText: `After selecting the accidental, click on the exact line or space on the staff where the accidental belongs.`,
   },
   {
-    instructionTitle: "Erase a note or accidental:",
-    instructionText:
-      "If you need to erase a note or an accidental, first select the “Eraser” button, then click on the note or accidental you wish to erase.",
+    instructionTitle: "Erase an accidental:",
+    instructionText: `If you need to erase an accidental, first select the "Erase Accidental" button, then click on the note or accidental you wish to erase.`,
   },
   {
     instructionTitle: "Start over or continue:",
-    instructionText: `You can erase the measure and start over by selecting the “Erase Key Signature” button. When finished, click "Save and Continue".`,
+    instructionText: `You can erase the measure and start over by selecting the “Clear Key” button. When finished, click "Save and Continue".`,
   },
 ];
 
 export const scalesNotationInstructions = [
   {
     instructionTitle: "Place notes:",
-    instructionText: `Choose either "Enter Note", "Erase Note", or "Change Note" to place notes on the staff. Click on the exact line or space where you want the note to be placed, changed to, or erased.`,
+    instructionText: `Choose either "Enter Note" or "Erase Note" to place notes on the staff. Click on the exact line or space where you want the note to be placed or erased.`,
   },
   {
     instructionTitle: "Accidentals:",
@@ -31,14 +28,14 @@ export const scalesNotationInstructions = [
   },
   {
     instructionTitle: "Start over or continue:",
-    instructionText: `You can erase the measure and start over by selecting the “Erase Measure” button. When finished, click "Save" then click "Continue".`,
+    instructionText: `You can erase the measure and start over by selecting the “Clear All” button. When finished, click "Save and Continue".`,
   },
 ];
 
 export const chordsNotationInstructions = [
   {
     instructionTitle: "Place notes:",
-    instructionText: `Choose either "Enter Note", "Erase Note", or "Change Note" to place notes on the staff. Click on the exact line or space where you want the note to be placed, changed to, or erased.`,
+    instructionText: `Choose either "Enter Note" or "Erase Note" to place notes on the staff. Click on the exact line or space where you want the note to be placed or erased.`,
   },
   {
     instructionTitle: "Accidentals:",
@@ -46,15 +43,14 @@ export const chordsNotationInstructions = [
   },
   {
     instructionTitle: "Start over or continue:",
-    instructionText: `You can erase the measure and start over by selecting the “Erase Chord" button. When finished, click "Save" then click "Continue".`,
+    instructionText: `You can erase the measure and start over by selecting the “Clear All" button. When finished, click "Save and Continue".`,
   },
 ];
 
 export const keySigInputInstructions = [
   {
     instructionTitle: "Write the letter name of the following key signatures:",
-    instructionText:
-      "The first two are major key signatures, and the last two are minor key signatures.",
+    instructionText: `The first two are major key signatures, and the last two are minor key signatures. If the keyname has an accidental, use the following format: first, write the letter name of the key (not case sensitive), then the accidental. Use # for sharp, b for flat. For example, Db Major would be could be written as either "Db" or "db".`,
   },
   {
     instructionTitle: "Submit:",
@@ -62,7 +58,7 @@ export const keySigInputInstructions = [
   },
   {
     instructionTitle: "Allowed to return to this page:",
-    instructionText: `If you need to double check your answers, you can return to this page later by clicking the "<" button to navigate to it.`,
+    instructionText: `If you need to double check your answers, you can return to this page later by clicking the back button ("<").`,
   },
 ];
 
@@ -82,6 +78,6 @@ export const chordTextInstructions = [
   },
   {
     instructionTitle: "Key commands for symbols:",
-    instructionText: `∆ = option-j, ° = shift-option-8, ø = option-o.`,
+    instructionText: `∆ = option-j,° = shift-option-8, ø = option-o.`,
   },
 ];
