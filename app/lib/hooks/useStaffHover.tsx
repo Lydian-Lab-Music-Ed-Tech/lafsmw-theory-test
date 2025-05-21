@@ -1,39 +1,50 @@
 "use client";
-import { useState, useCallback, RefObject } from 'react';
-import { StaveType, HoveredStaffElement, UseStaffHoverProps, UseStaffHoverReturn } from '../types';
+import { useState, useCallback } from "react";
+import {
+  HoveredStaffElement,
+  UseStaffHoverProps,
+  UseStaffHoverReturn,
+} from "../types";
 
 export const useStaffHover = ({
   containerRef,
-  stavesRef, // Ref to the staves array
+  stavesRef,
   scaleFactor,
 }: UseStaffHoverProps): UseStaffHoverReturn => {
-  const [hoveredStaffElement, setHoveredStaffElement] = useState<HoveredStaffElement | null>(null);
+  const [hoveredStaffElement, setHoveredStaffElement] =
+    useState<HoveredStaffElement | null>(null);
 
-  // Define the extended detection range for VexFlow line numbers
-  // A3 on treble clef is approx. line index -2.0 (2 ledger lines below E4)
-  // C6 on treble clef is approx. line index 6.0 (2 ledger lines above F5 top line)
-  const MIN_DETECTABLE_VF_LINE_NUM = -2.0;
-  const MAX_DETECTABLE_VF_LINE_NUM = 6.0;
+  // Define the extended detection range for VexFlow line numbers from A below the staff to A above the staff. Not sure how we got these numbers. A lesser number in upperBound means more upper ledger lines are detected. A greater number in lowerBound means more lower ledger lines are detected.
+  const upperBound = -2.0;
+  const lowerBound = 6.0;
 
   const mouseMoveHandler = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      const staves = stavesRef.current; // Get current staves from ref
-      if (!containerRef.current || !staves || staves.length === 0 || !staves[0]) {
+      // stavesRef.current seems to be a Stave array with just one element in it: the current stave object
+      const staves = stavesRef.current;
+      if (
+        !containerRef.current ||
+        !staves ||
+        staves.length === 0 ||
+        !staves[0]
+      ) {
         if (hoveredStaffElement !== null) setHoveredStaffElement(null);
         return;
       }
 
+      // the current stave object has all the Stave methods we need to calculate the hovered staff element such as getYForLine and getSpacingBetweenLines
       const currentStaveObject = staves[0];
       const rect = containerRef.current.getBoundingClientRect();
       const mouseYInScaledCoords = event.clientY - rect.top;
       const mouseY = mouseYInScaledCoords / scaleFactor; // Unscale the coordinate
 
       const halfSpacing = currentStaveObject.getSpacingBetweenLines() / 2;
-      // Corrected assignments:
       // topPixelBound is the visually highest Y value (smallest Y pixel value)
       // bottomPixelBound is the visually lowest Y value (largest Y pixel value)
-      const topPixelBound = currentStaveObject.getYForLine(MIN_DETECTABLE_VF_LINE_NUM) - halfSpacing;
-      const bottomPixelBound = currentStaveObject.getYForLine(MAX_DETECTABLE_VF_LINE_NUM) + halfSpacing;
+      const topPixelBound =
+        currentStaveObject.getYForLine(upperBound) - halfSpacing;
+      const bottomPixelBound =
+        currentStaveObject.getYForLine(lowerBound) + halfSpacing;
 
       if (mouseY < topPixelBound || mouseY > bottomPixelBound) {
         if (hoveredStaffElement !== null) setHoveredStaffElement(null);
@@ -46,7 +57,7 @@ export const useStaffHover = ({
       let newHoveredElement: HoveredStaffElement | null = null;
 
       // Check if within the new extended main staff lines/spaces range
-      if (roundedToHalf >= MIN_DETECTABLE_VF_LINE_NUM && roundedToHalf <= MAX_DETECTABLE_VF_LINE_NUM) {
+      if (roundedToHalf >= upperBound && roundedToHalf <= lowerBound) {
         if (Number.isInteger(roundedToHalf)) {
           const lineIndex = roundedToHalf;
           newHoveredElement = {
@@ -66,7 +77,10 @@ export const useStaffHover = ({
         }
       }
 
-      if (JSON.stringify(hoveredStaffElement) !== JSON.stringify(newHoveredElement)) {
+      if (
+        JSON.stringify(hoveredStaffElement) !==
+        JSON.stringify(newHoveredElement)
+      ) {
         setHoveredStaffElement(newHoveredElement);
       }
     },

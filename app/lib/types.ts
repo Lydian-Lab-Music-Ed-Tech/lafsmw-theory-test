@@ -469,9 +469,9 @@ export type UseNotationRendererProps = {
 
 export interface HoveredStaffElement {
   type: "line" | "space";
-  index: number; // 0-indexed line or space
-  y: number; // y-coordinate for drawing highlight (in unscaled stave coordinates)
-  height: number; // height for drawing highlight (in unscaled stave coordinates)
+  index: number;
+  y: number;
+  height: number;
 }
 
 export interface UseStaffHoverProps {
