@@ -409,6 +409,8 @@ export type StaffProps = {
 export type NotationContainerProps = {
   containerRef: RefObject<HTMLDivElement | null>;
   onClick?: (e: React.MouseEvent) => void;
+  onMouseMove?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   message: string;
