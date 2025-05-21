@@ -466,3 +466,22 @@ export type UseNotationRendererProps = {
   width?: number;
   height?: number;
 };
+
+export interface HoveredStaffElement {
+  type: "line" | "space";
+  index: number; // 0-indexed line or space
+  y: number; // y-coordinate for drawing highlight (in unscaled stave coordinates)
+  height: number; // height for drawing highlight (in unscaled stave coordinates)
+}
+
+export interface UseStaffHoverProps {
+  containerRef: RefObject<HTMLDivElement | null>;
+  stavesRef: RefObject<StaveType[]>; // Use a ref to avoid re-running effect too often
+  scaleFactor: number;
+}
+
+export interface UseStaffHoverReturn {
+  hoveredStaffElement: HoveredStaffElement | null;
+  mouseMoveHandler: (event: React.MouseEvent<HTMLDivElement>) => void;
+  mouseLeaveHandler: () => void;
+}

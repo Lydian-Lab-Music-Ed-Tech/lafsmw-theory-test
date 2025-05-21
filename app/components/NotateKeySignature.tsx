@@ -11,6 +11,7 @@ import { handleKeySigInteraction } from "../lib/handleKeySigInteraction";
 import { useButtonStates } from "../lib/hooks/useButtonStates";
 import { useNotationClickHandler } from "../lib/hooks/useNotationClickHandler";
 import { useNotationRenderer } from "../lib/hooks/useNotationRenderer";
+import { useStaffHover } from "../lib/hooks/useStaffHover";
 import { initialNotesAndCoordsState } from "../lib/initialStates";
 import isClickWithinStaveBounds from "../lib/isClickWithinStaveBounds";
 import { setupRendererAndDrawStaves } from "../lib/setUpRendererAndDrawStaves";
@@ -41,13 +42,21 @@ const NotateKeySignature = ({
   const { chosenClef } = useClef();
   const { buttonStates, setters, clearAllStates } = useButtonStates();
 
-  // State for hover effect
-  const [hoveredStaffElement, setHoveredStaffElement] = useState<{
-    type: "line" | "space";
-    index: number; // 0-indexed line or space
-    y: number; // y-coordinate for drawing highlight
-    height: number; // height for drawing highlight
-  } | null>(null);
+  const stavesRef = useRef<StaveType[]>(staves);
+  useEffect(() => {
+    stavesRef.current = staves;
+  }, [staves]);
+
+  const scaleFactor = 1.5; // This should ideally come from useNotationRenderer or be a shared constant
+  const {
+    hoveredStaffElement,
+    mouseMoveHandler,
+    mouseLeaveHandler,
+  } = useStaffHover({
+    containerRef: container,
+    stavesRef,
+    scaleFactor,
+  });
 
   // Set up rendering function with the circular dependency pattern
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -109,80 +118,6 @@ const NotateKeySignature = ({
       );
     }
   }, [chosenClef, render]);
-
-  // Mouse move handler for hover effect
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (
-        !rendererRef.current || // Check rendererRef first
-        !container.current ||
-        !staves ||
-        staves.length === 0 ||
-        !staves[0]
-      ) {
-        if (hoveredStaffElement !== null) setHoveredStaffElement(null);
-        return;
-      }
-
-      const currentStaveObject = staves[0];
-      const rect = container.current.getBoundingClientRect();
-      const mouseYInScaledCoords = event.clientY - rect.top;
-      const scaleFactor = 1.5; // From useNotationRenderer default
-      const mouseY = mouseYInScaledCoords / scaleFactor; // Unscale the coordinate
-
-      const topBound =
-        currentStaveObject.getYForLine(0) -
-        currentStaveObject.getSpacingBetweenLines();
-      const bottomBound =
-        currentStaveObject.getYForLine(currentStaveObject.getNumLines() - 1) +
-        currentStaveObject.getSpacingBetweenLines();
-
-      if (mouseY < topBound || mouseY > bottomBound) {
-        if (hoveredStaffElement !== null) setHoveredStaffElement(null);
-        return;
-      }
-
-      const vexFlowLineNum = currentStaveObject.getLineForY(mouseY);
-      const roundedToHalf = Math.round(vexFlowLineNum * 2) / 2;
-
-      let newHoveredElement: typeof hoveredStaffElement = null;
-
-      // Check if within the main staff lines/spaces
-      if (roundedToHalf >= 0 && roundedToHalf < currentStaveObject.getNumLines()) {
-        if (Number.isInteger(roundedToHalf)) {
-          // Line
-          const lineIndex = roundedToHalf;
-          newHoveredElement = {
-            type: "line",
-            index: lineIndex,
-            y: currentStaveObject.getYForLine(lineIndex),
-            height: 2, // Visual height for line highlight
-          };
-        } else {
-          // Space
-          const spaceIndex = Math.floor(roundedToHalf); // Index of the line above the space
-          newHoveredElement = {
-            type: "space",
-            index: spaceIndex,
-            y: currentStaveObject.getYForLine(spaceIndex), // Y of the line above the space
-            height: currentStaveObject.getSpacingBetweenLines(),
-          };
-        }
-      }
-
-      if (
-        JSON.stringify(hoveredStaffElement) !==
-        JSON.stringify(newHoveredElement)
-      ) {
-        setHoveredStaffElement(newHoveredElement);
-      }
-    },
-    [staves, container, hoveredStaffElement] // Keep hoveredStaffElement for the stringify comparison logic
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setHoveredStaffElement(null);
-  }, []);
 
   // This is to update glyphs when changed AND draw hover effect
   useEffect(() => {
@@ -339,8 +274,8 @@ const NotateKeySignature = ({
       <NotationContainer
         containerRef={container}
         onClick={handleClick}
-        onMouseMove={handleMouseMove} // Added mouse move handler
-        onMouseLeave={handleMouseLeave} // Added mouse leave handler
+        onMouseMove={mouseMoveHandler}
+        onMouseLeave={mouseLeaveHandler}
         open={open}
         setOpen={setOpen}
         message={message}
