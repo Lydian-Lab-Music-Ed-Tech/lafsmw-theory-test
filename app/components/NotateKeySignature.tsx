@@ -48,15 +48,12 @@ const NotateKeySignature = ({
   }, [staves]);
 
   const scaleFactor = 1.5; // This should ideally come from useNotationRenderer or be a shared constant
-  const {
-    hoveredStaffElement,
-    mouseMoveHandler,
-    mouseLeaveHandler,
-  } = useStaffHover({
-    containerRef: container,
-    stavesRef,
-    scaleFactor,
-  });
+  const { hoveredStaffElement, mouseMoveHandler, mouseLeaveHandler } =
+    useStaffHover({
+      containerRef: container,
+      stavesRef,
+      scaleFactor,
+    });
 
   // Set up rendering function with the circular dependency pattern
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
@@ -130,7 +127,7 @@ const NotateKeySignature = ({
       // Draw hover effect
       if (hoveredStaffElement) {
         context.save();
-        context.fillStyle = "rgba(173, 216, 230, 0.4)"; // Light blue with some transparency
+        context.fillStyle = "var(--highLightBlue)";
 
         const staveRenderX = currentStaveObject.getNoteStartX();
         const staveRenderWidth =

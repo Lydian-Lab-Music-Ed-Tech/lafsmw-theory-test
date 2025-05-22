@@ -180,7 +180,11 @@ const NotateChord = ({
   }, [chordData]);
 
   useEffect(() => {
-    if (rendererRef.current && stavesRef.current && stavesRef.current.length > 0) {
+    if (
+      rendererRef.current &&
+      stavesRef.current &&
+      stavesRef.current.length > 0
+    ) {
       const context = rendererRef.current.getContext();
       const currentStaveObject = stavesRef.current[0];
 
@@ -192,7 +196,7 @@ const NotateChord = ({
       // Draw hover effect if present
       if (hoveredStaffElement) {
         context.save();
-        context.fillStyle = "rgba(173, 216, 230, 0.4)"; // Light blue with some transparency
+        context.fillStyle = "var(--highLightBlue)";
 
         const staveRenderX = currentStaveObject.getNoteStartX();
         const staveRenderWidth =
@@ -206,7 +210,8 @@ const NotateChord = ({
             staveRenderWidth,
             hoveredStaffElement.height
           );
-        } else { // space
+        } else {
+          // space
           const spaceY = hoveredStaffElement.y; // y is the line above the space
           context.fillRect(
             staveRenderX,

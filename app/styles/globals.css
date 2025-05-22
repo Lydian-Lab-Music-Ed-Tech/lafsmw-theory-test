@@ -10,6 +10,12 @@
   --primary90: #fcfcfc;
   --primary100: #ffffff;
   --primary110: #f8f8ff;
+  --highLightBlue: rgba(
+    173,
+    216,
+    230,
+    0.4
+  ); /* Light blue with some transparency for hover effect */
   --colorMainBackgroundColor: #eeeeee; /* This is the main background color that will appear behind the card */
   --colorCardBackgroundColor: #f6f6f6; /* This will be the background color for the cards */
   --colorPressedButtonColor: #a6a7a7; /* This will be the color for the buttons when they are pressed */
