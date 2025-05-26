@@ -1,5 +1,5 @@
 "use client";
-import UpdateName from "@/app/components/UpdateName";
+import CompleteProfile from "@/app/components/CompleteProfile";
 import { completeSignIn } from "@/firebase/authAPI";
 import { Button, Container, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -42,7 +42,7 @@ export default function ConfirmSignIn() {
   }
 
   if (updateName) {
-    return <UpdateName />;
+    return <CompleteProfile />;
   }
 
   if (error) {

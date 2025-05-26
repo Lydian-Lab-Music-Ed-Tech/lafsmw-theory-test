@@ -43,10 +43,15 @@ export async function getUserSnapshot() {
 async function setStudentData(formInput: InputState, currentUser: string) {
   try {
     const currentUserID = auth.currentUser?.uid;
-    await setDoc(doc(db, `${currentUser}`, `${currentUserID}`), {
+    if (!currentUserID) {
+      console.error("setStudentData error: No current user ID found.");
+      return false;
+    }
+    await setDoc(doc(db, "students", currentUserID), {
       ...formInput,
       createdAt: serverTimestamp(),
     });
+    console.log(`[firestore/model] Student data set/updated for UID: ${currentUserID} in 'students' collection.`);
     return true;
   } catch (e) {
     console.error("setStudentData error: ", e);
@@ -73,15 +78,28 @@ export async function setOrUpdateStudentData(
   formInput: InputState,
   currentUser: string
 ) {
-  const currentUserID = auth.currentUser?.uid;
   try {
-    const docRef = doc(db, `${currentUser}`, `${currentUserID}`);
+    const currentUserID = auth.currentUser?.uid;
+    if (!currentUserID) {
+      console.error("setOrUpdateStudentData error: No current user ID found.");
+      return false;
+    }
+
+    const docRef = doc(db, "students", currentUserID);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      await updateStudentData(formInput, currentUser);
+      await updateDoc(docRef, {
+        ...formInput,
+        updatedAt: serverTimestamp(),
+      });
+      console.log(`[firestore/model] Student data updated for UID: ${currentUserID} in 'students' collection.`);
     } else {
-      await setStudentData(formInput, currentUser);
+      await setDoc(docRef, {
+        ...formInput,
+        createdAt: serverTimestamp(),
+      });
+      console.log(`[firestore/model] New student data created for UID: ${currentUserID} in 'students' collection.`);
     }
     return true;
   } catch (e) {
