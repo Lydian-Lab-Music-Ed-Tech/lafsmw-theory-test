@@ -1,6 +1,6 @@
 "use client";
 import { useAuthContext } from "@/firebase/authContext";
-import { Box, Button, Stack, Typography, Grid } from "@mui/material";
+import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SignInForm from "./components/SignInForm";

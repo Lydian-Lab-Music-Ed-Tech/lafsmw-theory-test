@@ -5,7 +5,7 @@ import { auth } from "@/firebase/config";
 import { Button, Container, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ConfirmSignIn() {
   const router = useRouter();
@@ -16,24 +16,15 @@ export default function ConfirmSignIn() {
 
   useEffect(() => {
     const handleSignIn = async () => {
-      console.log(
-        "[ConfirmSignIn] handleSignIn invoked at:",
-        new Date().toISOString()
-      );
       const emailLink = window.location.href;
       try {
         const success = await completeSignIn(emailLink);
         if (success) {
-          // Check if user already has a display name
+          // If user already has a display name, go to exam, otherwise we'll return CompleteProfile (by setting updateName to true)
           if (auth.currentUser && auth.currentUser.displayName) {
-            console.log(
-              "[ConfirmSignIn] User has displayName, redirecting to /exam:",
-              auth.currentUser.displayName
-            );
-            router.push("/exam"); // User likely already completed profile
+            router.push("/exam");
           } else {
-            console.log("[ConfirmSignIn] User needs to complete profile.");
-            setUpdateName(true); // New user or profile incomplete
+            setUpdateName(true);
           }
         } else {
           setError("Sign-in failed. Please try again.");

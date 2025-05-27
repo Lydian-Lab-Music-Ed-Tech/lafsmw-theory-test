@@ -1,44 +1,12 @@
 import { InputState } from "@/app/lib/types";
 import {
-  collection,
   doc,
   getDoc,
-  getDocs,
-  query,
   serverTimestamp,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../config";
-
-export async function getUserSnapshot() {
-  // only need to retrieve displayName when fetching data
-  const currentUser = auth.currentUser?.displayName;
-  try {
-    if (!currentUser) {
-      throw new Error("No current user found.");
-    }
-    const q = query(collection(db, currentUser));
-    const querySnapshot = await getDocs(q);
-
-    const res = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return {
-      success: true,
-      message: `Successfully fetched ${currentUser} data`,
-      error: null,
-      res,
-    };
-  } catch (e) {
-    return {
-      success: false,
-      message: `Error fetching ${currentUser || "unknown user"} data: ${e}`,
-      error: e,
-    };
-  }
-}
 
 export async function getStudentData() {
   try {

@@ -6,15 +6,15 @@ import {
   signInWithEmailAndPassword,
   signInWithEmailLink,
   signOut,
-  updateProfile,
   updatePassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "./config";
 
 // Configuration for email link. This is the URL that the student will be redirected to after clicking the link in their email.
 const actionCodeSettings = {
-  url: "http://localhost:3000/confirm",
-  // url: "https://lafsmwtheoryexam.com/confirm",
+  // url: "http://localhost:3000/confirm",
+  url: "https://lafsmwtheoryexam.com/confirm",
   handleCodeInApp: true,
 };
 
@@ -28,7 +28,7 @@ export async function sendSignInEmail(email: string) {
 }
 
 export async function completeSignIn(link: string): Promise<boolean> {
-  console.log("[authAPI:completeSignIn] Called with link:", link);
+  // console.log("[authAPI:completeSignIn] Called with link:", link);
   let emailForSignIn = window.localStorage.getItem("emailForSignIn");
 
   if (!isSignInWithEmailLink(auth, link)) {
@@ -39,27 +39,26 @@ export async function completeSignIn(link: string): Promise<boolean> {
   }
 
   if (!emailForSignIn) {
-    console.error(
-      "[authAPI:completeSignIn] Email for sign-in not found in localStorage. Aborting."
+    console.warn(
+      "[authAPI:completeSignIn] Email for sign-in not found in localStorage. Prompting user."
     );
-    // Potentially prompt user for email here if desired, as Firebase allows it.
-    // For now, we require it to be in localStorage.
-    return false;
+    emailForSignIn = window.prompt(
+      "Please enter the email address you used to request the sign-in link:",
+      ""
+    );
+    // If user cancels the prompt or doesn't enter an email
+    if (!emailForSignIn) {
+      console.error(
+        "[authAPI:completeSignIn] User did not provide an email address. Aborting."
+      );
+      return false;
+    }
+    window.localStorage.setItem("emailForSignIn", emailForSignIn);
   }
 
   try {
-    console.log(
-      `[authAPI:completeSignIn] Attempting signInWithEmailLink for email: ${emailForSignIn}`
-    );
-    // The signInWithEmailLink function itself will set the user session if successful.
-    // It doesn't return a user object in the way createUserWithEmailAndPassword does; its primary effect is auth state change.
+    // The signInWithEmailLink function itself will set the user session if successful. It doesn't return a user object in the way createUserWithEmailAndPassword does; its primary effect is auth state change.
     await signInWithEmailLink(auth, emailForSignIn, link);
-
-    // If the above line does not throw, Firebase has processed the link.
-    // auth.currentUser should be updated by Firebase's onAuthStateChanged listeners shortly.
-    console.log(
-      "[authAPI:completeSignIn] signInWithEmailLink processed without throwing an error. Assuming success."
-    );
     window.localStorage.removeItem("emailForSignIn");
     return true;
   } catch (err: any) {
@@ -178,8 +177,6 @@ export async function setUserPassword(newPassword: string): Promise<boolean> {
     }
   } catch (err: any) {
     console.error("setUserPassword error:", err);
-    // You might want to handle specific errors like 'auth/weak-password'
-    // and provide more specific feedback to the user.
     if (err.code === "auth/weak-password") {
       alert("Password is too weak. It should be at least 6 characters long.");
     }

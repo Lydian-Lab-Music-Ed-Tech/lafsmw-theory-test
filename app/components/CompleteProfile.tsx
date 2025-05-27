@@ -1,6 +1,6 @@
-import { updateDisplayName, setUserPassword } from "@/firebase/authAPI";
-import { auth } from "@/firebase/config";
+import { setUserPassword, updateDisplayName } from "@/firebase/authAPI";
 import { useAuthContext } from "@/firebase/authContext";
+import { auth } from "@/firebase/config";
 import { Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -20,13 +20,6 @@ export default function CompleteProfile() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
-    console.log(
-      "[CompleteProfile:handleSubmit] Start. Current user:",
-      auth.currentUser ? auth.currentUser.uid : "null",
-      "Email:",
-      auth.currentUser ? auth.currentUser.email : "null"
-    );
-
     if (!auth.currentUser) {
       console.error(
         "[CompleteProfile:handleSubmit] No current user found at start of submit. Aborting."
@@ -34,7 +27,6 @@ export default function CompleteProfile() {
       setError("No active session. Please try signing in again.");
       return;
     }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -43,47 +35,15 @@ export default function CompleteProfile() {
       setError("Password should be at least 6 characters long.");
       return;
     }
-
     setIsProcessing(true);
     try {
-      console.log(
-        "[CompleteProfile:handleSubmit] Attempting updateDisplayName for:",
-        `${firstName} ${lastName}`
-      );
       await updateDisplayName(`${firstName} ${lastName}`);
-      console.log(
-        "[CompleteProfile:handleSubmit] updateDisplayName success. Current user:",
-        auth.currentUser ? auth.currentUser.uid : "null"
-      );
-
-      console.log("[CompleteProfile:handleSubmit] Attempting setUserPassword.");
       const passwordSetSuccess = await setUserPassword(password);
-      console.log(
-        "[CompleteProfile:handleSubmit] setUserPassword result:",
-        passwordSetSuccess,
-        ". Current user after password set:",
-        auth.currentUser ? auth.currentUser.uid : "null"
-      );
-
       if (passwordSetSuccess) {
-        // Ensure auth.currentUser is available and then update the context
         if (auth.currentUser) {
           try {
-            console.log(
-              "[CompleteProfile:handleSubmit] Refreshing user profile in auth context..."
-            );
-
-            // Use the new refreshUser function to update the auth context
+            // Use the refreshUser function to update the auth context
             await refreshUser();
-
-            console.log(
-              "[CompleteProfile:handleSubmit] AuthContext refreshed with user:",
-              auth.currentUser.uid,
-              "DisplayName:",
-              auth.currentUser.displayName
-            );
-
-            // Navigate to exam page
             router.push("/exam");
           } catch (reloadError) {
             console.error(
@@ -94,7 +54,7 @@ export default function CompleteProfile() {
               "Profile updated, but failed to refresh session. Please try logging out and in."
             );
             // Still might want to redirect or offer a way out
-            router.push("/exam"); // Or redirect to login if session seems problematic
+            router.push("/");
           }
         } else {
           // This case should ideally not be reached if passwordSetSuccess is true and auth.currentUser was checked before

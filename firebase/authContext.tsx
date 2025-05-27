@@ -1,26 +1,21 @@
 "use client";
+import { AuthContextType } from "@/app/lib/types";
 import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/config";
 import CreateAuthContext from "./createAuthContext";
-import { AuthContextType } from "@/app/lib/types";
 
 export default function AuthContextProvider({ children }: AuthContextType) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Function to refresh the current user from Firebase
   const refreshUser = async () => {
     if (auth.currentUser) {
       try {
         await auth.currentUser.reload();
         setUser({ ...auth.currentUser }); // Create new object to trigger re-render
-        console.log(
-          "[AuthContext] User refreshed successfully:",
-          auth.currentUser.displayName
-        );
       } catch (error) {
         console.error("[AuthContext] Error refreshing user:", error);
       }

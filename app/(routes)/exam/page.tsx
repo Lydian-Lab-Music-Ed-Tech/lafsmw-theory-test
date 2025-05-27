@@ -231,12 +231,10 @@ export default function ExamHomePage() {
       const autoSaveInterval = setInterval(async () => {
         try {
           await setOrUpdateStudentData(currentUserData);
-          console.log("[Auto-save] Student data saved successfully");
         } catch (error) {
           console.error("[Auto-save] Failed to save student data:", error);
         }
-      }, 30000); // Save every 30 seconds
-
+      }, 60000); // Save every minute
       return () => clearInterval(autoSaveInterval);
     }
   }, [viewState, userName, currentUserData]);
@@ -246,12 +244,10 @@ export default function ExamHomePage() {
     if (userName) {
       try {
         await setOrUpdateStudentData(currentUserData);
-        console.log("[Page Navigation] Student data saved successfully");
       } catch (error) {
         console.error("[Page Navigation] Failed to save student data:", error);
       }
     }
-
     setViewState((prevState) => {
       return prevState + 1;
     });
@@ -262,7 +258,6 @@ export default function ExamHomePage() {
       if (userName) {
         // Save current state before going back
         await setOrUpdateStudentData(currentUserData);
-
         // Get latest data from Firebase
         const { message, error, data } = await getStudentData();
         if (error) {
@@ -274,7 +269,6 @@ export default function ExamHomePage() {
           }));
         }
       }
-
       setViewState((prevState) => prevState - 1);
     } catch (error) {
       console.error("Error in decrementViewState:", error);
@@ -293,12 +287,10 @@ export default function ExamHomePage() {
       level: level,
     };
     setCurrentUserData(updatedData);
-
     // Save the level selection immediately
     if (userName) {
       try {
         await setOrUpdateStudentData(updatedData);
-        console.log("[Level Selection] Student data saved successfully");
       } catch (error) {
         console.error("[Level Selection] Failed to save student data:", error);
       }
@@ -706,7 +698,7 @@ export default function ExamHomePage() {
             </Stack>
           </Box>
         )}
-        {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
+        {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Stack spacing={4}>
               <Button onClick={incrementViewState}>
@@ -724,7 +716,7 @@ export default function ExamHomePage() {
                 <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
-          )}
+          )} */}
       </Stack>
     </Box>
   );
