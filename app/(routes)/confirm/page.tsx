@@ -16,14 +16,20 @@ export default function ConfirmSignIn() {
 
   useEffect(() => {
     const handleSignIn = async () => {
-      console.log("[ConfirmSignIn] handleSignIn invoked at:", new Date().toISOString());
+      console.log(
+        "[ConfirmSignIn] handleSignIn invoked at:",
+        new Date().toISOString()
+      );
       const emailLink = window.location.href;
       try {
         const success = await completeSignIn(emailLink);
         if (success) {
           // Check if user already has a display name
           if (auth.currentUser && auth.currentUser.displayName) {
-            console.log("[ConfirmSignIn] User has displayName, redirecting to /exam:", auth.currentUser.displayName);
+            console.log(
+              "[ConfirmSignIn] User has displayName, redirecting to /exam:",
+              auth.currentUser.displayName
+            );
             router.push("/exam"); // User likely already completed profile
           } else {
             console.log("[ConfirmSignIn] User needs to complete profile.");
@@ -70,7 +76,7 @@ export default function ConfirmSignIn() {
               Try login again
             </Button>
           </Link>
-          <Link href="/registration">
+          <Link href="/">
             <Button variant="text" sx={{ width: "250px" }}>
               Or log in or sign up here
             </Button>

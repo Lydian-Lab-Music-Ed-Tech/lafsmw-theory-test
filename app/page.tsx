@@ -1,17 +1,17 @@
 "use client";
-import { sendSignInEmail } from "@/firebase/authAPI";
 import { useAuthContext } from "@/firebase/authContext";
-import { Box, Button, Stack, TextField, Typography, Link } from "@mui/material";
+import { Box, Button, Stack, Typography, Grid } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState } from "react";
+import SignInForm from "./components/SignInForm";
+import SignUpForm from "./components/SignUpForm";
 
 export default function Home() {
   const { user } = useAuthContext();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [disabled, setDisabled] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
 
   useEffect(() => {
     if (user !== null) {
@@ -19,89 +19,68 @@ export default function Home() {
     }
   }, [router, user]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-    setDisabled(true);
-    try {
-      await sendSignInEmail(email);
-      setMessage(
-        "Verification email sent. Please close this tab and check your inbox."
-      );
-      setEmail("");
-    } catch (err) {
-      setError("Failed to send verification email. Please try again.");
-      setDisabled(false);
-      console.error("Error sending sign-in email:", err);
-    }
+  const toggleIsSignUp = () => {
+    setIsSignUp((prev) => !prev);
+    setShowButtons(false);
+  };
+
+  const toggleIsSignIn = () => {
+    setIsSignIn((prev) => !prev);
+    setShowButtons(false);
+  };
+
+  const goBack = () => {
+    setShowButtons(true);
+    setIsSignIn(false);
+    setIsSignUp(false);
   };
 
   return (
-    <Stack
-      alignItems={"center"}
-      sx={{ fontFamily: "Monospace", paddingTop: "4rem" }}
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        p: 6,
+      }}
     >
-      {message === "" && error === "" && (
-        <Box
-          width={"575px"}
-          sx={{
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-          }}
-        >
-          <Typography variant="body1" align="center">
-            Please enter your email address to receive a sign-in link.
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              margin="normal"
-              fullWidth
-              label="Email Address"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3 }}
-              disabled={disabled}
-            >
-              {disabled ? "Sent" : "Send Sign-In Link"}
+      <Stack spacing={8}>
+        {showButtons && (
+          <Stack spacing={2}>
+            <Typography>New to LAFSMW? Sign up here:</Typography>
+            <Button variant="contained" onClick={toggleIsSignUp}>
+              Sign Up
             </Button>
-          </form>
-        </Box>
-      )}
-      {message && (
-        <>
-          <Typography variant="body1" align="center" fontSize="16px" mt={5}>
-            {message}
-          </Typography>
-          <Typography variant="body1" align="center" fontSize="16px" mt={5}>
-            If you did not receive an email after a few moments, please click{" "}
-            <Link href="/registration">
-              <b>here.</b>
-            </Link>
-          </Typography>
-        </>
-      )}
-      {error && (
-        <Typography
-          variant="body1"
-          align="center"
-          fontSize="16px"
-          mt={5}
-          style={{ color: "var(--salmonWarningColor)" }}
-        >
-          {error}
-        </Typography>
-      )}
-    </Stack>
+          </Stack>
+        )}
+
+        {showButtons && (
+          <Stack spacing={2}>
+            <Typography>Returning student? Sign in here:</Typography>
+            <Button variant="contained" onClick={toggleIsSignIn}>
+              Sign In
+            </Button>
+          </Stack>
+        )}
+        {isSignUp && (
+          <Grid container justifyContent="center" gap={4}>
+            <SignUpForm />
+            <Button variant="text" onClick={goBack} sx={{ width: "73%" }}>
+              Go Back
+            </Button>
+          </Grid>
+        )}
+        {isSignIn && (
+          <Grid container justifyContent="center" gap={4}>
+            <SignInForm />
+            <Button variant="text" onClick={goBack} sx={{ width: "73%" }}>
+              Go Back
+            </Button>
+          </Grid>
+        )}
+      </Stack>
+    </Box>
   );
 }

@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
     resetPassword(email);
-    router.push("/registration");
+    router.push("/");
   };
 
   return (

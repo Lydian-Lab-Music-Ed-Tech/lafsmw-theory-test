@@ -9,7 +9,7 @@ describe("Header check", () => {
 
 describe("Authenticated tests", () => {
   beforeEach(() => {
-    cy.visit("/registration");
+    cy.visit("/");
 
     cy.contains("Sign In").click();
 

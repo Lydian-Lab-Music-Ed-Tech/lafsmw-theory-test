@@ -14,7 +14,9 @@ export default function SignUpForm() {
     setMessage("");
     try {
       await sendSignInEmail(email);
-      setMessage("Sign-up link sent! Please check your email to complete registration.");
+      setMessage(
+        "Sign-up link sent! Please check your email to complete registration."
+      );
       setEmail("");
     } catch (error) {
       console.error("Error sending sign-in email:", error);
@@ -29,7 +31,11 @@ export default function SignUpForm() {
         Sign Up with Email Link
       </Typography>
       {message && (
-        <Typography color={message.startsWith("Failed") ? "error" : "success"} align="center" paragraph>
+        <Typography
+          color={message.startsWith("Failed") ? "error" : "success"}
+          align="center"
+          sx={{ mb: 2 }}
+        >
           {message}
         </Typography>
       )}
