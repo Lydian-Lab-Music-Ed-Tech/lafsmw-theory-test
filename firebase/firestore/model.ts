@@ -40,44 +40,7 @@ export async function getUserSnapshot() {
   }
 }
 
-async function setStudentData(formInput: InputState, currentUser: string) {
-  try {
-    const currentUserID = auth.currentUser?.uid;
-    if (!currentUserID) {
-      console.error("setStudentData error: No current user ID found.");
-      return false;
-    }
-    await setDoc(doc(db, "students", currentUserID), {
-      ...formInput,
-      createdAt: serverTimestamp(),
-    });
-    console.log(`[firestore/model] Student data set/updated for UID: ${currentUserID} in 'students' collection.`);
-    return true;
-  } catch (e) {
-    console.error("setStudentData error: ", e);
-    return false;
-  }
-}
-
-async function updateStudentData(formInput: InputState, currentUser: string) {
-  try {
-    const currentUserID = auth.currentUser?.uid;
-    const docRef = doc(db, `${currentUser}`, `${currentUserID}`);
-    await updateDoc(docRef, {
-      ...formInput,
-      updatedAt: serverTimestamp(),
-    });
-    return true;
-  } catch (e) {
-    console.error("updateStudentData error: ", e);
-    return false;
-  }
-}
-
-export async function setOrUpdateStudentData(
-  formInput: InputState,
-  currentUser: string
-) {
+export async function setOrUpdateStudentData(formInput: InputState) {
   try {
     const currentUserID = auth.currentUser?.uid;
     if (!currentUserID) {
@@ -93,13 +56,17 @@ export async function setOrUpdateStudentData(
         ...formInput,
         updatedAt: serverTimestamp(),
       });
-      console.log(`[firestore/model] Student data updated for UID: ${currentUserID} in 'students' collection.`);
+      console.log(
+        `[firestore/model] Student data updated for UID: ${currentUserID} in 'students' collection.`
+      );
     } else {
       await setDoc(docRef, {
         ...formInput,
         createdAt: serverTimestamp(),
       });
-      console.log(`[firestore/model] New student data created for UID: ${currentUserID} in 'students' collection.`);
+      console.log(
+        `[firestore/model] New student data created for UID: ${currentUserID} in 'students' collection.`
+      );
     }
     return true;
   } catch (e) {

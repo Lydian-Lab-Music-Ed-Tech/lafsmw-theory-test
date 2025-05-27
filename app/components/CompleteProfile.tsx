@@ -68,15 +68,28 @@ export default function CompleteProfile() {
       if (passwordSetSuccess) {
         // Ensure auth.currentUser is available and then update the context
         if (auth.currentUser) {
-          setUser(auth.currentUser); // Update AuthContext with the latest user object
-          console.log(
-            "[CompleteProfile:handleSubmit] AuthContext updated with user:",
-            auth.currentUser.uid,
-            "DisplayName:",
-            auth.currentUser.displayName
-          );
+          try {
+            console.log("[CompleteProfile:handleSubmit] Reloading user profile...");
+            await auth.currentUser.reload(); // Reload to get the latest profile data including displayName
+            console.log("[CompleteProfile:handleSubmit] User profile reloaded. New displayName:", auth.currentUser.displayName);
+            setUser(auth.currentUser); // Update AuthContext with the latest user object
+            console.log(
+              "[CompleteProfile:handleSubmit] AuthContext updated with user:",
+              auth.currentUser.uid,
+              "DisplayName:",
+              auth.currentUser.displayName
+            );
+            router.push("/exam");
+          } catch (reloadError) {
+            console.error("[CompleteProfile:handleSubmit] Error reloading user:", reloadError);
+            setError("Profile updated, but failed to refresh session. Please try logging out and in.");
+            // Still might want to redirect or offer a way out
+            router.push("/exam"); // Or redirect to login if session seems problematic
+          }
+        } else {
+          // This case should ideally not be reached if passwordSetSuccess is true and auth.currentUser was checked before
+          setError("Session lost. Please try signing in again."); 
         }
-        router.push("/exam");
       } else {
         setError(
           "Failed to set password. Please try again. Check console for details from setUserPassword."

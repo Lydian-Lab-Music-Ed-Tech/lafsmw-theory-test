@@ -27,70 +27,74 @@ export async function sendSignInEmail(email: string) {
   }
 }
 
-export async function completeSignIn(link: string) {
+export async function completeSignIn(link: string): Promise<boolean> {
   console.log("[authAPI:completeSignIn] Called with link:", link);
-  try {
-    if (isSignInWithEmailLink(auth, link)) {
-      let emailForSignIn = window.localStorage.getItem("emailForSignIn");
-      console.log(
-        "[authAPI:completeSignIn] Email from localStorage:",
-        emailForSignIn
-      );
+  let emailForSignIn = window.localStorage.getItem("emailForSignIn");
 
-      if (!emailForSignIn) {
-        console.error(
-          "[authAPI:completeSignIn] Email for sign-in not found in localStorage. Aborting."
-        );
-        // throw new Error("Email for sign-in not found in localStorage."); // Option: throw to be caught by calling page
-        return false; // Abort if no email in localStorage
-      }
-
-      console.log(
-        `[authAPI:completeSignIn] Attempting signInWithEmailLink for email: ${emailForSignIn}`
-      );
-      const result = await signInWithEmailLink(auth, emailForSignIn, link);
-      console.log(
-        "[authAPI:completeSignIn] signInWithEmailLink result user:",
-        result.user
-      );
-      console.log(
-        "[authAPI:completeSignIn] auth.currentUser AFTER signInWithEmailLink:",
-        auth.currentUser ? auth.currentUser.uid : "null"
-      );
-
-      window.localStorage.removeItem("emailForSignIn");
-      if (result.user) {
-        console.log(
-          "[authAPI:completeSignIn] Success, user authenticated:",
-          result.user.uid
-        );
-        return true;
-      } else {
-        console.warn(
-          "[authAPI:completeSignIn] signInWithEmailLink result.user is null/undefined despite no error thrown."
-        );
-        return false;
-      }
-    } else {
-      console.warn(
-        "[authAPI:completeSignIn] Link is not a valid sign-in with email link."
-      );
-      return false;
-    }
-  } catch (err) {
-    console.error("[authAPI:completeSignIn] CATCH BLOCK error:", err);
-    const currentUserInCatch = auth.currentUser;
-    console.error(
-      "[authAPI:completeSignIn] auth.currentUser IN CATCH BLOCK:",
-      currentUserInCatch ? currentUserInCatch.uid : "null"
+  if (!isSignInWithEmailLink(auth, link)) {
+    console.warn(
+      "[authAPI:completeSignIn] Link is not a valid sign-in with email link."
     );
-    if (currentUserInCatch) {
+    return false;
+  }
+
+  if (!emailForSignIn) {
+    console.error(
+      "[authAPI:completeSignIn] Email for sign-in not found in localStorage. Aborting."
+    );
+    // Potentially prompt user for email here if desired, as Firebase allows it.
+    // For now, we require it to be in localStorage.
+    return false;
+  }
+
+  try {
+    console.log(
+      `[authAPI:completeSignIn] Attempting signInWithEmailLink for email: ${emailForSignIn}`
+    );
+    // The signInWithEmailLink function itself will set the user session if successful.
+    // It doesn't return a user object in the way createUserWithEmailAndPassword does; its primary effect is auth state change.
+    await signInWithEmailLink(auth, emailForSignIn, link);
+
+    // If the above line does not throw, Firebase has processed the link.
+    // auth.currentUser should be updated by Firebase's onAuthStateChanged listeners shortly.
+    console.log(
+      "[authAPI:completeSignIn] signInWithEmailLink processed without throwing an error. Assuming success."
+    );
+    window.localStorage.removeItem("emailForSignIn");
+    return true;
+  } catch (err: any) {
+    console.error(
+      "[authAPI:completeSignIn] CATCH BLOCK error:",
+      err,
+      "Code:",
+      err.code
+    );
+
+    // Check if auth.currentUser became available despite the error (Firebase can be complex)
+    // This is a critical check because onAuthStateChanged might have already fired and set the user.
+    if (auth.currentUser) {
       console.warn(
-        "[authAPI:completeSignIn] User session IS ACTIVE despite error in signInWithEmailLink. Proceeding as if successful."
+        "[authAPI:completeSignIn] auth.currentUser IS POPULATED in catch block. Proceeding as success."
       );
-      window.localStorage.removeItem("emailForSignIn"); // Ensure this is removed if we proceed
-      return true; // Treat as success if user object exists
+      window.localStorage.removeItem("emailForSignIn");
+      return true;
     }
+
+    // If the error is 'auth/email-already-in-use', it means the email is known (e.g., has a password),
+    // but the link itself was valid and likely authenticated the user.
+    // Firebase's behavior here can be tricky; sometimes it errors but still establishes a session.
+    if (err.code === "auth/email-already-in-use") {
+      console.warn(
+        "[authAPI:completeSignIn] Error 'auth/email-already-in-use' caught. Treating as successful sign-in for existing user."
+      );
+      window.localStorage.removeItem("emailForSignIn");
+      return true; // Proceed as if sign-in was successful.
+    }
+
+    // For any other errors, consider it a failure.
+    console.error(
+      "[authAPI:completeSignIn] Unhandled error or sign-in failed definitively."
+    );
     return false;
   }
 }

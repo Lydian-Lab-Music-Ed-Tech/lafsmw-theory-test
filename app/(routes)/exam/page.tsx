@@ -235,7 +235,7 @@ export default function ExamHomePage() {
     try {
       if (userName) {
         // Save current state before going back
-        await setOrUpdateStudentData(currentUserData, userName);
+        await setOrUpdateStudentData(currentUserData);
 
         // Get latest data from Firebase
         const { success, message, error, res } = await getUserSnapshot();
@@ -291,7 +291,7 @@ export default function ExamHomePage() {
       if (!userName) {
         throw new Error("No current user found.");
       }
-      await setOrUpdateStudentData(currentUserData, userName);
+      await setOrUpdateStudentData(currentUserData);
 
       // Send email with results using API route
       const response = await fetch("/api/email", {
@@ -342,7 +342,7 @@ export default function ExamHomePage() {
         throw new Error("No current user found.");
       }
 
-      await setOrUpdateStudentData(currentUserData, userName);
+      await setOrUpdateStudentData(currentUserData);
       setViewState(VIEW_STATES.KEY_SIG_NOTATE1);
     } catch (error) {
       console.error("goBackToPage1 error:", error);
