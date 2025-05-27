@@ -11,6 +11,22 @@ export default function AuthContextProvider({ children }: AuthContextType) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to refresh the current user from Firebase
+  const refreshUser = async () => {
+    if (auth.currentUser) {
+      try {
+        await auth.currentUser.reload();
+        setUser({ ...auth.currentUser }); // Create new object to trigger re-render
+        console.log(
+          "[AuthContext] User refreshed successfully:",
+          auth.currentUser.displayName
+        );
+      } catch (error) {
+        console.error("[AuthContext] Error refreshing user:", error);
+      }
+    }
+  };
+
   // This returns the unsubscribe function for the observer, so when the component unmounts, we'll call the unsubscribe function to stop listening for changes in the authentication state of the user, and prevent memory leaks.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -27,7 +43,7 @@ export default function AuthContextProvider({ children }: AuthContextType) {
 
   // to enable the components to consume the values from this auth user context, we need to create an auth context provider to return a provider for the context we just created. The value prop will contain the data we want to make available to our component tree
   return (
-    <CreateAuthContext.Provider value={{ user, setUser }}>
+    <CreateAuthContext.Provider value={{ user, setUser, refreshUser }}>
       {loading ? (
         <Stack gap={4} alignItems={"center"} paddingTop={16}>
           <Box>{"Loading..."}</Box>

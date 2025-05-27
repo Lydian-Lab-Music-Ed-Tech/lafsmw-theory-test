@@ -37,7 +37,7 @@ import { initialFormInputState } from "@/app/lib/initialStates";
 import { InputState, Level, MouseEvent } from "@/app/lib/types";
 import { useAuthContext } from "@/firebase/authContext";
 import {
-  getUserSnapshot,
+  getStudentData,
   setOrUpdateStudentData,
 } from "@/firebase/firestore/model";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
@@ -104,13 +104,13 @@ export default function ExamHomePage() {
   useEffect(() => {
     const fetchSnapshot = async () => {
       try {
-        const { success, message, error, res } = await getUserSnapshot();
+        const { message, error, data } = await getStudentData();
         if (error) {
           console.error(message);
-        } else if (res) {
+        } else if (data) {
           setCurrentUserData((prevCurrentUserData) => ({
             ...prevCurrentUserData,
-            ...res[0],
+            ...data,
           }));
         }
       } catch (error) {
@@ -225,7 +225,33 @@ export default function ExamHomePage() {
     updateAnswers();
   }, [updateAnswers, currentUserData]);
 
-  const incrementViewState = () => {
+  // Auto-save data every 30 seconds during the exam
+  useEffect(() => {
+    if (viewState > VIEW_STATES.START_TEST && userName) {
+      const autoSaveInterval = setInterval(async () => {
+        try {
+          await setOrUpdateStudentData(currentUserData);
+          console.log("[Auto-save] Student data saved successfully");
+        } catch (error) {
+          console.error("[Auto-save] Failed to save student data:", error);
+        }
+      }, 30000); // Save every 30 seconds
+
+      return () => clearInterval(autoSaveInterval);
+    }
+  }, [viewState, userName, currentUserData]);
+
+  const incrementViewState = async () => {
+    // Save data before moving to next page
+    if (userName) {
+      try {
+        await setOrUpdateStudentData(currentUserData);
+        console.log("[Page Navigation] Student data saved successfully");
+      } catch (error) {
+        console.error("[Page Navigation] Failed to save student data:", error);
+      }
+    }
+
     setViewState((prevState) => {
       return prevState + 1;
     });
@@ -238,13 +264,13 @@ export default function ExamHomePage() {
         await setOrUpdateStudentData(currentUserData);
 
         // Get latest data from Firebase
-        const { success, message, error, res } = await getUserSnapshot();
+        const { message, error, data } = await getStudentData();
         if (error) {
           console.error(message);
-        } else if (res) {
+        } else if (data) {
           setCurrentUserData((prevData) => ({
             ...prevData,
-            ...res[0],
+            ...data,
           }));
         }
       }
@@ -262,10 +288,21 @@ export default function ExamHomePage() {
 
   const handleLevelSubmit = async (e: MouseEvent) => {
     e.preventDefault();
-    setCurrentUserData({
+    const updatedData = {
       ...currentUserData,
       level: level,
-    });
+    };
+    setCurrentUserData(updatedData);
+
+    // Save the level selection immediately
+    if (userName) {
+      try {
+        await setOrUpdateStudentData(updatedData);
+        console.log("[Level Selection] Student data saved successfully");
+      } catch (error) {
+        console.error("[Level Selection] Failed to save student data:", error);
+      }
+    }
   };
 
   const handleStartTest = (
@@ -669,7 +706,7 @@ export default function ExamHomePage() {
             </Stack>
           </Box>
         )}
-        {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
+        {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Stack spacing={4}>
               <Button onClick={incrementViewState}>
@@ -687,7 +724,7 @@ export default function ExamHomePage() {
                 <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
-          )} */}
+          )}
       </Stack>
     </Box>
   );
