@@ -394,7 +394,6 @@ export default function ExamHomePage() {
           viewState !== VIEW_STATES.START_TEST && (
             <Box>
               <Button
-                variant="outlined"
                 onClick={decrementViewState}
                 size="large"
                 sx={{ padding: "8px", borderRadius: 8 }}
@@ -687,13 +686,21 @@ export default function ExamHomePage() {
               click the button to go back to page 1.
             </Typography>
             <Stack direction={"column"} gap={4} p={4}>
-              <Button onClick={handleFinalSubmit} disabled={isSubmitting}>
-                <Typography>
+              <Button
+                sx={{ borderRadius: "40px" }}
+                onClick={handleFinalSubmit}
+                disabled={isSubmitting}
+              >
+                <Typography sx={{ p: 1 }}>
                   {isSubmitting ? "Submitting..." : "Submit Final Answers"}
                 </Typography>
               </Button>
-              <Button onClick={goBackToPage1} disabled={timesUp ? true : false}>
-                <Typography>Back to page 1</Typography>
+              <Button
+                sx={{ borderRadius: "40px" }}
+                onClick={goBackToPage1}
+                disabled={timesUp ? true : false}
+              >
+                <Typography sx={{ p: 1 }}>Back to page 1</Typography>
               </Button>
             </Stack>
           </Box>
