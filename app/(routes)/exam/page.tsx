@@ -37,7 +37,7 @@ import { initialFormInputState } from "@/app/lib/initialStates";
 import { InputState, Level, MouseEvent } from "@/app/lib/types";
 import { useAuthContext } from "@/firebase/authContext";
 import {
-  getUserSnapshot,
+  getStudentData,
   setOrUpdateStudentData,
 } from "@/firebase/firestore/model";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
@@ -104,13 +104,13 @@ export default function ExamHomePage() {
   useEffect(() => {
     const fetchSnapshot = async () => {
       try {
-        const { success, message, error, res } = await getUserSnapshot();
+        const { message, error, data } = await getStudentData();
         if (error) {
           console.error(message);
-        } else if (res) {
+        } else if (data) {
           setCurrentUserData((prevCurrentUserData) => ({
             ...prevCurrentUserData,
-            ...res[0],
+            ...data,
           }));
         }
       } catch (error) {
@@ -225,7 +225,29 @@ export default function ExamHomePage() {
     updateAnswers();
   }, [updateAnswers, currentUserData]);
 
-  const incrementViewState = () => {
+  // Auto-save data every 30 seconds during the exam
+  useEffect(() => {
+    if (viewState > VIEW_STATES.START_TEST && userName) {
+      const autoSaveInterval = setInterval(async () => {
+        try {
+          await setOrUpdateStudentData(currentUserData);
+        } catch (error) {
+          console.error("[Auto-save] Failed to save student data:", error);
+        }
+      }, 60000); // Save every minute
+      return () => clearInterval(autoSaveInterval);
+    }
+  }, [viewState, userName, currentUserData]);
+
+  const incrementViewState = async () => {
+    // Save data before moving to next page
+    if (userName) {
+      try {
+        await setOrUpdateStudentData(currentUserData);
+      } catch (error) {
+        console.error("[Page Navigation] Failed to save student data:", error);
+      }
+    }
     setViewState((prevState) => {
       return prevState + 1;
     });
@@ -235,20 +257,18 @@ export default function ExamHomePage() {
     try {
       if (userName) {
         // Save current state before going back
-        await setOrUpdateStudentData(currentUserData, userName);
-
+        await setOrUpdateStudentData(currentUserData);
         // Get latest data from Firebase
-        const { success, message, error, res } = await getUserSnapshot();
+        const { message, error, data } = await getStudentData();
         if (error) {
           console.error(message);
-        } else if (res) {
+        } else if (data) {
           setCurrentUserData((prevData) => ({
             ...prevData,
-            ...res[0],
+            ...data,
           }));
         }
       }
-
       setViewState((prevState) => prevState - 1);
     } catch (error) {
       console.error("Error in decrementViewState:", error);
@@ -262,10 +282,19 @@ export default function ExamHomePage() {
 
   const handleLevelSubmit = async (e: MouseEvent) => {
     e.preventDefault();
-    setCurrentUserData({
+    const updatedData = {
       ...currentUserData,
       level: level,
-    });
+    };
+    setCurrentUserData(updatedData);
+    // Save the level selection immediately
+    if (userName) {
+      try {
+        await setOrUpdateStudentData(updatedData);
+      } catch (error) {
+        console.error("[Level Selection] Failed to save student data:", error);
+      }
+    }
   };
 
   const handleStartTest = (
@@ -291,7 +320,7 @@ export default function ExamHomePage() {
       if (!userName) {
         throw new Error("No current user found.");
       }
-      await setOrUpdateStudentData(currentUserData, userName);
+      await setOrUpdateStudentData(currentUserData);
 
       // Send email with results using API route
       const response = await fetch("/api/email", {
@@ -342,7 +371,7 @@ export default function ExamHomePage() {
         throw new Error("No current user found.");
       }
 
-      await setOrUpdateStudentData(currentUserData, userName);
+      await setOrUpdateStudentData(currentUserData);
       setViewState(VIEW_STATES.KEY_SIG_NOTATE1);
     } catch (error) {
       console.error("goBackToPage1 error:", error);

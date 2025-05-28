@@ -6,12 +6,14 @@ import {
   signInWithEmailAndPassword,
   signInWithEmailLink,
   signOut,
+  updatePassword,
   updateProfile,
 } from "firebase/auth";
 import { auth } from "./config";
 
 // Configuration for email link. This is the URL that the student will be redirected to after clicking the link in their email.
 const actionCodeSettings = {
+  // url: "http://localhost:3000/confirm",
   url: "https://lafsmwtheoryexam.com/confirm",
   handleCodeInApp: true,
 };
@@ -25,26 +27,74 @@ export async function sendSignInEmail(email: string) {
   }
 }
 
-export async function completeSignIn(link: string) {
-  try {
-    if (isSignInWithEmailLink(auth, link)) {
-      let emailForSignIn = window.localStorage.getItem("emailForSignIn");
-      if (!emailForSignIn) {
-        emailForSignIn = window.prompt(
-          "Please provide your email for confirmation"
-        );
-      }
-      if (!emailForSignIn) {
-        throw new Error("Email is null.");
-      }
-      const result = await signInWithEmailLink(auth, emailForSignIn, link);
-      window.localStorage.removeItem("emailForSignIn");
-      if (result.user) {
-        return true;
-      }
+export async function completeSignIn(link: string): Promise<boolean> {
+  // console.log("[authAPI:completeSignIn] Called with link:", link);
+  let emailForSignIn = window.localStorage.getItem("emailForSignIn");
+
+  if (!isSignInWithEmailLink(auth, link)) {
+    console.warn(
+      "[authAPI:completeSignIn] Link is not a valid sign-in with email link."
+    );
+    return false;
+  }
+
+  if (!emailForSignIn) {
+    console.warn(
+      "[authAPI:completeSignIn] Email for sign-in not found in localStorage. Prompting user."
+    );
+    emailForSignIn = window.prompt(
+      "Please enter the email address you used to request the sign-in link:",
+      ""
+    );
+    // If user cancels the prompt or doesn't enter an email
+    if (!emailForSignIn) {
+      console.error(
+        "[authAPI:completeSignIn] User did not provide an email address. Aborting."
+      );
+      return false;
     }
-  } catch (err) {
-    console.error("completeSignIn error:", err);
+    window.localStorage.setItem("emailForSignIn", emailForSignIn);
+  }
+
+  try {
+    // The signInWithEmailLink function itself will set the user session if successful. It doesn't return a user object in the way createUserWithEmailAndPassword does; its primary effect is auth state change.
+    await signInWithEmailLink(auth, emailForSignIn, link);
+    window.localStorage.removeItem("emailForSignIn");
+    return true;
+  } catch (err: any) {
+    console.error(
+      "[authAPI:completeSignIn] CATCH BLOCK error:",
+      err,
+      "Code:",
+      err.code
+    );
+
+    // Check if auth.currentUser became available despite the error (Firebase can be complex)
+    // This is a critical check because onAuthStateChanged might have already fired and set the user.
+    if (auth.currentUser) {
+      console.warn(
+        "[authAPI:completeSignIn] auth.currentUser IS POPULATED in catch block. Proceeding as success."
+      );
+      window.localStorage.removeItem("emailForSignIn");
+      return true;
+    }
+
+    // If the error is 'auth/email-already-in-use', it means the email is known (e.g., has a password),
+    // but the link itself was valid and likely authenticated the user.
+    // Firebase's behavior here can be tricky; sometimes it errors but still establishes a session.
+    if (err.code === "auth/email-already-in-use") {
+      console.warn(
+        "[authAPI:completeSignIn] Error 'auth/email-already-in-use' caught. Treating as successful sign-in for existing user."
+      );
+      window.localStorage.removeItem("emailForSignIn");
+      return true; // Proceed as if sign-in was successful.
+    }
+
+    // For any other errors, consider it a failure.
+    console.error(
+      "[authAPI:completeSignIn] Unhandled error or sign-in failed definitively."
+    );
+    return false;
   }
 }
 
@@ -114,4 +164,22 @@ export async function resetPassword(email: string) {
     .catch((err) => {
       console.error("sendPasswordResetEmail error:", err);
     });
+}
+
+export async function setUserPassword(newPassword: string): Promise<boolean> {
+  try {
+    if (auth.currentUser) {
+      await updatePassword(auth.currentUser, newPassword);
+      return true;
+    } else {
+      console.error("setUserPassword error: No current user.");
+      return false;
+    }
+  } catch (err: any) {
+    console.error("setUserPassword error:", err);
+    if (err.code === "auth/weak-password") {
+      alert("Password is too weak. It should be at least 6 characters long.");
+    }
+    return false;
+  }
 }

@@ -1,15 +1,26 @@
 "use client";
+import { AuthContextType } from "@/app/lib/types";
 import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/config";
 import CreateAuthContext from "./createAuthContext";
-import { AuthContextType } from "@/app/lib/types";
 
 export default function AuthContextProvider({ children }: AuthContextType) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const refreshUser = async () => {
+    if (auth.currentUser) {
+      try {
+        await auth.currentUser.reload();
+        setUser({ ...auth.currentUser }); // Create new object to trigger re-render
+      } catch (error) {
+        console.error("[AuthContext] Error refreshing user:", error);
+      }
+    }
+  };
 
   // This returns the unsubscribe function for the observer, so when the component unmounts, we'll call the unsubscribe function to stop listening for changes in the authentication state of the user, and prevent memory leaks.
   useEffect(() => {
@@ -27,7 +38,7 @@ export default function AuthContextProvider({ children }: AuthContextType) {
 
   // to enable the components to consume the values from this auth user context, we need to create an auth context provider to return a provider for the context we just created. The value prop will contain the data we want to make available to our component tree
   return (
-    <CreateAuthContext.Provider value={{ user, setUser }}>
+    <CreateAuthContext.Provider value={{ user, setUser, refreshUser }}>
       {loading ? (
         <Stack gap={4} alignItems={"center"} paddingTop={16}>
           <Box>{"Loading..."}</Box>

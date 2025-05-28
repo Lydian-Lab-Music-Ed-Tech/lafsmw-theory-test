@@ -1,47 +1,45 @@
-import { signUp } from "@/firebase/authAPI";
+import { sendSignInEmail } from "@/firebase/authAPI";
 import { Button, Container, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormEvent } from "../lib/types";
 
 export default function SignUpForm() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [signingUp, setSigningUp] = useState(false);
-
-  const router = useRouter();
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setSigningUp(true);
-    await signUp(email, password, `${firstName} ${lastName}`);
-    router.push("/exam");
+    setMessage("");
+    try {
+      await sendSignInEmail(email);
+      setMessage(
+        "Sign-up link sent! Please check your email to complete registration."
+      );
+      setEmail("");
+    } catch (error) {
+      console.error("Error sending sign-in email:", error);
+      setMessage("Failed to send sign-in link. Please try again.");
+    }
+    setSigningUp(false);
   };
 
   return (
     <Container component="main" maxWidth="xs" sx={{ fontFamily: "Monospace" }}>
-      <Typography variant="h5" align="center">
-        Sign Up
+      <Typography variant="h5" align="center" gutterBottom>
+        Sign Up with Email Link
       </Typography>
+      {message && (
+        <Typography
+          color={message.startsWith("Failed") ? "error" : "success"}
+          align="center"
+          sx={{ mb: 2 }}
+        >
+          {message}
+        </Typography>
+      )}
       <form onSubmit={handleSubmit}>
-        <TextField
-          margin="normal"
-          fullWidth
-          label="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-        />
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-        />
         <TextField
           margin="normal"
           fullWidth
@@ -50,15 +48,7 @@ export default function SignUpForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        />
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          disabled={signingUp}
         />
         <Button
           type="submit"
@@ -68,7 +58,7 @@ export default function SignUpForm() {
           sx={{ mt: 3 }}
           disabled={signingUp}
         >
-          {signingUp ? "Signing up..." : "Sign Up"}
+          {signingUp ? "Sending Link..." : "Send Sign-Up Link"}
         </Button>
       </form>
     </Container>

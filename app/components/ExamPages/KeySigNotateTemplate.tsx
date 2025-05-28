@@ -46,15 +46,12 @@ export default function KeySignaturesNotation({
 
   const handleSubmit = async (e: MouseEvent) => {
     e.preventDefault();
-
-    // Simply use the current state values which should now be up-to-date
-    // due to our fixes in the NotateKeySignature component
+    // Simply use the current state values which should now be up-to-date per the NotateKeySignature component
     setCurrentUserData({
       ...currentUserData,
       [keySigPropName]: keySignatureNotation,
       [keySigGlyphPropName]: keySignatureGlyphs,
     });
-
     nextViewState();
   };
 

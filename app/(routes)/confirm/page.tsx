@@ -1,16 +1,18 @@
 "use client";
-import UpdateName from "@/app/components/UpdateName";
+import CompleteProfile from "@/app/components/CompleteProfile";
 import { completeSignIn } from "@/firebase/authAPI";
+import { auth } from "@/firebase/config";
 import { Button, Container, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ConfirmSignIn() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updateName, setUpdateName] = useState(false);
+  const signInAttemptedRef = useRef(false);
 
   useEffect(() => {
     const handleSignIn = async () => {
@@ -18,7 +20,12 @@ export default function ConfirmSignIn() {
       try {
         const success = await completeSignIn(emailLink);
         if (success) {
-          setUpdateName(true);
+          // If user already has a display name, go to exam, otherwise we'll return CompleteProfile (by setting updateName to true)
+          if (auth.currentUser && auth.currentUser.displayName) {
+            router.push("/exam");
+          } else {
+            setUpdateName(true);
+          }
         } else {
           setError("Sign-in failed. Please try again.");
         }
@@ -30,7 +37,10 @@ export default function ConfirmSignIn() {
       }
     };
 
-    handleSignIn();
+    if (!signInAttemptedRef.current) {
+      handleSignIn();
+      signInAttemptedRef.current = true;
+    }
   }, [router]);
 
   if (loading) {
@@ -42,7 +52,7 @@ export default function ConfirmSignIn() {
   }
 
   if (updateName) {
-    return <UpdateName />;
+    return <CompleteProfile />;
   }
 
   if (error) {
@@ -57,9 +67,9 @@ export default function ConfirmSignIn() {
               Try login again
             </Button>
           </Link>
-          <Link href="/registration">
+          <Link href="/">
             <Button variant="text" sx={{ width: "250px" }}>
-              Or sign up here
+              Or log in or sign up here
             </Button>
           </Link>
         </Stack>
