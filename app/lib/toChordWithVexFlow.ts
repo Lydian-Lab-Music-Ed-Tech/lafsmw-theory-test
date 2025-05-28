@@ -40,13 +40,19 @@ export const toChordWithVexFlow = (
           keysCopy.forEach((key, index) => {
             if (!key) return;
 
-            const noteBase = key.split("/")[0];
+            const [noteBase] = key.split("/");
+            const accidentalMatch = noteBase.match(/([#b]+)/);
 
-            // Check for accidentals and add them
-            if (noteBase.includes("#")) {
-              staveNote?.addModifier(new Flow.Accidental("#"), index);
-            } else if (noteBase.includes("b") && noteBase.length > 1) {
-              staveNote?.addModifier(new Flow.Accidental("b"), index);
+            if (accidentalMatch) {
+              const accidental = accidentalMatch[0];
+              // Handle double accidentals
+              if (accidental === "##" || accidental === "bb") {
+                staveNote?.addModifier(new Flow.Accidental(accidental), index);
+              }
+              // Handle single accidentals
+              else if (accidental === "#" || accidental === "b") {
+                staveNote?.addModifier(new Flow.Accidental(accidental), index);
+              }
             }
           });
         }
