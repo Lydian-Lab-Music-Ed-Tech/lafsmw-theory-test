@@ -59,7 +59,7 @@ export const correct7thChordNotationAnswers = [
 export const correctSeventhChordAnswers = [
   /^(E#)(?:dim7|°7|o7)$/,
   /^(F)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
-  /^(G)(?:-∆|m∆|m∆7|min[Mm]aj7|mi[Mm]aj7|m[Mm]aj7)$/,
+  /^(G)(?:-∆|m∆|m∆7|min[Mm]aj7|mi[Mm]aj7|m[Mm]aj7|-maj7|-Maj7)$/,
   /^(B7)$/,
   /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
   /^(Ab)(?:-7|min7|mi7|m7)$/,
