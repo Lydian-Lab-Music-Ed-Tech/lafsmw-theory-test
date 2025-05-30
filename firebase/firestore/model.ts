@@ -60,17 +60,11 @@ export async function setOrUpdateStudentData(formInput: InputState) {
         ...formInput,
         updatedAt: serverTimestamp(),
       });
-      console.log(
-        `[firestore/model] Student data updated for UID: ${currentUserID} in 'students' collection.`
-      );
     } else {
       await setDoc(docRef, {
         ...formInput,
         createdAt: serverTimestamp(),
       });
-      console.log(
-        `[firestore/model] New student data created for UID: ${currentUserID} in 'students' collection.`
-      );
     }
     return true;
   } catch (e) {

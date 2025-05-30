@@ -34,33 +34,35 @@ export default function SignUpForm() {
         <Typography
           color={message.startsWith("Failed") ? "error" : "success"}
           align="center"
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, p: 4 }}
         >
           {message}
         </Typography>
       )}
-      <form onSubmit={handleSubmit}>
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Email Address"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={signingUp}
-        />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          sx={{ mt: 3 }}
-          disabled={signingUp}
-        >
-          {signingUp ? "Sending Link..." : "Send Sign-Up Link"}
-        </Button>
-      </form>
+      {!message && (
+        <form onSubmit={handleSubmit}>
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Email Address"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={signingUp}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3 }}
+            disabled={signingUp}
+          >
+            {signingUp ? "Sending Link..." : "Send Sign-Up Link"}
+          </Button>
+        </form>
+      )}
     </Container>
   );
 }
