@@ -19,7 +19,6 @@ export default function TriadsNotation({
   nextViewState,
   page,
 }: UserDataProps) {
-  const triadsPropName = `triads${page - 11}` as keyof InputState;
   const triadsDataPropName = `triadsData${page - 11}` as keyof InputState;
 
   // Always hydrate local state from currentUserData
@@ -31,10 +30,9 @@ export default function TriadsNotation({
     if (savedData) {
       return savedData;
     } else {
-      // If no saved data exists, initialize with empty keys
-      const initialChords = (currentUserData[triadsPropName] as string[]) || [];
+      // If no saved data exists, initialize with empty array for keys
       return {
-        keys: initialChords,
+        keys: [],
         duration: "w",
         userClickY: 0,
       };
@@ -54,16 +52,14 @@ export default function TriadsNotation({
 
       setChordData(newChordData);
 
-      // Save both the chord strings and the chord data for backward compatibility
+      // Save the chord data
       setCurrentUserData({
         ...currentUserData,
-        [triadsPropName]: newChords, // For backward compatibility
         [triadsDataPropName]: newChordData,
       });
     },
     [
       setCurrentUserData,
-      triadsPropName,
       triadsDataPropName,
       currentUserData,
       chordData,
@@ -73,7 +69,6 @@ export default function TriadsNotation({
   // Sync chordData state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-    const savedChords = (currentUserData[triadsPropName] as string[]) || [];
     const savedChordData = currentUserData[triadsDataPropName] as
       | SimpleChordData
       | undefined;
@@ -84,24 +79,14 @@ export default function TriadsNotation({
       if (JSON.stringify(savedChordData) !== JSON.stringify(chordData)) {
         setChordData(savedChordData);
       }
-    } else if (
-      savedChords.length > 0 &&
-      JSON.stringify(savedChords) !== JSON.stringify(chordData.keys)
-    ) {
-      setChordData({
-        keys: savedChords,
-        duration: "w",
-        userClickY: 0,
-      });
     }
-  }, [currentUserData, triadsPropName, triadsDataPropName, chordData]);
+  }, [currentUserData, triadsDataPropName, chordData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Save both for backward compatibility
+    // Save the chord data
     setCurrentUserData({
       ...currentUserData,
-      [triadsPropName]: chordData.keys,
       [triadsDataPropName]: chordData,
     });
     nextViewState();

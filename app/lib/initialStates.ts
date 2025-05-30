@@ -81,22 +81,8 @@ export const initialFormInputState: InputState = {
   scales5: [],
   scales6: [],
 
-  // Triads section
-  triads1: [],
-  triads2: [],
-  triads3: [],
-  triads4: [],
-  triads5: [],
-  triads6: [],
-
-  // Seventh chords section
-  seventhChords1: [],
-  seventhChords2: [],
-  seventhChords3: [],
-  seventhChords4: [],
-  seventhChords5: [],
-  seventhChords6: [],
-  seventhChords7: [],
+  // Triads section (using triadsDataX.keys instead of separate triadsX arrays)
+  // Seventh chords section (using seventhChordsDataX.keys instead of separate seventhChordsX arrays)
 
   // Other sections
   chords: {},

@@ -19,9 +19,7 @@ export default function NotateSeventhChords({
   nextViewState,
   page,
 }: UserDataProps) {
-  const seventhChordsPropName = `seventhChords${page - 17}` as keyof InputState;
-  const seventhChordsDataPropName =
-    `seventhChordsData${page - 17}` as keyof InputState;
+  const seventhChordsDataPropName = `seventhChordsData${page - 17}` as keyof InputState;
 
   // Always hydrate local state from currentUserData
   // Simplified state management - just maintain chordData
@@ -34,10 +32,8 @@ export default function NotateSeventhChords({
       return savedData;
     } else {
       // If no saved data exists, initialize with empty keys
-      const initialChords =
-        (currentUserData[seventhChordsPropName] as string[]) || [];
       return {
-        keys: initialChords,
+        keys: [],
         duration: "w",
         userClickY: 0,
       };
@@ -57,16 +53,14 @@ export default function NotateSeventhChords({
 
       setChordData(newChordData);
 
-      // Save both the chord strings and the chord data for backward compatibility
+      // Save the chord data
       setCurrentUserData({
         ...currentUserData,
-        [seventhChordsPropName]: newChords, // For backward compatibility
         [seventhChordsDataPropName]: newChordData,
       });
     },
     [
       setCurrentUserData,
-      seventhChordsPropName,
       seventhChordsDataPropName,
       currentUserData,
       chordData,
@@ -76,8 +70,6 @@ export default function NotateSeventhChords({
   // Sync chordData state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-    const savedChords =
-      (currentUserData[seventhChordsPropName] as string[]) || [];
     const savedChordData = currentUserData[seventhChordsDataPropName] as
       | SimpleChordData
       | undefined;
@@ -89,20 +81,8 @@ export default function NotateSeventhChords({
         setChordData(savedChordData);
       }
     }
-    // Fall back to using saved chords array if chordData is not available
-    else if (
-      savedChords.length > 0 &&
-      JSON.stringify(savedChords) !== JSON.stringify(chordData.keys)
-    ) {
-      setChordData({
-        keys: savedChords,
-        duration: "w",
-        userClickY: 0,
-      });
-    }
   }, [
     currentUserData,
-    seventhChordsPropName,
     seventhChordsDataPropName,
     chordData,
   ]);
@@ -110,10 +90,9 @@ export default function NotateSeventhChords({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Save both for backward compatibility
+    // Save the chord data
     setCurrentUserData({
       ...currentUserData,
-      [seventhChordsPropName]: chordData.keys,
       [seventhChordsDataPropName]: chordData,
     });
 
