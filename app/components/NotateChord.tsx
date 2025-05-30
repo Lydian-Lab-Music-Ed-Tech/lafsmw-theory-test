@@ -35,8 +35,6 @@ const NotateChord = ({ initialChordData, onChange }: NotateChordProps) => {
 
   const { chosenClef } = useClef();
 
-  // console.log("initialChordData from NotateChord:", initialChordData);
-
   // Hydrate chordData from initialChordData or initialChords
   const [chordData, setChordData] = useState<Chord>(() => {
     // If we have initialChordData, convert it to a Chord with VexFlow objects
@@ -51,7 +49,6 @@ const NotateChord = ({ initialChordData, onChange }: NotateChordProps) => {
       userClickY: 0,
     };
   });
-  // console.log("chordData from NotateChord:", chordData);
 
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -167,10 +164,6 @@ const NotateChord = ({ initialChordData, onChange }: NotateChordProps) => {
       );
     }
   }, []);
-
-  // useEffect(() => {
-  //   renderFunctionRef.current?.();
-  // }, [chordData]);
 
   useEffect(() => {
     if (
