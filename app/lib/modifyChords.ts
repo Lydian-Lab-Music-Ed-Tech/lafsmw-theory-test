@@ -99,10 +99,10 @@ export const removeAccidentalFromNotesAndCoords = (
   notesAndCoordinates: NotesAndCoordinatesData[],
   foundNoteData: NotesAndCoordinatesData
 ) => {
-  foundNoteData.note = removeAccidentals(foundNoteData.note);
+  const cleanedNote = removeAccidentals(foundNoteData.note);
   return notesAndCoordinates.map((noteData) =>
-    noteData === foundNoteData
-      ? { ...noteData, note: foundNoteData.note }
+    noteData.note === foundNoteData.note
+      ? { ...noteData, note: cleanedNote }
       : noteData
   );
 };

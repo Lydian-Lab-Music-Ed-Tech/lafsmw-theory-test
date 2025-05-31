@@ -59,12 +59,6 @@ export type Chord = {
   flatIndexArray?: number[] | [];
 };
 
-export interface NotateChordProps {
-  initialChords?: string[];
-  initialChordData?: SimpleChordData;
-  onChange: (chords: string[]) => void;
-}
-
 /**
  * SimpleChordData is a serializable version of Chord without VexFlow objects
  * Used for storage and data transfer
@@ -74,6 +68,11 @@ export interface SimpleChordData {
   duration: string;
   userClickY: number;
   // No staveNotes to avoid circular references
+}
+
+export interface NotateChordProps {
+  initialChordData?: SimpleChordData;
+  onChange: (chords: string[]) => void;
 }
 
 export type Level =
@@ -288,25 +287,12 @@ export interface InputState {
   scaleData4?: SimpleScaleData[];
   scaleData5?: SimpleScaleData[];
   scaleData6?: SimpleScaleData[];
-  triads1: string[];
-  triads2: string[];
-  triads3: string[];
-  triads4: string[];
-  triads5: string[];
-  triads6: string[];
   triadsData1?: SimpleChordData;
   triadsData2?: SimpleChordData;
   triadsData3?: SimpleChordData;
   triadsData4?: SimpleChordData;
   triadsData5?: SimpleChordData;
   triadsData6?: SimpleChordData;
-  seventhChords1: string[];
-  seventhChords2: string[];
-  seventhChords3: string[];
-  seventhChords4: string[];
-  seventhChords5: string[];
-  seventhChords6: string[];
-  seventhChords7: string[];
   seventhChordsData1?: SimpleChordData;
   seventhChordsData2?: SimpleChordData;
   seventhChordsData3?: SimpleChordData;

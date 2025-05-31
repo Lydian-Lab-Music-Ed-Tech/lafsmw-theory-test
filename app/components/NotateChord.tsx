@@ -27,11 +27,7 @@ import {
 import CustomButton from "./CustomButton";
 import NotationContainer from "./NotationContainer";
 
-const NotateChord = ({
-  initialChords = [],
-  initialChordData,
-  onChange,
-}: NotateChordProps) => {
+const NotateChord = ({ initialChordData, onChange }: NotateChordProps) => {
   const container = useRef<HTMLDivElement | null>(null);
   const [staves, setStaves] = useState<StaveType[]>([]);
   // Always use barIndex 0 for chords since we only have one stave
@@ -47,12 +43,13 @@ const NotateChord = ({
     }
     // Otherwise use initialChords or empty
     return {
-      keys: initialChords || [],
+      keys: [],
       duration: "w",
       staveNotes: null,
       userClickY: 0,
     };
   });
+
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
@@ -119,14 +116,11 @@ const NotateChord = ({
   });
 
   // Initial load
-  // Sync chordData if initialChords or initialChordData prop changes
+  // Sync chordData if initialChordData prop changes
   useEffect(() => {
     if (initialChordData) {
       // If we have initialChordData, convert it to a Chord with VexFlow objects
       setChordData(toChordWithVexFlow(initialChordData, chosenClef));
-    } else if (initialChords && initialChords.length > 0) {
-      // Otherwise use initialChords
-      setChordData((prev) => ({ ...prev, keys: initialChords }));
     } else {
       // Or reset to empty
       setChordData({
@@ -136,11 +130,7 @@ const NotateChord = ({
         userClickY: 0,
       });
     }
-  }, [
-    JSON.stringify(initialChords),
-    JSON.stringify(initialChordData),
-    chosenClef,
-  ]);
+  }, [JSON.stringify(initialChordData), chosenClef]);
 
   // Trigger VexFlow render whenever chordData changes
   useEffect(() => {
@@ -174,10 +164,6 @@ const NotateChord = ({
       );
     }
   }, []);
-
-  useEffect(() => {
-    renderFunctionRef.current?.();
-  }, [chordData]);
 
   useEffect(() => {
     if (

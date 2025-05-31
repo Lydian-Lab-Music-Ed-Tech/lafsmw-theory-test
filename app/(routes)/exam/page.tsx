@@ -144,21 +144,21 @@ export default function ExamHomePage() {
       currentUserData.scales6,
     ];
     const userTriads = [
-      currentUserData.triads1,
-      currentUserData.triads2,
-      currentUserData.triads3,
-      currentUserData.triads4,
-      currentUserData.triads5,
-      currentUserData.triads6,
+      currentUserData.triadsData1?.keys || [],
+      currentUserData.triadsData2?.keys || [],
+      currentUserData.triadsData3?.keys || [],
+      currentUserData.triadsData4?.keys || [],
+      currentUserData.triadsData5?.keys || [],
+      currentUserData.triadsData6?.keys || [],
     ];
     const userSeventhChordAnswers = [
-      currentUserData.seventhChords1,
-      currentUserData.seventhChords2,
-      currentUserData.seventhChords3,
-      currentUserData.seventhChords4,
-      currentUserData.seventhChords5,
-      currentUserData.seventhChords6,
-      currentUserData.seventhChords7,
+      currentUserData.seventhChordsData1?.keys || [],
+      currentUserData.seventhChordsData2?.keys || [],
+      currentUserData.seventhChordsData3?.keys || [],
+      currentUserData.seventhChordsData4?.keys || [],
+      currentUserData.seventhChordsData5?.keys || [],
+      currentUserData.seventhChordsData6?.keys || [],
+      currentUserData.seventhChordsData7?.keys || [],
     ];
     const userChordAnswers = convertObjectToArray(currentUserData.chords);
 

@@ -19,14 +19,9 @@ export default function TriadsNotation({
   nextViewState,
   page,
 }: UserDataProps) {
-  const triadsPropName = `triads${page - 11}` as keyof InputState;
   const triadsDataPropName = `triadsData${page - 11}` as keyof InputState;
 
   // Always hydrate local state from currentUserData
-  const [chords, setChords] = useState<string[]>(
-    (currentUserData[triadsPropName] as string[]) || []
-  );
-
   const [chordData, setChordData] = useState<SimpleChordData>(() => {
     // Initialize from saved data or create empty
     const savedData = currentUserData[triadsDataPropName] as
@@ -35,8 +30,9 @@ export default function TriadsNotation({
     if (savedData) {
       return savedData;
     } else {
+      // If no saved data exists, initialize with empty array for keys
       return {
-        keys: chords,
+        keys: [],
         duration: "w",
         userClickY: 0,
       };
@@ -45,11 +41,9 @@ export default function TriadsNotation({
 
   const currentUserDataRef = useRef(currentUserData);
 
-  // Save both to state and user data
+  // Save chordData to user data
   const handleSaveOnChange = useCallback(
     (newChords: string[]) => {
-      setChords(newChords);
-
       // Create a SimpleChordData object from the new chords
       const newChordData: SimpleChordData = {
         ...chordData,
@@ -58,55 +52,41 @@ export default function TriadsNotation({
 
       setChordData(newChordData);
 
-      // Save both the chord strings and the chord data
+      // Save the chord data
       setCurrentUserData({
         ...currentUserData,
-        [triadsPropName]: newChords,
         [triadsDataPropName]: newChordData,
       });
     },
     [
       setCurrentUserData,
-      triadsPropName,
       triadsDataPropName,
       currentUserData,
       chordData,
     ]
   );
 
-  // Sync chords state if currentUserData changes (e.g. on back navigation)
+  // Sync chordData state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-    const newChords = (currentUserData[triadsPropName] as string[]) || [];
-    const newChordData = currentUserData[triadsDataPropName] as
+    const savedChordData = currentUserData[triadsDataPropName] as
       | SimpleChordData
       | undefined;
 
-    // Check if chords have changed
-    const chordsChanged = JSON.stringify(newChords) !== JSON.stringify(chords);
-
-    // Update local state if needed
-    if (chordsChanged) {
-      setChords(newChords);
-      // If we have chord data, use it; otherwise create from chords
-      if (newChordData) {
-        setChordData(newChordData);
-      } else if (newChords.length > 0) {
-        setChordData({
-          keys: newChords,
-          duration: "w",
-          userClickY: 0,
-        });
+    // Use the saved chord data if available
+    if (savedChordData) {
+      // Only update if the data has actually changed
+      if (JSON.stringify(savedChordData) !== JSON.stringify(chordData)) {
+        setChordData(savedChordData);
       }
     }
-  }, [currentUserData, triadsPropName, triadsDataPropName]);
+  }, [currentUserData, triadsDataPropName, chordData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Save both the chord strings and the chord data
+    // Save the chord data
     setCurrentUserData({
       ...currentUserData,
-      [triadsPropName]: chords,
       [triadsDataPropName]: chordData,
     });
     nextViewState();
@@ -165,7 +145,6 @@ export default function TriadsNotation({
                 {`Write the following triad: ${triadsText[page - 12]}`}
               </Typography>
               <NotateChord
-                initialChords={chords}
                 initialChordData={chordData}
                 onChange={handleSaveOnChange}
               />

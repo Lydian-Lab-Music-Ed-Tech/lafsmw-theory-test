@@ -19,15 +19,10 @@ export default function NotateSeventhChords({
   nextViewState,
   page,
 }: UserDataProps) {
-  const seventhChordsPropName = `seventhChords${page - 17}` as keyof InputState;
-  const seventhChordsDataPropName =
-    `seventhChordsData${page - 17}` as keyof InputState;
+  const seventhChordsDataPropName = `seventhChordsData${page - 17}` as keyof InputState;
 
   // Always hydrate local state from currentUserData
-  const [chords, setChords] = useState<string[]>(
-    (currentUserData[seventhChordsPropName] as string[]) || []
-  );
-
+  // Simplified state management - just maintain chordData
   const [chordData, setChordData] = useState<SimpleChordData>(() => {
     // Initialize from saved data or create empty
     const savedData = currentUserData[seventhChordsDataPropName] as
@@ -36,8 +31,9 @@ export default function NotateSeventhChords({
     if (savedData) {
       return savedData;
     } else {
+      // If no saved data exists, initialize with empty keys
       return {
-        keys: chords,
+        keys: [],
         duration: "w",
         userClickY: 0,
       };
@@ -46,11 +42,9 @@ export default function NotateSeventhChords({
 
   const currentUserDataRef = useRef(currentUserData);
 
-  // Save both to state and user data
+  // Save chordData to user data
   const handleSaveOnChange = useCallback(
     (newChords: string[]) => {
-      setChords(newChords);
-
       // Create a SimpleChordData object from the new chords
       const newChordData: SimpleChordData = {
         ...chordData,
@@ -59,58 +53,46 @@ export default function NotateSeventhChords({
 
       setChordData(newChordData);
 
-      // Save both the chord strings and the chord data
+      // Save the chord data
       setCurrentUserData({
         ...currentUserData,
-        [seventhChordsPropName]: newChords,
         [seventhChordsDataPropName]: newChordData,
       });
     },
     [
       setCurrentUserData,
-      seventhChordsPropName,
       seventhChordsDataPropName,
       currentUserData,
       chordData,
     ]
   );
 
-  // Sync chords state if currentUserData changes (e.g. on back navigation)
+  // Sync chordData state if currentUserData changes (e.g. on back navigation)
   useEffect(() => {
     currentUserDataRef.current = currentUserData;
-    const newChords =
-      (currentUserData[seventhChordsPropName] as string[]) || [];
-    const newChordData = currentUserData[seventhChordsDataPropName] as
+    const savedChordData = currentUserData[seventhChordsDataPropName] as
       | SimpleChordData
       | undefined;
 
-    // Check if chords have changed
-    const chordsChanged = JSON.stringify(newChords) !== JSON.stringify(chords);
-
-    // Update local state if needed
-    if (chordsChanged) {
-      setChords(newChords);
-
-      // If we have chord data, use it; otherwise create from chords
-      if (newChordData) {
-        setChordData(newChordData);
-      } else if (newChords.length > 0) {
-        setChordData({
-          keys: newChords,
-          duration: "w",
-          userClickY: 0,
-        });
+    // Use the saved chord data if available
+    if (savedChordData) {
+      // Only update if the data has actually changed
+      if (JSON.stringify(savedChordData) !== JSON.stringify(chordData)) {
+        setChordData(savedChordData);
       }
     }
-  }, [currentUserData, seventhChordsPropName, seventhChordsDataPropName]);
+  }, [
+    currentUserData,
+    seventhChordsDataPropName,
+    chordData,
+  ]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Save both the chord strings and the chord data
+    // Save the chord data
     setCurrentUserData({
       ...currentUserData,
-      [seventhChordsPropName]: chords,
       [seventhChordsDataPropName]: chordData,
     });
 
@@ -172,7 +154,6 @@ export default function NotateSeventhChords({
                 }`}
               </Typography>
               <NotateChord
-                initialChords={chords}
                 initialChordData={chordData}
                 onChange={handleSaveOnChange}
               />

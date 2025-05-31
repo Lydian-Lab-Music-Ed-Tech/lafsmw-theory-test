@@ -2,7 +2,8 @@ import { Flow } from "vexflow";
 import type { StaveNote } from "vexflow";
 import { Chord, SimpleChordData } from "./types";
 
-// Converts a SimpleChordData object to a Chord object with VexFlow objects
+// This is an important function that converts a SimpleChordData object to a Chord object with VexFlow objects
+// It is used in NotateChord.tsx and NotateScale.tsx
 export const toChordWithVexFlow = (
   simpleData: SimpleChordData,
   chosenClef: string
@@ -20,46 +21,36 @@ export const toChordWithVexFlow = (
     // Create VexFlow StaveNote for UI rendering
     let staveNote: StaveNote | null = null;
 
-    // Only attempt to create a StaveNote if we have valid keys
-    if (simpleData.keys && simpleData.keys.length > 0) {
-      try {
-        // Make a defensive copy of the keys array
-        const keysCopy = [...simpleData.keys].filter(
-          (key) => key && typeof key === "string"
-        );
+    try {
+      // Make a defensive copy of the keys array
+      const keysCopy = [...simpleData.keys].filter(
+        (key) => key && typeof key === "string"
+      );
 
-        // Only proceed if we have valid keys
-        if (keysCopy.length > 0) {
-          staveNote = new Flow.StaveNote({
-            keys: keysCopy,
-            duration: simpleData.duration || "w",
-            clef: chosenClef,
-          });
-
-          // Add accidentals if needed
-          keysCopy.forEach((key, index) => {
-            if (!key) return;
-
-            const [noteBase] = key.split("/");
-            const accidentalMatch = noteBase.match(/([#b]+)/);
-
-            if (accidentalMatch) {
-              const accidental = accidentalMatch[0];
-              // Handle double accidentals
-              if (accidental === "##" || accidental === "bb") {
-                staveNote?.addModifier(new Flow.Accidental(accidental), index);
-              }
-              // Handle single accidentals
-              else if (accidental === "#" || accidental === "b") {
-                staveNote?.addModifier(new Flow.Accidental(accidental), index);
-              }
-            }
-          });
-        }
-      } catch (error) {
-        console.error("Error creating stave note for chord:", error);
-        staveNote = null;
+      if (keysCopy.length > 0) {
+        staveNote = new Flow.StaveNote({
+          keys: keysCopy,
+          duration: simpleData.duration || "w",
+          clef: chosenClef,
+        });
+        // Add accidentals if needed
+        keysCopy.forEach((key, index) => {
+          if (!key) return;
+          const noteBase = key.split("/")[0];
+          if (noteBase.length === 2 && noteBase.slice(-1) === "#") {
+            staveNote?.addModifier(new Flow.Accidental("#"), index);
+          } else if (noteBase.length === 2 && noteBase.slice(-1) === "b") {
+            staveNote?.addModifier(new Flow.Accidental("b"), index);
+          } else if (noteBase.length === 3 && noteBase.slice(-2) === "bb") {
+            staveNote?.addModifier(new Flow.Accidental("bb"), index);
+          } else if (noteBase.length === 3 && noteBase.slice(-2) === "##") {
+            staveNote?.addModifier(new Flow.Accidental("##"), index);
+          }
+        });
       }
+    } catch (error) {
+      console.error("Error creating stave note for chord:", error);
+      staveNote = null;
     }
 
     // Create the full Chord object with staveNote

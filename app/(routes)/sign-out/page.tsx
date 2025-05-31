@@ -39,8 +39,9 @@ export default function SignOutPage() {
           color="primary"
           disabled={disabled}
           onClick={signOutOfAppButton}
+          sx={{ p: 2, borderRadius: "70px" }}
         >
-          <Typography>
+          <Typography sx={{ mx: 2 }}>
             {disabled ? "Signing out" : "Sign Out and Exit Exam"}
           </Typography>
         </Button>
