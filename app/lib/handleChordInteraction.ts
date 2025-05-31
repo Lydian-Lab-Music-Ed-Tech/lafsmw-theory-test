@@ -9,17 +9,14 @@ import {
 } from "@/app/lib/modifyChords";
 import { Chord, NotesAndCoordinatesData, StateInteraction } from "./types";
 
-// Helper function to normalize notes for comparison (e.g., C/4, C#/4)
+// Helper function to normalize notes for comparison (e.g., C/4, C#/4). This is when we are modifying accidentals, so we want to strip the note of its current accidental.
 const normalizeNoteForComparison = (note: string): string => {
-  // Extract the base note without accidentals
   const parts = note.split("/");
-  if (parts.length !== 2) return note; // Invalid format
+  if (parts.length !== 2) return note;
 
-  // Get the note letter (A-G) without accidentals
   const noteLetter = parts[0].charAt(0);
   const octave = parts[1];
 
-  // Return just the letter and octave for comparison
   return `${noteLetter}/${octave}`;
 };
 
@@ -34,14 +31,14 @@ export const handleChordInteraction = (
   let updatedChordData = { ...chordData };
   let updatedNotesAndCoordinates = [...notesAndCoordinates];
 
-  // If foundNoteIndex is -1 but we're modifying accidentals, try to find the note by normalizing
+  // If foundNoteIndex is -1 but we're modifying accidentals, try to find the base note without its accidental by normalizing it
   if (
     foundNoteIndex === -1 &&
     (chordInteractionState.isSharpActive ||
       chordInteractionState.isFlatActive ||
       chordInteractionState.isEraseAccidentalActive)
   ) {
-    // Try to find the note by just comparing the note letter and octave
+    // Compare normalized versions of the notes
     const normalizedFoundNote = normalizeNoteForComparison(foundNoteData.note);
     foundNoteIndex = chordData.keys.findIndex(
       (note) => normalizeNoteForComparison(note) === normalizedFoundNote
