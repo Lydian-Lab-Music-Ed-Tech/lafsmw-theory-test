@@ -130,7 +130,6 @@ export const checkAndFormatArrOfArrsAnswers = (
       if (isCorrect) score++;
       actualStudentAnswers += `<li>${formattedUserAnswer}</li>`;
     }
-
     correctHTMLAnswers += `<li>${correctAnswers[i].join(", ")}</li>`;
   }
 
@@ -143,33 +142,27 @@ export const checkAndFormatArrOfArrsAnswers = (
 
 export const checkAndFormatChordAnswers = (
   userAnswers: string[][],
-  correctAnswers: RegExp[], // Note: This parameter is no longer used for the core chord checking logic
   correctAnswersText: string[],
   questionType: string
 ): string => {
   let score = 0;
   let actualStudentAnswers = "";
 
-  // Iterate based on the number of correct answers defined in correctAnswersText
   for (let i = 0; i < correctAnswersText.length; i++) {
     if (!userAnswers[i] || userAnswers[i].length === 0) {
       actualStudentAnswers += `<li><b>(No answer provided)</b></li>`;
     } else {
-      // Process user's answer: extract note letters, convert to lowercase, sort
       const userAnswerNotes = userAnswers[i]
-        .map((note) => note.split("/")[0].toLowerCase()) // Get note letter, make lowercase
-        .sort(); // Sort alphabetically
+        .map((note) => note.split("/")[0].toLowerCase())
+        .sort();
 
-      // Format user's answer for display (e.g., in email), preserving original input order/case
       const answerForEmail = userAnswers[i]
         .map((note) => note.split("/")[0])
         .join(", ");
-
-      // Process correct answer: split comma-separated string, trim, convert to lowercase, sort
       const correctAnswerNotes = correctAnswersText[i]
         .split(",")
-        .map((note) => note.trim().toLowerCase()) // Split by comma, trim, make lowercase
-        .sort(); // Sort alphabetically
+        .map((note) => note.trim().toLowerCase())
+        .sort();
 
       // Compare sorted lists of notes
       const isCorrect =
@@ -187,7 +180,6 @@ export const checkAndFormatChordAnswers = (
     }
   }
 
-  // Format the list of correct answers for display
   const formattedCorrectAnswersList = correctAnswersText
     .map((answer) => `<li>${answer}</li>`)
     .join("");

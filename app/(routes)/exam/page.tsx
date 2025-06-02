@@ -27,12 +27,10 @@ import {
   correctProgressionNonRegexAnswers,
   correctScalesAnswers,
   correctTriadNotes,
-  correctSeventhChordNotationNotesText, // Added
-  correctSeventhChordAnswers,           // Corrected name
-  correctSeventhChordNonRegexAnswers,   // Added (was missing based on usage)
+  correctSeventhChordNotationNotesText,
+  correctSeventhChordAnswers,
+  correctSeventhChordNonRegexAnswers,
 } from "@/app/lib/data/answerKey";
-import seventhChordsText from "@/app/lib/data/seventhChordsText";
-import triadsText from "@/app/lib/data/triadsText";
 import { initialFormInputState } from "@/app/lib/initialStates";
 import { InputState, Level, MouseEvent } from "@/app/lib/types";
 import { useAuthContext } from "@/firebase/authContext";
@@ -184,14 +182,12 @@ export default function ExamHomePage() {
 
     let triadsAnswers = checkAndFormatChordAnswers(
       userTriads,
-      [], // Changed from correctTriads
-      correctTriadNotes, // Changed from triadsText
+      correctTriadNotes,
       "Triads"
     );
 
     let seventhNotationAnswers = checkAndFormatChordAnswers(
       userSeventhChordAnswers,
-      [],
       correctSeventhChordNotationNotesText,
       "Seventh Chord Notation"
     );
