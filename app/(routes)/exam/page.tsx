@@ -21,15 +21,15 @@ import {
 } from "@/app/lib/calculateAnswers";
 import convertObjectToArray from "@/app/lib/convertObjectToArray";
 import {
-  correct7thChordNotationAnswers,
   correctKeySigAnswers,
   correctKeySigNotationAnswers,
   correctProgressionAnswers,
   correctProgressionNonRegexAnswers,
   correctScalesAnswers,
-  correctSeventhChordAnswers,
-  correctSeventhChordNonRegexAnswers,
-  correctTriads,
+  correctTriadNotes,
+  correctSeventhChordNotationNotesText, // Added
+  correctSeventhChordAnswers,           // Corrected name
+  correctSeventhChordNonRegexAnswers,   // Added (was missing based on usage)
 } from "@/app/lib/data/answerKey";
 import seventhChordsText from "@/app/lib/data/seventhChordsText";
 import triadsText from "@/app/lib/data/triadsText";
@@ -184,15 +184,15 @@ export default function ExamHomePage() {
 
     let triadsAnswers = checkAndFormatChordAnswers(
       userTriads,
-      correctTriads,
-      triadsText,
+      [], // Changed from correctTriads
+      correctTriadNotes, // Changed from triadsText
       "Triads"
     );
 
     let seventhNotationAnswers = checkAndFormatChordAnswers(
       userSeventhChordAnswers,
-      correct7thChordNotationAnswers,
-      seventhChordsText,
+      [],
+      correctSeventhChordNotationNotesText,
       "Seventh Chord Notation"
     );
     let seventhIdentifyAnswers = checkAndFormatChordIdentifyAnswers(
@@ -705,7 +705,7 @@ export default function ExamHomePage() {
             </Stack>
           </Box>
         )}
-        {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
+        {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Stack spacing={4}>
               <Button onClick={incrementViewState}>
@@ -723,7 +723,7 @@ export default function ExamHomePage() {
                 <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
-          )} */}
+          )}
       </Stack>
     </Box>
   );

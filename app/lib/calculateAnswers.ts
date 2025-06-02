@@ -113,12 +113,12 @@ export const checkAndFormatArrOfArrsAnswers = (
         .map((answer, j) => {
           const userNote = answer.split("/")[0];
           const correctNote = correctAnswers[i][j];
-          
+
           // Normalize note name for case-insensitive comparison
           // This handles the special B/b case and any other case differences
           const normalizedUserNote = userNote.toLowerCase();
           const normalizedCorrectNote = correctNote.toLowerCase();
-          
+
           if (normalizedUserNote !== normalizedCorrectNote) {
             isCorrect = false;
             return `<b>${userNote}</b>`;
@@ -143,25 +143,40 @@ export const checkAndFormatArrOfArrsAnswers = (
 
 export const checkAndFormatChordAnswers = (
   userAnswers: string[][],
-  correctAnswers: RegExp[],
+  correctAnswers: RegExp[], // Note: This parameter is no longer used for the core chord checking logic
   correctAnswersText: string[],
   questionType: string
 ): string => {
   let score = 0;
   let actualStudentAnswers = "";
-  let correctAnswersString = correctAnswersText.join(", ");
 
-  for (let i = 0; i < correctAnswers.length; i++) {
-    if (!userAnswers[i] || !userAnswers[i].length) {
+  // Iterate based on the number of correct answers defined in correctAnswersText
+  for (let i = 0; i < correctAnswersText.length; i++) {
+    if (!userAnswers[i] || userAnswers[i].length === 0) {
       actualStudentAnswers += `<li><b>(No answer provided)</b></li>`;
     } else {
-      let answerString = userAnswers[i]
-        .map((note) => note.split("/")[0])
-        .join("");
-      let answerForEmail = userAnswers[i]
+      // Process user's answer: extract note letters, convert to lowercase, sort
+      const userAnswerNotes = userAnswers[i]
+        .map((note) => note.split("/")[0].toLowerCase()) // Get note letter, make lowercase
+        .sort(); // Sort alphabetically
+
+      // Format user's answer for display (e.g., in email), preserving original input order/case
+      const answerForEmail = userAnswers[i]
         .map((note) => note.split("/")[0])
         .join(", ");
-      let isCorrect = correctAnswers[i].test(answerString);
+
+      // Process correct answer: split comma-separated string, trim, convert to lowercase, sort
+      const correctAnswerNotes = correctAnswersText[i]
+        .split(",")
+        .map((note) => note.trim().toLowerCase()) // Split by comma, trim, make lowercase
+        .sort(); // Sort alphabetically
+
+      // Compare sorted lists of notes
+      const isCorrect =
+        userAnswerNotes.length === correctAnswerNotes.length &&
+        userAnswerNotes.every(
+          (note, index) => note === correctAnswerNotes[index]
+        );
 
       if (isCorrect) {
         score++;
@@ -172,9 +187,14 @@ export const checkAndFormatChordAnswers = (
     }
   }
 
-  const result = `<b>${score}/${correctAnswers.length}</b> on the ${questionType} section.
+  // Format the list of correct answers for display
+  const formattedCorrectAnswersList = correctAnswersText
+    .map((answer) => `<li>${answer}</li>`)
+    .join("");
+
+  const result = `<b>${score}/${correctAnswersText.length}</b> on the ${questionType} section.
     <ol>Actual student answers:${actualStudentAnswers}</ol>
-    <ol>Correct answers: ${correctAnswersString}</ol>`;
+    <ol>Correct answers:${formattedCorrectAnswersList}</ol>`;
 
   return result;
 };

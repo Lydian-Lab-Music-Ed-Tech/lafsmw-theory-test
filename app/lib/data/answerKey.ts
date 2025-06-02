@@ -28,6 +28,8 @@ export const correctScalesAnswers = [
   scaleCSharpMixolydian,
 ];
 
+// Original RegExp for reference, to be replaced by correctTriadNotes for grading
+/*
 export const correctTriads: RegExp[] = [
   /^df#a$/,
   /^f#a#c#$/,
@@ -36,16 +38,30 @@ export const correctTriads: RegExp[] = [
   /^ebgb(?:a|bbb)$/,
   /^eg#(?:b#|c)$/,
 ];
+*/
+
+// New array with comma-separated notes for triad grading
+export const correctTriadNotes: string[] = [
+  "d, f#, a", // Corresponds to /^df#a$/
+  "f#, a#, c#", // Corresponds to /^f#a#c#$/
+  "db, fb, ab", // Corresponds to /^db(?:e|fb)ab$/, choosing Fb
+  "f#, a, c#", // Corresponds to /^f#ac#$/ (F# minor)
+  "eb, gb, bbb", // Corresponds to /^ebgb(?:a|bbb)$/, choosing Bbb (Eb minor)
+  "e, g#, b#", // Corresponds to /^eg#(?:b#|c)$/, choosing B# (E augmented)
+];
 
 export const correctNonRegexTriads = [
   "Dmaj",
   "F#maj",
-  "Bbm",
-  "F#maj",
-  "Ebm",
-  "Em",
+  "Bbm", // Note: Original regex was for Db-based chord, this name is Bb minor.
+  // The notes "db, fb, ab" represent Db minor.
+  "F#m", // Changed from "F#maj" to "F#m" to match notes "f#, a, c#"
+  "Ebm", // The notes "eb, gb, bbb" represent Eb minor.
+  "Eaug", // Changed from "Em" to "Eaug" to match notes "e, g#, b#"
 ];
 
+// Original RegExp for reference, to be replaced by correctSeventhChordNotationNotesText for grading
+/*
 export const correct7thChordNotationAnswers = [
   /^eg#bd#$/,
   /^gbbdf$/,
@@ -54,6 +70,18 @@ export const correct7thChordNotationAnswers = [
   /^dfabc$/,
   /^gbbbd(?:fb|e)$/,
   /^ebgbbbd$/,
+];
+*/
+
+// New array with comma-separated notes for seventh chord notation grading
+export const correctSeventhChordNotationNotesText: string[] = [
+  "e, g#, b, d#",
+  "g, bb, d, f",
+  "db, f, ab, cb",
+  "d#, f#, a, c",
+  "d, f, ab, c",
+  "gb, bb, d, fb",
+  "eb, gb, bb, d",
 ];
 
 export const correctSeventhChordAnswers = [
