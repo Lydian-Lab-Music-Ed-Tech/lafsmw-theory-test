@@ -2,8 +2,6 @@ import { Flow } from "vexflow";
 import createBlankStaves from "./createBlankStaves";
 import { BlankStaves, RenderStavesAndNotesParams } from "./types";
 
-const { Formatter, TickContext, Accidental } = Flow;
-
 export const setupRendererAndDrawNotes = (
   params: RenderStavesAndNotesParams
 ): BlankStaves => {
@@ -90,8 +88,8 @@ export const setupRendererAndDrawNotes = (
           noteObj.staveNote.setContext(context);
 
           // Position and draw the note
-          if (typeof noteObj.exactX === 'number') {
-            const tickContext = new TickContext();
+          if (typeof noteObj.exactX === "number") {
+            const tickContext = new Flow.TickContext();
             tickContext.addTickable(noteObj.staveNote);
             tickContext.preFormat();
             tickContext.setPadding(0);
@@ -100,7 +98,9 @@ export const setupRendererAndDrawNotes = (
             noteObj.staveNote.draw();
           } else {
             // Fallback for notes without exact positions (should ideally not happen for user-placed notes)
-            Formatter.FormatAndDraw(context, currentStave, [noteObj.staveNote]);
+            Flow.Formatter.FormatAndDraw(context, currentStave, [
+              noteObj.staveNote,
+            ]);
           }
         }
       });
