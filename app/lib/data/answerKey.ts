@@ -28,42 +28,33 @@ export const correctScalesAnswers = [
   scaleCSharpMixolydian,
 ];
 
-export const correctTriads: RegExp[] = [
-  /^df#a$/,
-  /^f#a#c#$/,
-  /^db(?:e|fb)ab$/,
-  /^f#ac#$/,
-  /^ebgb(?:a|bbb)$/,
-  /^eg#(?:b#|c)$/,
+export const correctTriadNotes: string[] = [
+  "d, f#, a", // RegExp /^df#a$/
+  "f#, a#, c#", // RegExp /^f#a#c#$/
+  "db, fb, ab", // RegExp /^db(?:e|fb)ab$/
+  "f#, a, c#", // RegExp /^f#ac#$/
+  "eb, gb, bbb", // RegExp /^ebgb(?:a|bbb)$/
+  "e, g#, b#", // RegExp /^eg#(?:b#|c)$/
 ];
 
-export const correctNonRegexTriads = [
-  "Dmaj",
-  "F#maj",
-  "Bbm",
-  "F#maj",
-  "Ebm",
-  "Em",
-];
-
-export const correct7thChordNotationAnswers = [
-  /^eg#bd#$/,
-  /^gbbdf$/,
-  /^dbfab(?:b|cb)$/,
-  /^d#f#ac$/,
-  /^dfabc$/,
-  /^gbbbd(?:fb|e)$/,
-  /^ebgbbbd$/,
+export const correctSeventhChordNotationNotesText: string[] = [
+  "e, g#, b, d#",
+  "g, bb, d, f",
+  "db, f, ab, cb",
+  "d#, f#, a, c",
+  "d, f, ab, c",
+  "gb, bb, d, fb",
+  "eb, gb, bb, d",
 ];
 
 export const correctSeventhChordAnswers = [
   /^(E#)(?:dim7|°7|o7)$/,
   /^(F)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
-  /^(G)(?:-∆|m∆|m∆7|min[Mm]aj7|mi[Mm]aj7|m[Mm]aj7|-maj7|-Maj7)$/,
+  /^(G)(?:-∆|m∆|m∆7|min\(maj7\)|min[Mm]aj7|mi[Mm]aj7|m[Mm]aj7|-maj7|-Maj7|Gmin\(maj7\))$/,
   /^(B7)$/,
   /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
   /^(Ab)(?:-7|min7|mi7|m7)$/,
-  /^(D)(?:\+7|7#5|7\(#5\)|[Aa]ug7|)$/,
+  /^(D)(?:\+7|7\+|7#5|7\(#5\)|[Aa]ug7|)$/,
 ];
 
 export const correctSeventhChordNonRegexAnswers: string[] = [

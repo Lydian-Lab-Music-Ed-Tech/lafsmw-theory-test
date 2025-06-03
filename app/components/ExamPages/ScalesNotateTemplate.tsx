@@ -187,6 +187,11 @@ export default function ScalesNotation({
               <Typography variant="h6">
                 {`Write the following scale: ${scalesText[page - 6]}`}
               </Typography>
+              {page === 6 && (
+                <Typography variant="body1" fontSize={12}>
+                  {`First add note(s), then add the accidental(s)`}
+                </Typography>
+              )}
               <NotateScale
                 initialScaleData={scaleData}
                 onChange={handleSaveOnChange}
