@@ -310,9 +310,13 @@ const NotateScale = ({
         errorMessages
       );
 
-      setScaleDataMatrix([...newScaleDataMatrix]);
-
-      setNotesAndCoordinates([...newNotesAndCoordinates]);
+      // Use a single batch update to prevent race conditions
+      // This ensures the state updates happen together in a single render cycle
+      // which prevents the flashing issue with double accidentals
+      Promise.resolve().then(() => {
+        setScaleDataMatrix([...newScaleDataMatrix]);
+        setNotesAndCoordinates([...newNotesAndCoordinates]);
+      });
 
       // Update the scales display and notify parent via onChange - safely extract just the key strings
       try {

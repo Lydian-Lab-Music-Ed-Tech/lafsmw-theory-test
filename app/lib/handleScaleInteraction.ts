@@ -14,8 +14,6 @@ import {
   errorMessages,
 } from "./types";
 
-const { StaveNote } = Flow;
-
 export const handleScaleInteraction = (
   foundNoteData: NotesAndCoordinatesData,
   notesAndCoordinates: NotesAndCoordinatesData[],
@@ -117,103 +115,98 @@ export const handleScaleInteraction = (
 
         const key = noteToModify.keys[0];
         const keyParts = key.split("/");
-        let noteName = keyParts[0];
+        const noteBase = keyParts[0];
         const octave = keyParts[1];
+        const cleanNoteName = noteBase.replace(/[#b]/g, "");
 
-        const newAccidental = stateCopy.isSharpActive ? "#" : "b";
-
+        // Determine the new key based on the button state
         let newKey;
 
-        // Special handling for B and B-flat:
-        if (noteName.startsWith("b")) {
-          if (noteName === "b") {
-            // This is a B natural, so just add the accidental
-            if (stateCopy.isSharpActive) {
-              newKey = `b${newAccidental}/${octave}`;
-            } else {
-              newKey = `bb/${octave}`;
-            }
-          } else if (noteName === "bb") {
-            // This is already a B-flat, don't replace the first 'b'
-            if (stateCopy.isSharpActive) {
-              // If adding sharp to Bb, we get back to B natural
-              newKey = `b/${octave}`;
-            } else {
-              // If adding another flat, we get Bbb (B double-flat)
-              newKey = `bbb/${octave}`;
-            }
+        // Handle special case for B notes to avoid confusion with flat notation
+        const isB = cleanNoteName === "b";
+
+        // Direct accidental application using length and slice pattern
+        if (stateCopy.isSharpActive) {
+          if (noteBase.length >= 3 && noteBase.slice(-2) === "##") {
+            newKey = noteBase + "/" + octave;
+          } else if (noteBase.length >= 2 && noteBase.slice(-1) === "#") {
+            newKey = `${cleanNoteName}##/${octave}`;
+          } else if (
+            (noteBase.length >= 3 && noteBase.slice(-2) === "bb") ||
+            (noteBase.length >= 2 && noteBase.slice(-1) === "b" && !isB)
+          ) {
+            // If flat or double flat - make it sharp instead
+            newKey = `${cleanNoteName}#/${octave}`;
           } else {
-            // Some other note with 'b' in it (like 'ab')
-            // Remove any existing accidentals and add the new one
-            const cleanNoteName = noteName.replace(/[#b]/g, "");
-            newKey = `${cleanNoteName}${newAccidental}/${octave}`;
+            // Natural - make it sharp
+            newKey = `${cleanNoteName}#/${octave}`;
           }
         } else {
-          // For all other notes, remove any existing accidentals and add the new one
-          const cleanNoteName = noteName.replace(/[#b]/g, "");
-          newKey = `${cleanNoteName}${newAccidental}/${octave}`;
+          // Flat button active
+          if (noteBase.length >= 3 && noteBase.slice(-2) === "bb") {
+            newKey = noteBase + "/" + octave;
+          } else if (
+            noteBase.length >= 2 &&
+            noteBase.slice(-1) === "b" &&
+            !isB
+          ) {
+            // Single flat - make it double flat
+            newKey = `${cleanNoteName}bb/${octave}`;
+          } else if (
+            (noteBase.length >= 3 && noteBase.slice(-2) === "##") ||
+            (noteBase.length >= 2 && noteBase.slice(-1) === "#")
+          ) {
+            // If sharp or double sharp - make it flat instead
+            newKey = `${cleanNoteName}b/${octave}`;
+          } else {
+            // Natural - make it flat
+            newKey = `${cleanNoteName}b/${octave}`;
+          }
         }
 
-        // Create a completely new StaveNote with the accidental
-        const newStaveNote = new Flow.StaveNote({
-          keys: [newKey],
-          duration: noteToModify.duration || "q",
-          clef: chosenClef,
-        });
-
-        const accidentalModifier = new Flow.Accidental(newAccidental);
-        newStaveNote.addModifier(accidentalModifier, 0);
-
-        // Save original position information
-        const exactXPosition = noteToModify.exactX;
-        const userY = noteToModify.userClickY;
-
-        // Create a complete replacement object
-        const updatedNote = {
-          keys: [newKey],
-          duration: noteToModify.duration || "q",
-          staveNote: newStaveNote,
-          exactX: exactXPosition,
-          userClickY: userY,
+        // Update the note in the bar data with the new key
+        freshBarData[targetNoteIndex] = {
+          ...noteToModify, // Preserve other properties like duration, exactX, userClickY
+          keys: [newKey], // The new key with the correct accidental
+          staveNote: null, // StaveNote will be recreated by the rendering function
         };
-
-        // Add the updated note to our array at the SAME index
-        // This preserves the positioning and prevents duplicates
-        freshBarData[targetNoteIndex] = updatedNote;
 
         // Deduplicate notes based on exact positions to remove any overlaps
         // Build a map of positions to notes, keeping only unique positions
         const positionMap = new Map<number, ScaleData>();
-
         for (let i = 0; i < freshBarData.length; i++) {
-          const note = freshBarData[i];
-          if (note && note.exactX !== undefined) {
-            // When two notes have the same position, the later one wins
-            // This ensures our modified note takes precedence if there's a conflict
-            positionMap.set(note.exactX, note);
+          const currentNoteInLoop = freshBarData[i];
+          if (
+            currentNoteInLoop &&
+            typeof currentNoteInLoop.exactX === "number"
+          ) {
+            positionMap.set(currentNoteInLoop.exactX, currentNoteInLoop);
           }
         }
-
         // Convert the map back to an array sorted by x position
-        const uniqueNotes: ScaleData[] = Array.from(positionMap.entries())
-          .sort((a, b) => a[0] - b[0]) // Sort by x position
-          .map((entry) => entry[1]); // Extract just the note data
-
-        // We must update the ENTIRE matrix, not just one bar
-        // This ensures we don't lose state between operations
-        matrixCopy[barIndex] = uniqueNotes;
-
-        // Update coordinates for display
-        const updatedCoords = updateNotesAndCoordsWithAccidental(
-          buttonStates,
-          foundNoteData,
-          notesAndCoordinates
+        const uniqueNotesSorted: ScaleData[] = Array.from(
+          positionMap.values()
+        ).sort(
+          (noteA: ScaleData, noteB: ScaleData) =>
+            (noteA.exactX ?? 0) - (noteB.exactX ?? 0)
         );
 
-        // Return the complete updated state
+        // Update the bar in the matrix copy with the deduplicated and sorted notes
+        matrixCopy[barIndex] = uniqueNotesSorted;
+
+        // Update notesAndCoordinates if necessary
+        let updatedNotesAndCoordinates = notesAndCoordinates;
+        if (progressiveDetectionUsed) {
+          updatedNotesAndCoordinates = updateNotesAndCoordsWithAccidental(
+            buttonStates,
+            foundNoteData,
+            notesAndCoordinates
+          );
+        }
+
         return {
           scaleDataMatrix: matrixCopy,
-          notesAndCoordinates: updatedCoords,
+          notesAndCoordinates: updatedNotesAndCoordinates,
         };
       } catch (error) {
         console.error("Error applying accidental:", error);
@@ -223,9 +216,7 @@ export const handleScaleInteraction = (
       console.log("Failed to find any note to modify");
       return { scaleDataMatrix, notesAndCoordinates };
     }
-  }
-  // Erasing accidentals from existing notes
-  else if (buttonStates.isEraseAccidentalActive && existingNoteFound) {
+  } else if (buttonStates.isEraseAccidentalActive && existingNoteFound) {
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(
       notesAndCoordinates,
       foundNoteData
@@ -240,9 +231,7 @@ export const handleScaleInteraction = (
 
     barOfScaleData[noteIndex] = updatedNoteObject;
     scaleDataMatrix[barIndex] = barOfScaleData;
-  }
-  // Erasing notes
-  else if (buttonStates.isEraseNoteActive && existingNoteFound) {
+  } else if (buttonStates.isEraseNoteActive && existingNoteFound) {
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(
       notesAndCoordinates,
       foundNoteData
@@ -270,8 +259,6 @@ export const handleScaleInteraction = (
     // We're in enter note mode (default) or no mode selected
 
     // Handle note names and ensure correct representation
-    // In VexFlow, lowercase 'b' can mean both the note 'B' and the flat accidental
-    // We need to ensure B natural is represented properly
     let noteKey = foundNoteData.note;
     let keyParts = noteKey.split("/");
     let noteName = keyParts[0];
@@ -286,7 +273,7 @@ export const handleScaleInteraction = (
       foundNoteData.note = noteKey;
     }
 
-    const newStaveNote: StaveNoteType = new StaveNote({
+    const newStaveNote: StaveNoteType = new Flow.StaveNote({
       keys: [noteKey],
       duration: "q",
       clef: chosenClef,
@@ -296,10 +283,10 @@ export const handleScaleInteraction = (
     let newNoteObject = [
       ...barOfScaleData,
       {
-        keys: [noteKey], // Use the possibly modified note key
+        keys: [noteKey],
         duration: "q",
         staveNote: newStaveNote,
-        exactX: userClickX, // Use exactX for positioning
+        exactX: userClickX,
         userClickY,
       },
     ];

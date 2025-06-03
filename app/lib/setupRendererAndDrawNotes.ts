@@ -2,8 +2,6 @@ import { Flow } from "vexflow";
 import createBlankStaves from "./createBlankStaves";
 import { BlankStaves, RenderStavesAndNotesParams } from "./types";
 
-const { Formatter, TickContext, Accidental } = Flow;
-
 export const setupRendererAndDrawNotes = (
   params: RenderStavesAndNotesParams
 ): BlankStaves => {
@@ -60,77 +58,49 @@ export const setupRendererAndDrawNotes = (
       const currentStave = staves[index] || newStaves[index];
 
       barOfNoteObjects.forEach((noteObj) => {
-        // CRITICAL FIX: Enhance accidental detection and rendering
-        // Check if the note has an accidental in its key name - use a more precise pattern
-        const keyName = noteObj.keys?.[0] || "";
+        if (noteObj.keys && noteObj.keys[0] && context) {
+          // Create a new StaveNote instance for each note data object
+          const newStaveNote = new Flow.StaveNote({
+            keys: noteObj.keys,
+            duration: noteObj.duration || "q",
+            clef: chosenClef,
+          });
 
-        // Fix the special case of 'b/4' (B natural) vs 'bb/4' (B flat)
-        // Special handling for B-flat to prevent it from turning back into B natural
-        const isBFlat = keyName.length >= 2 && keyName.startsWith("bb");
+          // Add accidentals based on the note key string, similar to toChordWithVexFlow
+          const noteKey = noteObj.keys[0];
+          const noteBase = noteKey.split("/")[0];
 
-        // Only consider it a sharp if it's actually a sharp
-        const hasSharp = keyName.includes("#");
+          if (noteBase.length === 2 && noteBase.slice(-1) === "#") {
+            newStaveNote.addModifier(new Flow.Accidental("#"), 0);
+          } else if (noteBase.length === 2 && noteBase.slice(-1) === "b") {
+            newStaveNote.addModifier(new Flow.Accidental("b"), 0);
+          } else if (noteBase.length === 3 && noteBase.slice(-2) === "bb") {
+            newStaveNote.addModifier(new Flow.Accidental("bb"), 0);
+          } else if (noteBase.length === 3 && noteBase.slice(-2) === "##") {
+            newStaveNote.addModifier(new Flow.Accidental("##"), 0);
+          }
 
-        const keyPart = keyName.split("/")[0]; // Get just the note name without octave
+          // Assign the newly created and configured StaveNote back to the object
+          noteObj.staveNote = newStaveNote;
 
-        // For flats, we need more careful detection:
-        // A note has a flat if:
-        // - It specifically is B-flat ('bb/4') OR
-        // - It contains 'b' but is not just the note B ('b/4')
-        const hasFlat = isBFlat || (keyPart.includes("b") && keyPart !== "b");
-
-        const hasAccidental = hasSharp || hasFlat;
-
-        if (noteObj.staveNote) {
+          // Set stave and context for the new StaveNote
           noteObj.staveNote.setStave(currentStave);
           noteObj.staveNote.setContext(context);
 
-          // Ensure accidentals are properly added to the staveNote:
-          // We need to re-add accidentals manually if they exist in the key name
-          if (hasAccidental) {
-            let accidentalSymbol = "";
-            if (hasSharp) {
-              accidentalSymbol = "#";
-            } else if (hasFlat) {
-              accidentalSymbol = "b";
-            }
-
-            if (accidentalSymbol) {
-              // Create a new accidental modifier and add it to the staveNote
-              const accidentalModifier = new Accidental(accidentalSymbol);
-
-              // Check if this note already has an accidental (avoid duplicates)
-              const existingAccidentals = noteObj.staveNote.getModifiers();
-              const hasExistingAccidental = existingAccidentals.some(
-                (mod) => mod.getCategory() === "accidentals"
-              );
-
-              if (!hasExistingAccidental) {
-                noteObj.staveNote.addModifier(accidentalModifier, 0);
-              }
-            }
-          }
-
-          // Position and draw the note at the exact click position
-          if (noteObj.exactX) {
-            // Create a separate tick context for each note to prevent them from affecting each other
-            const tickContext = new TickContext();
+          // Position and draw the note
+          if (typeof noteObj.exactX === "number") {
+            const tickContext = new Flow.TickContext();
             tickContext.addTickable(noteObj.staveNote);
-
-            // Prevent the tick context from doing any formatting that might move notes
             tickContext.preFormat();
-            tickContext.setPadding(0); // Set padding to 0 to prevent spacing adjustments
-
-            // Offset correction to align the note with the click position
-            const offsetCorrection = -60;
-
-            // Set the x position of the tick context to the exact stored position with offset correction
+            tickContext.setPadding(0);
+            const offsetCorrection = -60; // This offset might need review or be made more dynamic
             tickContext.setX(noteObj.exactX + offsetCorrection);
-
             noteObj.staveNote.draw();
           } else {
-            // If all else fails, use the formatter for notes without exact positions
-            Formatter.FormatAndDraw(context, currentStave, [noteObj.staveNote]);
+            // Fallback for notes without exact positions (should ideally not happen for user-placed notes)
+            Flow.Formatter.FormatAndDraw(context, currentStave, [
+              noteObj.staveNote,
+            ]);
           }
         }
       });
