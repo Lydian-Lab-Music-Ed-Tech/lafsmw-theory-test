@@ -2,7 +2,12 @@ import {
   removeAccidentalFromNotesAndCoords,
   updateNotesAndCoordsWithAccidental,
 } from "../lib/modifyNotesAndCoordinates";
-import { ButtonStates, GlyphProps, NotesAndCoordinatesData, StaveType } from "./types";
+import {
+  ButtonStates,
+  GlyphProps,
+  NotesAndCoordinatesData,
+  StaveType,
+} from "./types";
 
 // Calculate a quantized x-position for an accidental based on how many accidentals are already present
 const getQuantizedXPosition = (
@@ -12,19 +17,18 @@ const getQuantizedXPosition = (
 ): number => {
   // Start from the left edge of the staff plus some initial padding
   const baseX = stave.getNoteStartX() + 10;
-  
+
   // Calculate position based on the number of existing accidentals
   const accidentalCount = existingGlyphs.length;
-  
+
   // Return the position based on how many accidentals are already there
-  return baseX + (accidentalCount * accidentalSpacing);
+  return baseX + accidentalCount * accidentalSpacing;
 };
 
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
   buttonState: ButtonStates,
   foundNoteData: NotesAndCoordinatesData,
-  xClick: number,
   yClick: number,
   setGlyphState: (newState: React.SetStateAction<GlyphProps[]>) => void,
   glyphState: GlyphProps[],
@@ -42,22 +46,19 @@ export const handleKeySigInteraction = (
       notesAndCoordinates
     );
 
-    // Get the note base for positioning
     const noteBase = foundNoteData.note.charAt(0);
-    
-    // Calculate quantized X position
+
     const quantizedX = getQuantizedXPosition(
       stave,
       glyphState // Pass existing glyphs to determine the next position
     );
-    
-    // Add the new glyph with quantized X position
+
     const newGlyph: GlyphProps = {
       xPosition: quantizedX,
       yPosition: yClick, // Keep the y-position as is - based on where the user clicked
-      glyph: buttonState.isSharpActive ? "accidentalSharp" : "accidentalFlat"
+      glyph: buttonState.isSharpActive ? "accidentalSharp" : "accidentalFlat",
     };
-    
+
     updatedGlyphs.push(newGlyph);
 
     // Update the state with our new glyphs
@@ -75,19 +76,22 @@ export const handleKeySigInteraction = (
     setKeySigState(updatedKeySig);
   } else if (buttonState.isEraseAccidentalActive) {
     // Get the note being erased (using foundNoteData which already has the note)
-    
+
     // Find the accidental type (sharp or flat) from the existing key signature
-    const accidentalType = keySig.find(note => note.charAt(0) === foundNoteData.note.charAt(0))?.includes('#') 
-      ? 'accidentalSharp' 
-      : 'accidentalFlat';
-    
+    const accidentalType = keySig
+      .find((note) => note.charAt(0) === foundNoteData.note.charAt(0))
+      ?.includes("#")
+      ? "accidentalSharp"
+      : "accidentalFlat";
+
     // Remove the glyph associated with this note
-    updatedGlyphs = updatedGlyphs.filter(glyph => {
+    updatedGlyphs = updatedGlyphs.filter((glyph) => {
       // Instead of checking click distance, check if this glyph matches the note being erased
       // We need to find glyphs that are roughly on the same vertical position AND are of the right type
       const isRightAccidentalType = glyph.glyph === accidentalType;
-      const isNearSameVerticalPosition = Math.abs(glyph.yPosition - yClick) < 20;
-      
+      const isNearSameVerticalPosition =
+        Math.abs(glyph.yPosition - yClick) < 20;
+
       // Keep all glyphs except the one we want to erase
       return !(isRightAccidentalType && isNearSameVerticalPosition);
     });
@@ -96,9 +100,10 @@ export const handleKeySigInteraction = (
 
     // Update other state values
     // Create a new array with the note removed to ensure immediate update
-    const updatedKeySig = keySig.filter((note) => note.charAt(0) !== foundNoteData.note.charAt(0));
+    const updatedKeySig = keySig.filter(
+      (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
+    );
 
-    // Set the state with the new array
     setKeySigState(updatedKeySig);
 
     notesAndCoordinates = removeAccidentalFromNotesAndCoords(

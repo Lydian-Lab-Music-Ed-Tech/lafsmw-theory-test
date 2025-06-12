@@ -297,10 +297,8 @@ export const handleScaleInteraction = (
       clef: chosenClef,
     });
 
-    // Calculate quantized X position for the new note
     const quantizedX = getQuantizedNotePosition(stave, barOfScaleData);
 
-    // Store the note with the quantized position
     let newNoteObject = [
       ...barOfScaleData,
       {

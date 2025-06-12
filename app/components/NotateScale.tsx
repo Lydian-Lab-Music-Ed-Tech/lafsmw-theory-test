@@ -133,7 +133,7 @@ const NotateScale = ({
             hoveredStaffElement.height
           );
         } else {
-          // space
+          // otherwise it is a space
           const spaceY = hoveredStaffElement.y; // y is the line above the space
           context.fillRect(
             staveRenderX,
@@ -147,7 +147,6 @@ const NotateScale = ({
     }
   }, [hoveredStaffElement, rendererRef, stavesRef, renderFunctionRef]); // renderFunctionRef dependency needed for redraw
 
-  // Set up click handler
   const { getClickInfo } = useNotationClickHandler({
     containerRef: container,
     staves,
@@ -230,7 +229,7 @@ const NotateScale = ({
 
     // Notify parent of cleared scale data
     if (onChange) {
-      onChange([], []); // Pass empty array instead of nested array
+      onChange([], []);
     }
   };
 

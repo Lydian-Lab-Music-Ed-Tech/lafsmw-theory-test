@@ -216,7 +216,6 @@ const NotateKeySignature = ({
         notesAndCoordinatesCopy,
         buttonStates,
         foundNoteData,
-        userClickX,
         userClickY,
         setGlyphs,
         glyphs,
