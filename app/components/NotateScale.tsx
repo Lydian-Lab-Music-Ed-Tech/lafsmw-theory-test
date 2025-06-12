@@ -46,18 +46,13 @@ const NotateScale = ({
   const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
 
-  // Use the utility function from scaleDataConverters.ts
-
-  // Initialize state after we have access to chosenClef
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
 
-  // Create a ref for staves to pass to useStaffHover
   const stavesRef = useRef<StaveType[]>(staves);
   useEffect(() => {
     stavesRef.current = staves;
   }, [staves]);
 
-  // Use our new renderer hook for VexFlow initialization
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
     null
   );
@@ -74,8 +69,7 @@ const NotateScale = ({
     height: 200,
   });
 
-  // Use the staff hover hook
-  const scaleFactor = 1.5; // Matches useNotationRenderer default
+  const scaleFactor = 1.5;
   const { hoveredStaffElement, mouseMoveHandler, mouseLeaveHandler } =
     useStaffHover({
       containerRef: container,
