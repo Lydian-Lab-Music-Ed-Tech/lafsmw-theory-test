@@ -307,7 +307,8 @@ const NotateScale = ({
         chosenClef,
         setMessage,
         setOpen,
-        errorMessages
+        errorMessages,
+        staves[barIndex] // Pass the stave for quantized positioning
       );
 
       // Use a single batch update to prevent race conditions
