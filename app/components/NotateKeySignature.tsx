@@ -216,12 +216,12 @@ const NotateKeySignature = ({
         notesAndCoordinatesCopy,
         buttonStates,
         foundNoteData,
-        userClickX,
         userClickY,
         setGlyphs,
         glyphs,
         setKeySig,
-        keySig
+        keySig,
+        staves[0] // Pass the stave for quantized positioning
       );
 
     setNotesAndCoordinates(newNotesAndCoordinates);

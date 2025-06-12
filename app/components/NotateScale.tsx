@@ -46,18 +46,13 @@ const NotateScale = ({
   const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
 
-  // Use the utility function from scaleDataConverters.ts
-
-  // Initialize state after we have access to chosenClef
   const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
 
-  // Create a ref for staves to pass to useStaffHover
   const stavesRef = useRef<StaveType[]>(staves);
   useEffect(() => {
     stavesRef.current = staves;
   }, [staves]);
 
-  // Use our new renderer hook for VexFlow initialization
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
     null
   );
@@ -74,8 +69,7 @@ const NotateScale = ({
     height: 200,
   });
 
-  // Use the staff hover hook
-  const scaleFactor = 1.5; // Matches useNotationRenderer default
+  const scaleFactor = 1.5;
   const { hoveredStaffElement, mouseMoveHandler, mouseLeaveHandler } =
     useStaffHover({
       containerRef: container,
@@ -133,7 +127,7 @@ const NotateScale = ({
             hoveredStaffElement.height
           );
         } else {
-          // space
+          // otherwise it is a space
           const spaceY = hoveredStaffElement.y; // y is the line above the space
           context.fillRect(
             staveRenderX,
@@ -147,7 +141,6 @@ const NotateScale = ({
     }
   }, [hoveredStaffElement, rendererRef, stavesRef, renderFunctionRef]); // renderFunctionRef dependency needed for redraw
 
-  // Set up click handler
   const { getClickInfo } = useNotationClickHandler({
     containerRef: container,
     staves,
@@ -230,7 +223,7 @@ const NotateScale = ({
 
     // Notify parent of cleared scale data
     if (onChange) {
-      onChange([], []); // Pass empty array instead of nested array
+      onChange([], []);
     }
   };
 
@@ -307,7 +300,8 @@ const NotateScale = ({
         chosenClef,
         setMessage,
         setOpen,
-        errorMessages
+        errorMessages,
+        staves[barIndex] // Pass the stave for quantized positioning
       );
 
       // Use a single batch update to prevent race conditions

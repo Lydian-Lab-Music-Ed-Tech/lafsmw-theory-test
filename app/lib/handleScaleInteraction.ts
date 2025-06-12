@@ -11,8 +11,25 @@ import {
   NotesAndCoordinatesData,
   ScaleData,
   StaveNoteType,
+  StaveType,
   errorMessages,
 } from "./types";
+
+// Function to calculate a quantized x-position for scale notes
+const getQuantizedNotePosition = (
+  stave: StaveType,
+  existingNotes: ScaleData[],
+  noteSpacing: number = 60
+): number => {
+  // Start from the left edge of the staff plus some initial padding
+  const baseX = stave.getNoteStartX() + 20;
+
+  // Calculate position based on how many notes are already in the scale
+  const noteCount = existingNotes.length;
+
+  // Return the position based on the number of existing notes
+  return baseX + noteCount * noteSpacing;
+};
 
 export const handleScaleInteraction = (
   foundNoteData: NotesAndCoordinatesData,
@@ -32,7 +49,8 @@ export const handleScaleInteraction = (
   chosenClef: string,
   setMessage: (newState: React.SetStateAction<string>) => void,
   setOpen: (newState: React.SetStateAction<boolean>) => void,
-  errorMessages: errorMessages
+  errorMessages: errorMessages,
+  stave: StaveType // Add stave parameter for quantized positioning
 ) => {
   // Create defensive copies to avoid any state mutation issues
   const stateCopy = { ...buttonStates };
@@ -279,15 +297,16 @@ export const handleScaleInteraction = (
       clef: chosenClef,
     });
 
-    // Store the exact click position with the note
+    const quantizedX = getQuantizedNotePosition(stave, barOfScaleData);
+
     let newNoteObject = [
       ...barOfScaleData,
       {
         keys: [noteKey],
         duration: "q",
         staveNote: newStaveNote,
-        exactX: userClickX,
-        userClickY,
+        exactX: quantizedX, // Use the quantized position instead of direct click position
+        userClickY, // Keep the Y position as is - it determines the note pitch
       },
     ];
 

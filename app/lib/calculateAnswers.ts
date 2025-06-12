@@ -116,8 +116,8 @@ export const checkAndFormatArrOfArrsAnswers = (
 
           // Normalize note name for case-insensitive comparison
           // This handles the special B/b case and any other case differences
-          const normalizedUserNote = userNote.toLowerCase();
-          const normalizedCorrectNote = correctNote.toLowerCase();
+          const normalizedUserNote = userNote?.toLowerCase() || "";
+          const normalizedCorrectNote = correctNote?.toLowerCase() || "";
 
           if (normalizedUserNote !== normalizedCorrectNote) {
             isCorrect = false;
