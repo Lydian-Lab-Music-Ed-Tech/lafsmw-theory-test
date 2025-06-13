@@ -84,32 +84,48 @@ export const handleKeySigInteraction = (
       ? "accidentalSharp"
       : "accidentalFlat";
 
-    // Remove the glyph associated with this note
-    updatedGlyphs = updatedGlyphs.filter((glyph) => {
-      // Instead of checking click distance, check if this glyph matches the note being erased
-      // We need to find glyphs that are roughly on the same vertical position AND are of the right type
+    // Find the closest glyph to the click position
+    let closestGlyphIndex = -1;
+    let minDistance = Number.MAX_VALUE;
+    
+    updatedGlyphs.forEach((glyph, index) => {
       const isRightAccidentalType = glyph.glyph === accidentalType;
-      const isNearSameVerticalPosition =
-        Math.abs(glyph.yPosition - yClick) < 20;
-
-      // Keep all glyphs except the one we want to erase
-      return !(isRightAccidentalType && isNearSameVerticalPosition);
+      const isNearSameVerticalPosition = Math.abs(glyph.yPosition - yClick) < 20;
+      
+      if (isRightAccidentalType && isNearSameVerticalPosition) {
+        const distance = Math.abs(glyph.yPosition - yClick);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestGlyphIndex = index;
+        }
+      }
     });
 
-    setGlyphState(updatedGlyphs);
-
-    // Update other state values
-    // Create a new array with the note removed to ensure immediate update
-    const updatedKeySig = keySig.filter(
-      (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
-    );
-
-    setKeySigState(updatedKeySig);
-
-    notesAndCoordinates = removeAccidentalFromNotesAndCoords(
-      notesAndCoordinates,
-      foundNoteData
-    );
+    // Only remove the closest glyph if found
+    if (closestGlyphIndex !== -1) {
+      updatedGlyphs.splice(closestGlyphIndex, 1);
+      setGlyphState(updatedGlyphs);
+      
+      // Only remove the note from keySig if there are no more glyphs of this type and vertical position
+      const remainingGlyphsOfSameNote = updatedGlyphs.filter(glyph => {
+        const isRightAccidentalType = glyph.glyph === accidentalType;
+        const isNearSameVerticalPosition = Math.abs(glyph.yPosition - yClick) < 20;
+        return isRightAccidentalType && isNearSameVerticalPosition;
+      });
+      
+      if (remainingGlyphsOfSameNote.length === 0) {
+        // Only remove from keySig if no more glyphs of this note remain
+        const updatedKeySig = keySig.filter(
+          (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
+        );
+        setKeySigState(updatedKeySig);
+        
+        notesAndCoordinates = removeAccidentalFromNotesAndCoords(
+          notesAndCoordinates,
+          foundNoteData
+        );
+      }
+    }
   }
 
   return {
