@@ -76,44 +76,59 @@ export const handleKeySigInteraction = (
     setKeySigState(updatedKeySig);
   } else if (buttonState.isEraseAccidentalActive) {
     // Get the note being erased (using foundNoteData which already has the note)
+    const noteBase = foundNoteData.note.charAt(0);
 
-    // Find the accidental type (sharp or flat) from the existing key signature
-    const accidentalType = keySig
-      .find((note) => note.charAt(0) === foundNoteData.note.charAt(0))
-      ?.includes("#")
-      ? "accidentalSharp"
-      : "accidentalFlat";
-
-    // Remove the glyph associated with this note
-    updatedGlyphs = updatedGlyphs.filter((glyph) => {
-      // Instead of checking click distance, check if this glyph matches the note being erased
-      // We need to find glyphs that are roughly on the same vertical position AND are of the right type
-      const isRightAccidentalType = glyph.glyph === accidentalType;
-      const isNearSameVerticalPosition =
-        Math.abs(glyph.yPosition - yClick) < 20;
-
-      // Keep all glyphs except the one we want to erase
-      return !(isRightAccidentalType && isNearSameVerticalPosition);
-    });
-
-    setGlyphState(updatedGlyphs);
-
-    // Update other state values
-    // Create a new array with the note removed to ensure immediate update
-    const updatedKeySig = keySig.filter(
-      (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
+    // Find the index of the note in the key signature that we want to remove
+    const noteIndexInKeySig = keySig.findIndex(
+      (note) => note.charAt(0) === noteBase
     );
 
-    setKeySigState(updatedKeySig);
+    // Only proceed if we found the note in the key signature
+    if (noteIndexInKeySig !== -1) {
+      // Remove the glyph at the same index as the note in the key signature
+      // This ensures we remove the correct glyph that corresponds to the note
+      updatedGlyphs = updatedGlyphs.filter(
+        (_, index) => index !== noteIndexInKeySig
+      );
 
-    notesAndCoordinates = removeAccidentalFromNotesAndCoords(
-      notesAndCoordinates,
-      foundNoteData
+      setGlyphState(updatedGlyphs);
+
+      // Update other state values
+      // Create a new array with the note removed to ensure immediate update
+      const updatedKeySig = keySig.filter(
+        (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
+      );
+
+      setKeySigState(updatedKeySig);
+
+      notesAndCoordinates = removeAccidentalFromNotesAndCoords(
+        notesAndCoordinates,
+        foundNoteData
+      );
+    }
+  }
+
+  // Return the updated key signature as well
+  let updatedKeySig = [...keySig];
+
+  if (buttonState.isSharpActive || buttonState.isFlatActive) {
+    const noteBase = foundNoteData.note.charAt(0);
+    const accidental = buttonState.isSharpActive ? "#" : "b";
+    const noteWithAccidental = `${noteBase}${accidental}`;
+
+    // Remove any existing accidental for this note and add the new one
+    updatedKeySig = keySig.filter((note) => note.charAt(0) !== noteBase);
+    updatedKeySig.push(noteWithAccidental);
+  } else if (buttonState.isEraseAccidentalActive) {
+    // Remove the note from the key signature
+    updatedKeySig = keySig.filter(
+      (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
     );
   }
 
   return {
     notesAndCoordinates,
     updatedGlyphs,
+    updatedKeySig,
   };
 };

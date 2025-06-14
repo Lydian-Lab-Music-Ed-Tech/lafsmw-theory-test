@@ -210,19 +210,22 @@ const NotateKeySignature = ({
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-    // This will update glyphs via setGlyphs internally AND return the updated glyphs
-    const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } =
-      handleKeySigInteraction(
-        notesAndCoordinatesCopy,
-        buttonStates,
-        foundNoteData,
-        userClickY,
-        setGlyphs,
-        glyphs,
-        setKeySig,
-        keySig,
-        staves[0] // Pass the stave for quantized positioning
-      );
+    // This will update glyphs via setGlyphs internally AND return the updated glyphs and keySig
+    const {
+      notesAndCoordinates: newNotesAndCoordinates,
+      updatedGlyphs,
+      updatedKeySig,
+    } = handleKeySigInteraction(
+      notesAndCoordinatesCopy,
+      buttonStates,
+      foundNoteData,
+      userClickY,
+      setGlyphs,
+      glyphs,
+      setKeySig,
+      keySig,
+      staves[0] // Pass the stave for quantized positioning
+    );
 
     setNotesAndCoordinates(newNotesAndCoordinates);
 
@@ -236,33 +239,9 @@ const NotateKeySignature = ({
 
     // Call onChange with updated keySig value
     if (onChange) {
-      // If we're adding an accidental, we need to calculate the updated keySig value
-      if (buttonStates.isSharpActive || buttonStates.isFlatActive) {
-        const noteBase = foundNoteData.note.charAt(0);
-        const accidental = buttonStates.isSharpActive ? "#" : "b";
-        const noteWithAccidental = `${noteBase}${accidental}`;
-
-        // Calculate the updated keySig value
-        const updatedKeySig = keySig.filter(
-          (note) => note.charAt(0) !== noteBase
-        );
-        updatedKeySig.push(noteWithAccidental);
-
-        // Call onChange with the calculated value
-        onChange(updatedKeySig, updatedGlyphs);
-      } else if (buttonStates.isEraseAccidentalActive) {
-        // For erasing, we can calculate the updated keySig by removing the note
-        const noteBase = foundNoteData.note.charAt(0);
-        const updatedKeySig = keySig.filter(
-          (note) => note.charAt(0) !== noteBase
-        );
-
-        // Call onChange with the calculated value
-        onChange(updatedKeySig, updatedGlyphs);
-      } else {
-        // For other cases, use the current keySig
-        onChange(keySig, updatedGlyphs);
-      }
+      // Use the updatedKeySig returned from handleKeySigInteraction
+      // This ensures we're using the correct, up-to-date key signature
+      onChange(updatedKeySig, updatedGlyphs);
     }
   };
 
