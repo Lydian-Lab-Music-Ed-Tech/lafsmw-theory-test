@@ -311,7 +311,19 @@ export default function ExamHomePage() {
   const handleFinalSubmit = async (e: MouseEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    updateAnswers();
+    
+    // Wait for updateAnswers to complete before submitting the data
+    // This ensures that all changes (including erased accidentals) are properly processed
+    await updateAnswers();
+    
+    // Log the current state of key signatures for debugging
+    console.log("Final submission key signature data:", {
+      keySignaturesNotation1: currentUserData.keySignaturesNotation1,
+      keySignaturesNotation2: currentUserData.keySignaturesNotation2,
+      keySignaturesNotation3: currentUserData.keySignaturesNotation3,
+      keySignaturesNotation4: currentUserData.keySignaturesNotation4,
+    });
+    
     try {
       if (!userName) {
         throw new Error("No current user found.");

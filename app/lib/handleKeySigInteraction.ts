@@ -103,33 +103,45 @@ export const handleKeySigInteraction = (
 
     // Only remove the closest glyph if found
     if (closestGlyphIndex !== -1) {
+      // Get the note and position of the glyph being removed
+      const glyphToRemove = updatedGlyphs[closestGlyphIndex];
+      
+      // Remove the glyph
       updatedGlyphs.splice(closestGlyphIndex, 1);
       setGlyphState(updatedGlyphs);
       
-      // Only remove the note from keySig if there are no more glyphs of this type and vertical position
-      const remainingGlyphsOfSameNote = updatedGlyphs.filter(glyph => {
-        const isRightAccidentalType = glyph.glyph === accidentalType;
-        const isNearSameVerticalPosition = Math.abs(glyph.yPosition - yClick) < 20;
-        return isRightAccidentalType && isNearSameVerticalPosition;
-      });
+      // Find all notes in the key signature with the same base note
+      const notesWithSameBase = keySig.filter(
+        (note) => note.charAt(0) === foundNoteData.note.charAt(0)
+      );
       
-      if (remainingGlyphsOfSameNote.length === 0) {
-        // Only remove from keySig if no more glyphs of this note remain
-        const updatedKeySig = keySig.filter(
-          (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
-        );
-        setKeySigState(updatedKeySig);
+      if (notesWithSameBase.length > 0) {
+        // If there are accidentals with this base note,
+        // we need to remove just one of them
+        const updatedKeySig = [...keySig];
         
-        notesAndCoordinates = removeAccidentalFromNotesAndCoords(
-          notesAndCoordinates,
-          foundNoteData
+        // Find the index of the first occurrence of this note
+        const indexToRemove = updatedKeySig.findIndex(
+          (note) => note.charAt(0) === foundNoteData.note.charAt(0)
         );
+        
+        if (indexToRemove !== -1) {
+          // Remove just this one occurrence
+          updatedKeySig.splice(indexToRemove, 1);
+          setKeySigState(updatedKeySig);
+        }
       }
+      
+      notesAndCoordinates = removeAccidentalFromNotesAndCoords(
+        notesAndCoordinates,
+        foundNoteData
+      );
     }
   }
 
   return {
     notesAndCoordinates,
     updatedGlyphs,
+    updatedKeySig: keySig, // Return the current key signature state
   };
 };

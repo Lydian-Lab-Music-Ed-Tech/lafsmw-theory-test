@@ -35,8 +35,11 @@ export default function KeySignaturesNotation({
     newKeySigNotes: string[],
     newGlyphs: GlyphProps[]
   ) => {
+    // Update local state immediately with the new data from NotateKeySignature
     setKeySignatureNotation(newKeySigNotes);
     setKeySignatureGlyphs(newGlyphs);
+    
+    // Update parent state immediately - this is critical for the data to be properly saved
     setCurrentUserData({
       ...currentUserData,
       [keySigPropName]: newKeySigNotes,
@@ -46,12 +49,17 @@ export default function KeySignaturesNotation({
 
   const handleSubmit = async (e: MouseEvent) => {
     e.preventDefault();
-    // Simply use the current state values which should now be up-to-date per the NotateKeySignature component
+    
+    console.log("KeySigNotateTemplate - handleSubmit:", keySignatureNotation);
+    
+    // Force a final update to ensure we have the most up-to-date state before navigation
     setCurrentUserData({
       ...currentUserData,
       [keySigPropName]: keySignatureNotation,
       [keySigGlyphPropName]: keySignatureGlyphs,
     });
+    
+    // Proceed to next view
     nextViewState();
   };
 

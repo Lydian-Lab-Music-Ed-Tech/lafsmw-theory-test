@@ -210,8 +210,8 @@ const NotateKeySignature = ({
 
     let notesAndCoordinatesCopy = [...notesAndCoordinates];
 
-    // This will update glyphs via setGlyphs internally AND return the updated glyphs
-    const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs } =
+    // This will update glyphs via setGlyphs internally AND return the updated glyphs and key signature
+    const { notesAndCoordinates: newNotesAndCoordinates, updatedGlyphs, updatedKeySig } =
       handleKeySigInteraction(
         notesAndCoordinatesCopy,
         buttonStates,
@@ -251,9 +251,10 @@ const NotateKeySignature = ({
         // Call onChange with the calculated value
         onChange(updatedKeySig, updatedGlyphs);
       } else if (buttonStates.isEraseAccidentalActive) {
-        // For erasing, we should use the keySig state that was updated in handleKeySigInteraction
+        // For erasing, use the updatedKeySig returned from handleKeySigInteraction
         // This ensures consistency between what's displayed and what's submitted
-        onChange(keySig, updatedGlyphs);
+        console.log("Erasing accidental, updatedKeySig:", updatedKeySig);
+        onChange(updatedKeySig || keySig, updatedGlyphs);
       } else {
         // For other cases, use the current keySig
         onChange(keySig, updatedGlyphs);
