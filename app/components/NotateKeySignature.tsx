@@ -251,14 +251,9 @@ const NotateKeySignature = ({
         // Call onChange with the calculated value
         onChange(updatedKeySig, updatedGlyphs);
       } else if (buttonStates.isEraseAccidentalActive) {
-        // For erasing, we can calculate the updated keySig by removing the note
-        const noteBase = foundNoteData.note.charAt(0);
-        const updatedKeySig = keySig.filter(
-          (note) => note.charAt(0) !== noteBase
-        );
-
-        // Call onChange with the calculated value
-        onChange(updatedKeySig, updatedGlyphs);
+        // For erasing, we should use the keySig state that was updated in handleKeySigInteraction
+        // This ensures consistency between what's displayed and what's submitted
+        onChange(keySig, updatedGlyphs);
       } else {
         // For other cases, use the current keySig
         onChange(keySig, updatedGlyphs);
