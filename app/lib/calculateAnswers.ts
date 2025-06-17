@@ -38,22 +38,14 @@ export const checkAndFormat251Answers = (
 
   const totalQuestions = regexCorrectAnswers.length;
 
-  // Format correct answers as an ordered list
+  // Format correct answers as an ordered list with each progression as a separate item
   let correctAnswersFormatted = "";
-  const correctAnswersArray = nonRegexCorrectAnswers;
   
-  for (let i = 0; i < correctAnswersArray.length; i++) {
-    if (i % 3 === 0) {
-      if (i !== 0) correctAnswersFormatted += "</li>";
-      correctAnswersFormatted += "<li>";
-    }
-    correctAnswersFormatted += correctAnswersArray[i];
-    if (i % 3 !== 2 && i < correctAnswersArray.length - 1)
-      correctAnswersFormatted += ", ";
-  }
-  
-  if (correctAnswersFormatted) {
-    correctAnswersFormatted += "</li>";
+  // Each item in nonRegexCorrectAnswers is already a full progression with 3 chords
+  for (let i = 0; i < nonRegexCorrectAnswers.length; i++) {
+    // Replace spaces with commas and spaces for better readability
+    const formattedProgression = nonRegexCorrectAnswers[i].replace(/ /g, ", ");
+    correctAnswersFormatted += `<li>${formattedProgression}</li>`;
   }
 
   const result = `<b>${score}/${totalQuestions}</b> on the ${questionType} section.
