@@ -7,10 +7,13 @@ import {
 } from "../calculateAnswers";
 
 describe("checkAndFormat251Answers", () => {
-  test("should correctly format student answers and calculate score", () => {
+  test("should correctly format student answers and calculate score with empty test answers", () => {
+    // Test case 1: With only C Major examples in student answers, but empty test answers
     const studentAnswers = ["Cmaj7", "D7", "G7"];
-    const regexCorrectAnswers = [/Cmaj7/, /D7/, /G7/];
-    const nonRegexCorrectAnswers = ["Cmaj7", "D7", "G7"];
+    // In the new structure, regexCorrectAnswers only contains the actual test questions (none in this case)
+    const regexCorrectAnswers: RegExp[] = [];
+    // nonRegexCorrectAnswers also only contains the actual test answers (none in this case)
+    const nonRegexCorrectAnswers: string[] = [];
     const questionType = "251 Chords";
 
     const result = checkAndFormat251Answers(
@@ -20,8 +23,39 @@ describe("checkAndFormat251Answers", () => {
       questionType
     );
 
+    // Should show score as 0/0 since there are no test questions
+    expect(result).toContain("<b>0/0</b>");
+    // Should not contain any answers in the formatted list since there are none
+    expect(result).not.toContain("<li>Cmaj7, D7, G7</li>");
+    expect(result).toContain("<ul>Actual student answers:");
+    // Correct answers should be empty since there are none
+    expect(result).toContain("<ul>Correct answers: </ul>");
+  });
+
+  test("should handle answers with both C Major examples and actual test answers", () => {
+    // Test case with C Major examples (first 3) and additional answers
+    const studentAnswers = ["Cmaj7", "D7", "G7", "Fmaj7", "Bb7", "Ebmaj7"];
+    // In the new structure, regexCorrectAnswers only contains the actual test questions
+    const regexCorrectAnswers = [/Fmaj7/, /Bb7/, /Ebmaj7/];
+    // nonRegexCorrectAnswers also only contains the actual test answers
+    const nonRegexCorrectAnswers = ["Fmaj7", "Bb7", "Ebmaj7"];
+    const questionType = "251 Chords";
+
+    const result = checkAndFormat251Answers(
+      studentAnswers,
+      regexCorrectAnswers,
+      nonRegexCorrectAnswers,
+      questionType
+    );
+
+    // Should show score as 3/3 (3 correct answers)
     expect(result).toContain("<b>3/3</b>");
-    expect(result).toContain("<li>Cmaj7, D7, G7</li>");
+    // Should not contain C Major examples
+    expect(result).not.toContain("<li>Cmaj7, D7, G7");
+    // Should contain the actual test answers
+    expect(result).toContain("<li>Fmaj7, Bb7, Ebmaj7</li>");
+    // Correct answers should only include the actual test answers
+    expect(result).toContain("<ul>Correct answers: Fmaj7, Bb7, Ebmaj7</ul>");
   });
 });
 
@@ -154,13 +188,11 @@ describe("checkAndFormatChordAnswers", () => {
       ["C", "E", "G"],
       ["D", "F", "A"],
     ];
-    const correctAnswers = [/CEG/, /DFA/];
     const correctAnswersText = ["C, E, G", "D, F, A"];
     const questionType = "Chord Answers";
 
     const result = checkAndFormatChordAnswers(
       userAnswers,
-      correctAnswers,
       correctAnswersText,
       questionType
     );
@@ -175,13 +207,11 @@ describe("checkAndFormatChordAnswers", () => {
       ["C", "E", "G"],
       ["D", "F#", "A"],
     ];
-    const correctAnswers = [/CEG/, /DFA/];
     const correctAnswersText = ["C, E, G", "D, F, A"];
     const questionType = "Chord Answers";
 
     const result = checkAndFormatChordAnswers(
       userAnswers,
-      correctAnswers,
       correctAnswersText,
       questionType
     );

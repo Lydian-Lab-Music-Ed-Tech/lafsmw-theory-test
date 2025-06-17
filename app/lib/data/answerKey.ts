@@ -67,12 +67,15 @@ export const correctSeventhChordNonRegexAnswers: string[] = [
   "D+7", // D augmented 7
 ];
 
-export const correctProgressionAnswers = [
-  //1
+// C Major example answers (not counted in student score)
+export const cMajorExampleAnswers = [
   /^(D)(?:-7|min7|mi7|m7)$/,
   /^(G7)$/,
   /^(C)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
-  //2
+];
+
+export const correctProgressionAnswers = [
+  //2 - First actual test question
   /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
   /^(B7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
   /^(E)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
@@ -94,8 +97,11 @@ export const correctProgressionAnswers = [
   /^(Gb)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
 ];
 
+// C Major example answers text (not counted in student score)
+export const cMajorExampleAnswersText = ["D-7 G7 C∆"];
+
+// Actual test answers that are counted in student score
 export const correctProgressionNonRegexAnswers = [
-  "D-7 G7 C∆",
   "F#ø B7 E-7",
   "Eb-7 Ab7 Db∆",
   "D#ø G#7 C#-7",
