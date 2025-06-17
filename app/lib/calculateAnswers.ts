@@ -9,11 +9,7 @@ export const checkAndFormat251Answers = (
   // The nonRegexCorrectAnswers now only contains the actual test answers (no C Major examples)
   let correctAnswers = nonRegexCorrectAnswers.join(", ");
 
-  // Calculate score for all answers in the regexCorrectAnswers array
-  // Note: regexCorrectAnswers should now only contain the actual test questions
   for (let i = 0; i < regexCorrectAnswers.length; i++) {
-    // We need to offset the student answers by 3 to skip the C Major examples
-    // that the student still had to answer but aren't counted in the score
     let chord = studentAnswers[i + 3] || "";
     let isCorrect = regexCorrectAnswers[i].test(chord);
     if (isCorrect) {
@@ -40,9 +36,8 @@ export const checkAndFormat251Answers = (
     formattedAnswers += "</li>";
   }
 
-  // Total questions is now just the length of the regexCorrectAnswers array
   const totalQuestions = regexCorrectAnswers.length;
-  
+
   const result = `<b>${score}/${totalQuestions}</b> on the ${questionType} section.
     <ul>Actual student answers:
       ${formattedAnswers}

@@ -8,7 +8,7 @@ import isCurrentDataFilled from "../lib/isCurrentDataFilled";
 import { ChangeEvent, FormEvent, WriteProps } from "../lib/types";
 import FormInput from "./FormInput";
 import Staff from "./Staff";
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 export default forwardRef(function WriteProgression(
   { width, handleInput, currentData }: WriteProps,
