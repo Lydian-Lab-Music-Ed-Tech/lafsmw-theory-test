@@ -318,6 +318,23 @@ export default function ExamHomePage() {
       }
       await setOrUpdateStudentData(currentUserData);
 
+      // Helper function to capitalize note names in HTML content
+      const capitalizeNoteNames = (htmlContent: string): string => {
+        // This regex matches note names that start with a lowercase letter
+        // followed by optional accidentals (b or #) and optional numbers/symbols
+        return htmlContent.replace(/\b([a-g])([b#]?)(\d*|[^a-zA-Z0-9<>]*)/g, (match, noteLetter, accidental, suffix) => {
+          return noteLetter.toUpperCase() + accidental + suffix;
+        });
+      };
+      
+      // Apply capitalization to the relevant sections
+      const capitalizedKeySigNotation = capitalizeNoteNames(correctedAnswers[1]);
+      const capitalizedScales = capitalizeNoteNames(correctedAnswers[3]);
+      const capitalizedTriads = capitalizeNoteNames(correctedAnswers[4]);
+      const capitalizedSeventhNotation = capitalizeNoteNames(correctedAnswers[5]);
+      const capitalizedSeventhIdentify = capitalizeNoteNames(correctedAnswers[6]);
+      const capitalizedProgressions = capitalizeNoteNames(correctedAnswers[7]);
+      
       // Send email with results using API route
       const response = await fetch("/api/email", {
         method: "POST",
@@ -333,13 +350,13 @@ export default function ExamHomePage() {
           <p>Here are the results for ${userName} (${clef} clef):</p>
           <ul>
             <li>Level:${correctedAnswers[0]}</li>
-            <li>Key Signatures (notate): ${correctedAnswers[1]}</li>
+            <li>Key Signatures (notate): ${capitalizedKeySigNotation}</li>
             <li>Key Signatures (identify): ${correctedAnswers[2]}</li>
-            <li>Scales: ${correctedAnswers[3]}</li>
-            <li>Triads: ${correctedAnswers[4]}</li>
-            <li>Seventh Chords (notate): ${correctedAnswers[5]}</li>
-            <li>Seventh Chords (identify): ${correctedAnswers[6]}</li>
-            <li>2-5-1 Progressions: ${correctedAnswers[7]}</li>
+            <li>Scales: ${capitalizedScales}</li>
+            <li>Triads: ${capitalizedTriads}</li>
+            <li>Seventh Chords (notate): ${capitalizedSeventhNotation}</li>
+            <li>Seventh Chords (identify): ${capitalizedSeventhIdentify}</li>
+            <li>2-5-1 Progressions: ${capitalizedProgressions}</li>
             <li>Link to blues progression pdf: ${correctedAnswers[8]}</li>
           </ul>
 
@@ -701,7 +718,7 @@ export default function ExamHomePage() {
             </Stack>
           </Box>
         )}
-        {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
+        {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Stack spacing={4}>
               <Button onClick={incrementViewState}>
@@ -719,7 +736,7 @@ export default function ExamHomePage() {
                 <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
-          )}
+          )} */}
       </Stack>
     </Box>
   );
