@@ -69,9 +69,9 @@ export const correctSeventhChordNonRegexAnswers: string[] = [
 
 export const correctProgressionAnswers = [
   //2 - First actual test question
-  /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
-  /^(B7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
-  /^(E)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
+  /^(E#)(?:-7|min7|mi7|m7)$/,
+  /^(A#7)$/,
+  /^(D#)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
   //3
   /^(Eb)(?:-7|min7|mi7|m7)$/,
   /^(Ab7)$/,
@@ -81,9 +81,9 @@ export const correctProgressionAnswers = [
   /^(G#7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
   /^(C#)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
   //5
-  /^(E#)(?:-7|min7|mi7|m7)$/,
-  /^(A#7)$/,
-  /^(D#)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
+  /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
+  /^(B7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
+  /^(E)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
   //6
   /^(Ab)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
   /^(Db7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
@@ -92,9 +92,9 @@ export const correctProgressionAnswers = [
 
 // Actual test answers that are counted in student score (not including C Major examples)
 export const correctProgressionNonRegexAnswers = [
-  "F#ø B7 E-7",
+  "E#-7 A#7 D#∆",
   "Eb-7 Ab7 Db∆",
   "D#ø G#7 C#-7",
-  "E#-7 A#7 D#∆",
+  "F#ø B7 E-7",
   "Abø Db7 Gb-7",
 ];
