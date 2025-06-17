@@ -13,7 +13,7 @@ export const keySigNotationInstructions = [
   },
   {
     instructionTitle: "Start over or continue:",
-    instructionText: `You can erase the measure and start over by selecting the “Clear Key” button. When finished, click "Save and Continue".`,
+    instructionText: `You can erase the measure and start over by selecting the “Clear Key” button. When finished, click "Continue".`,
   },
 ];
 
@@ -28,7 +28,7 @@ export const scalesNotationInstructions = [
   },
   {
     instructionTitle: "Start over or continue:",
-    instructionText: `You can erase the measure and start over by selecting the “Clear All” button. When finished, click "Save and Continue".`,
+    instructionText: `You can erase the measure and start over by selecting the “Clear All” button. When finished, click "Continue".`,
   },
 ];
 
@@ -43,7 +43,7 @@ export const chordsNotationInstructions = [
   },
   {
     instructionTitle: "Start over or continue:",
-    instructionText: `You can erase the measure and start over by selecting the “Clear All" button. When finished, click "Save and Continue".`,
+    instructionText: `You can erase the measure and start over by selecting the “Clear All" button. When finished, click "Continue".`,
   },
 ];
 
@@ -54,7 +54,7 @@ export const keySigInputInstructions = [
   },
   {
     instructionTitle: "Submit:",
-    instructionText: `When finished, click the "Save and Continue" button to move on to the next question.`,
+    instructionText: `When finished, click the "Continue" button to move on to the next question.`,
   },
   {
     instructionTitle: "Allowed to return to this page:",
