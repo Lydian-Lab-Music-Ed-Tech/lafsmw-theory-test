@@ -6,8 +6,6 @@ export const checkAndFormat251Answers = (
 ): string => {
   let score = 0;
   let formattedAnswers = "";
-  // The nonRegexCorrectAnswers now only contains the actual test answers (no C Major examples)
-  let correctAnswers = nonRegexCorrectAnswers.join(", ");
 
   for (let i = 0; i < regexCorrectAnswers.length; i++) {
     let chord = studentAnswers[i + 3] || "";
@@ -38,11 +36,23 @@ export const checkAndFormat251Answers = (
 
   const totalQuestions = regexCorrectAnswers.length;
 
+  // Format correct answers as an ordered list with each progression as a separate item
+  let correctAnswersFormatted = "";
+
+  // Each item in nonRegexCorrectAnswers is already a full progression with 3 chords
+  for (let i = 0; i < nonRegexCorrectAnswers.length; i++) {
+    // Replace spaces with commas and spaces for better readability
+    const formattedProgression = nonRegexCorrectAnswers[i].replace(/ /g, ", ");
+    correctAnswersFormatted += `<li>${formattedProgression}</li>`;
+  }
+
   const result = `<b>${score}/${totalQuestions}</b> on the ${questionType} section.
-    <ul>Actual student answers:
+    <ol>Actual student answers:
       ${formattedAnswers}
-    </ul>
-    <ul>Correct answers: ${correctAnswers}</ul>`;
+    </ol>
+    <ol>Correct answers:
+      ${correctAnswersFormatted}
+    </ol>`;
 
   return result;
 };
@@ -54,7 +64,6 @@ export const checkAndFormatKeySigIdentifyAnswers = (
 ): string => {
   let score = 0;
   let answersHTML = "";
-  let keySigTextString = correctAnswers.join(", ");
 
   for (let i = 0; i < correctAnswers.length; i++) {
     let studentAnswer = answers[i] || "";
@@ -71,9 +80,15 @@ export const checkAndFormatKeySigIdentifyAnswers = (
     }
   }
 
+  // Format correct answers as an ordered list
+  let correctAnswersFormatted = "";
+  for (let i = 0; i < correctAnswers.length; i++) {
+    correctAnswersFormatted += `<li>${correctAnswers[i]}</li>`;
+  }
+
   const result = `<b>${score}/${correctAnswers.length}</b> on the ${questionType} section.
     <ol>Actual student answers: ${answersHTML}</ol>
-    <ul>Correct answers: ${keySigTextString}</ul>`;
+    <ol>Correct answers: ${correctAnswersFormatted}</ol>`;
 
   return result;
 };
@@ -86,7 +101,6 @@ export const checkAndFormatChordIdentifyAnswers = (
 ): string => {
   let score = 0;
   let studentAnswersHTML = "";
-  let correctAnswers = nonRegexCorrectAnswers.join(", ");
 
   for (let i = 0; i < regexCorrectAnswers.length; i++) {
     let chord = studentAnswers[i] || "";
@@ -102,9 +116,15 @@ export const checkAndFormatChordIdentifyAnswers = (
     }
   }
 
+  // Format correct answers as an ordered list
+  let correctAnswersFormatted = "";
+  for (let i = 0; i < nonRegexCorrectAnswers.length; i++) {
+    correctAnswersFormatted += `<li>${nonRegexCorrectAnswers[i]}</li>`;
+  }
+
   const result = `<b>${score}/${regexCorrectAnswers.length}</b> on the ${questionType} section.
     <ol>Actual student answers:${studentAnswersHTML}</ol>
-    <ul>Correct answers: ${correctAnswers}</ul>`;
+    <ol>Correct answers: ${correctAnswersFormatted}</ol>`;
 
   return result;
 };
