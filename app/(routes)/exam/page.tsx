@@ -129,7 +129,6 @@ export default function ExamHomePage() {
       currentUserData.keySignaturesNotation3,
       currentUserData.keySignaturesNotation4,
     ];
-
     const userKeySigAnswers = convertObjectToArray(
       currentUserData.keySignatures
     );
@@ -159,7 +158,6 @@ export default function ExamHomePage() {
       currentUserData.seventhChordsData7?.keys || [],
     ];
     const userChordAnswers = convertObjectToArray(currentUserData.chords);
-
     const userProgressionAnswers = convertObjectToArray(
       currentUserData.progressions
     );
@@ -179,13 +177,11 @@ export default function ExamHomePage() {
       correctScalesAnswers,
       "Scales"
     );
-
     let triadsAnswers = checkAndFormatChordAnswers(
       userTriads,
       correctTriadNotes,
       "Triads"
     );
-
     let seventhNotationAnswers = checkAndFormatChordAnswers(
       userSeventhChordAnswers,
       correctSeventhChordNotationNotesText,
@@ -221,7 +217,7 @@ export default function ExamHomePage() {
     updateAnswers();
   }, [updateAnswers, currentUserData]);
 
-  // Auto-save data every 30 seconds during the exam
+  // Auto-save data every 60 seconds during the exam
   useEffect(() => {
     if (viewState > VIEW_STATES.START_TEST && userName) {
       const autoSaveInterval = setInterval(async () => {
@@ -230,7 +226,7 @@ export default function ExamHomePage() {
         } catch (error) {
           console.error("[Auto-save] Failed to save student data:", error);
         }
-      }, 60000); // Save every minute
+      }, 60000);
       return () => clearInterval(autoSaveInterval);
     }
   }, [viewState, userName, currentUserData]);
@@ -322,19 +318,28 @@ export default function ExamHomePage() {
       const capitalizeNoteNames = (htmlContent: string): string => {
         // This regex matches note names that start with a lowercase letter
         // followed by optional accidentals (b or #) and optional numbers/symbols
-        return htmlContent.replace(/\b([a-g])([b#]?)(\d*|[^a-zA-Z0-9<>]*)/g, (match, noteLetter, accidental, suffix) => {
-          return noteLetter.toUpperCase() + accidental + suffix;
-        });
+        return htmlContent.replace(
+          /\b([a-g])([b#]?)(\d*|[^a-zA-Z0-9<>]*)/g,
+          (match, noteLetter, accidental, suffix) => {
+            return noteLetter.toUpperCase() + accidental + suffix;
+          }
+        );
       };
-      
+
       // Apply capitalization to the relevant sections
-      const capitalizedKeySigNotation = capitalizeNoteNames(correctedAnswers[1]);
+      const capitalizedKeySigNotation = capitalizeNoteNames(
+        correctedAnswers[1]
+      );
       const capitalizedScales = capitalizeNoteNames(correctedAnswers[3]);
       const capitalizedTriads = capitalizeNoteNames(correctedAnswers[4]);
-      const capitalizedSeventhNotation = capitalizeNoteNames(correctedAnswers[5]);
-      const capitalizedSeventhIdentify = capitalizeNoteNames(correctedAnswers[6]);
+      const capitalizedSeventhNotation = capitalizeNoteNames(
+        correctedAnswers[5]
+      );
+      const capitalizedSeventhIdentify = capitalizeNoteNames(
+        correctedAnswers[6]
+      );
       const capitalizedProgressions = capitalizeNoteNames(correctedAnswers[7]);
-      
+
       // Send email with results using API route
       const response = await fetch("/api/email", {
         method: "POST",
@@ -349,7 +354,7 @@ export default function ExamHomePage() {
 
           <p>Here are the results for ${userName} (${clef} clef):</p>
           <ul>
-            <li>Level:${correctedAnswers[0]}</li>
+            <li>Level: ${correctedAnswers[0]}</li>
             <li>Key Signatures (notate): ${capitalizedKeySigNotation}</li>
             <li>Key Signatures (identify): ${correctedAnswers[2]}</li>
             <li>Scales: ${capitalizedScales}</li>

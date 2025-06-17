@@ -38,11 +38,31 @@ export const checkAndFormat251Answers = (
 
   const totalQuestions = regexCorrectAnswers.length;
 
+  // Format correct answers as an ordered list
+  let correctAnswersFormatted = "";
+  const correctAnswersArray = nonRegexCorrectAnswers;
+  
+  for (let i = 0; i < correctAnswersArray.length; i++) {
+    if (i % 3 === 0) {
+      if (i !== 0) correctAnswersFormatted += "</li>";
+      correctAnswersFormatted += "<li>";
+    }
+    correctAnswersFormatted += correctAnswersArray[i];
+    if (i % 3 !== 2 && i < correctAnswersArray.length - 1)
+      correctAnswersFormatted += ", ";
+  }
+  
+  if (correctAnswersFormatted) {
+    correctAnswersFormatted += "</li>";
+  }
+
   const result = `<b>${score}/${totalQuestions}</b> on the ${questionType} section.
-    <ul>Actual student answers:
+    <ol>Actual student answers:
       ${formattedAnswers}
-    </ul>
-    <ul>Correct answers: ${correctAnswers}</ul>`;
+    </ol>
+    <ol>Correct answers:
+      ${correctAnswersFormatted}
+    </ol>`;
 
   return result;
 };
@@ -71,9 +91,15 @@ export const checkAndFormatKeySigIdentifyAnswers = (
     }
   }
 
+  // Format correct answers as an ordered list
+  let correctAnswersFormatted = "";
+  for (let i = 0; i < correctAnswers.length; i++) {
+    correctAnswersFormatted += `<li>${correctAnswers[i]}</li>`;
+  }
+
   const result = `<b>${score}/${correctAnswers.length}</b> on the ${questionType} section.
     <ol>Actual student answers: ${answersHTML}</ol>
-    <ul>Correct answers: ${keySigTextString}</ul>`;
+    <ol>Correct answers: ${correctAnswersFormatted}</ol>`;
 
   return result;
 };
@@ -102,9 +128,15 @@ export const checkAndFormatChordIdentifyAnswers = (
     }
   }
 
+  // Format correct answers as an ordered list
+  let correctAnswersFormatted = "";
+  for (let i = 0; i < nonRegexCorrectAnswers.length; i++) {
+    correctAnswersFormatted += `<li>${nonRegexCorrectAnswers[i]}</li>`;
+  }
+
   const result = `<b>${score}/${regexCorrectAnswers.length}</b> on the ${questionType} section.
     <ol>Actual student answers:${studentAnswersHTML}</ol>
-    <ul>Correct answers: ${correctAnswers}</ul>`;
+    <ol>Correct answers: ${correctAnswersFormatted}</ol>`;
 
   return result;
 };
