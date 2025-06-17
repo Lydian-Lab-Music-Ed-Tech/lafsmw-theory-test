@@ -26,10 +26,10 @@ import {
   correctProgressionAnswers,
   correctProgressionNonRegexAnswers,
   correctScalesAnswers,
-  correctTriadNotes,
-  correctSeventhChordNotationNotesText,
   correctSeventhChordAnswers,
   correctSeventhChordNonRegexAnswers,
+  correctSeventhChordNotationNotesText,
+  correctTriadNotes,
 } from "@/app/lib/data/answerKey";
 import { initialFormInputState } from "@/app/lib/initialStates";
 import { InputState, Level, MouseEvent } from "@/app/lib/types";
@@ -330,6 +330,9 @@ export default function ExamHomePage() {
       const capitalizedKeySigNotation = capitalizeNoteNames(
         correctedAnswers[1]
       );
+      const capitalizedKeySigIdentify = capitalizeNoteNames(
+        correctedAnswers[2]
+      );
       const capitalizedScales = capitalizeNoteNames(correctedAnswers[3]);
       const capitalizedTriads = capitalizeNoteNames(correctedAnswers[4]);
       const capitalizedSeventhNotation = capitalizeNoteNames(
@@ -356,7 +359,7 @@ export default function ExamHomePage() {
           <ul>
             <li>Level: ${correctedAnswers[0]}</li>
             <li>Key Signatures (notate): ${capitalizedKeySigNotation}</li>
-            <li>Key Signatures (identify): ${correctedAnswers[2]}</li>
+            <li>Key Signatures (identify): ${capitalizedKeySigIdentify}</li>
             <li>Scales: ${capitalizedScales}</li>
             <li>Triads: ${capitalizedTriads}</li>
             <li>Seventh Chords (notate): ${capitalizedSeventhNotation}</li>
@@ -723,7 +726,7 @@ export default function ExamHomePage() {
             </Stack>
           </Box>
         )}
-        {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
+        {/* {viewState !== VIEW_STATES.SUBMIT_AND_EXIT &&
           viewState !== VIEW_STATES.START_TEST && (
             <Stack spacing={4}>
               <Button onClick={incrementViewState}>
@@ -741,7 +744,7 @@ export default function ExamHomePage() {
                 <Typography>{"Print Data"}</Typography>
               </Button>
             </Stack>
-          )}
+          )} */}
       </Stack>
     </Box>
   );

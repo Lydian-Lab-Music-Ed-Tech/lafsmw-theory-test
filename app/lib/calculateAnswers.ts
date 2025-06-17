@@ -6,8 +6,6 @@ export const checkAndFormat251Answers = (
 ): string => {
   let score = 0;
   let formattedAnswers = "";
-  // The nonRegexCorrectAnswers now only contains the actual test answers (no C Major examples)
-  let correctAnswers = nonRegexCorrectAnswers.join(", ");
 
   for (let i = 0; i < regexCorrectAnswers.length; i++) {
     let chord = studentAnswers[i + 3] || "";
@@ -40,7 +38,7 @@ export const checkAndFormat251Answers = (
 
   // Format correct answers as an ordered list with each progression as a separate item
   let correctAnswersFormatted = "";
-  
+
   // Each item in nonRegexCorrectAnswers is already a full progression with 3 chords
   for (let i = 0; i < nonRegexCorrectAnswers.length; i++) {
     // Replace spaces with commas and spaces for better readability
@@ -66,7 +64,6 @@ export const checkAndFormatKeySigIdentifyAnswers = (
 ): string => {
   let score = 0;
   let answersHTML = "";
-  let keySigTextString = correctAnswers.join(", ");
 
   for (let i = 0; i < correctAnswers.length; i++) {
     let studentAnswer = answers[i] || "";
@@ -104,7 +101,6 @@ export const checkAndFormatChordIdentifyAnswers = (
 ): string => {
   let score = 0;
   let studentAnswersHTML = "";
-  let correctAnswers = nonRegexCorrectAnswers.join(", ");
 
   for (let i = 0; i < regexCorrectAnswers.length; i++) {
     let chord = studentAnswers[i] || "";
