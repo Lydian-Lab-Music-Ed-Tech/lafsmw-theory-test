@@ -6,25 +6,39 @@ export const checkAndFormat251Answers = (
 ): string => {
   let score = 0;
   let formattedAnswers = "";
+  // The nonRegexCorrectAnswers now only contains the actual test answers (no C Major examples)
   let correctAnswers = nonRegexCorrectAnswers.join(", ");
 
   for (let i = 0; i < regexCorrectAnswers.length; i++) {
-    let chord = studentAnswers[i] || "";
+    let chord = studentAnswers[i + 3] || "";
     let isCorrect = regexCorrectAnswers[i].test(chord);
     if (isCorrect) {
       score++;
     }
+  }
+
+  // Format answers (all answers are actual test answers now, no need to skip)
+  for (let i = 0; i < regexCorrectAnswers.length; i++) {
+    // We need to offset the student answers by 3 to skip the C Major examples
+    let chord = studentAnswers[i + 3] || "";
+    let isCorrect = regexCorrectAnswers[i].test(chord);
+
     if (i % 3 === 0) {
       if (i !== 0) formattedAnswers += "</li>";
       formattedAnswers += "<li>";
     }
     formattedAnswers += isCorrect ? chord : `<b>${chord || "(No answer)"}</b>`;
-    if (i % 3 !== 2) formattedAnswers += ", ";
+    if (i % 3 !== 2 && i < regexCorrectAnswers.length - 1)
+      formattedAnswers += ", ";
   }
 
-  formattedAnswers += "</li>";
+  if (formattedAnswers) {
+    formattedAnswers += "</li>";
+  }
 
-  const result = `<b>${score}/${regexCorrectAnswers.length}</b> on the ${questionType} section.
+  const totalQuestions = regexCorrectAnswers.length;
+
+  const result = `<b>${score}/${totalQuestions}</b> on the ${questionType} section.
     <ul>Actual student answers:
       ${formattedAnswers}
     </ul>

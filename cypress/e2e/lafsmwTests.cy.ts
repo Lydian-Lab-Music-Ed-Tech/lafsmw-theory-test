@@ -33,7 +33,7 @@ describe("Authenticated tests", () => {
     cy.get('[data-testid="card-footer"]')
       .should("exist")
       .within(() => {
-        cy.get("button").should("contain.text", "Save and Continue >");
+        cy.get("button").should("contain.text", "Continue >");
         cy.get("p").should("contain.text", "Page: 1/27");
       });
 
@@ -42,10 +42,10 @@ describe("Authenticated tests", () => {
       .and("have.attr", "aria-valuenow", "3");
 
     // Perform an action to update the progress bar:
-    // Click the "Save and Continue >" button to go to the next page
+    // Click the "Continue >" button to go to the next page
     cy.get('[data-testid="card-footer"]')
       .find("button")
-      .contains("Save and Continue >")
+      .contains("Continue >")
       .click();
 
     // Verify the progress bar has updated
