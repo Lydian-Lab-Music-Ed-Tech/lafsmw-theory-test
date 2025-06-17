@@ -48,13 +48,13 @@ export const correctSeventhChordNotationNotesText: string[] = [
 ];
 
 export const correctSeventhChordAnswers = [
-  /^(E#)(?:dim7|°7|o7)$/,
-  /^(F)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
-  /^(G)(?:-∆|m∆|m∆7|min\(maj7\)|min[Mm]aj7|mi[Mm]aj7|m[Mm]aj7|-maj7|-Maj7|Gmin\(maj7\))$/,
-  /^(B7)$/,
-  /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
-  /^(Ab)(?:-7|min7|mi7|m7)$/,
-  /^(D)(?:\+7|7\+|7#5|7\(#5\)|[Aa]ug7|)$/,
+  /^([Ee]#)(?:dim7|°7|o7)$/i,
+  /^([Ff])(?:∆|∆7|[Mm]aj7|[Mm]a7)$/i,
+  /^([Gg])(?:-∆|m∆|m∆7|min\(maj7\)|min[Mm]aj7|mi[Mm]aj7|m[Mm]aj7|-maj7|-Maj7|Gmin\(maj7\))$/i,
+  /^([Bb]7)$/i,
+  /^([Ff]#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/i,
+  /^([Aa]b)(?:-7|min7|mi7|m7)$/i,
+  /^([Dd])(?:\+7|7\+|7#5|7\(#5\)|[Aa]ug7|)$/i,
 ];
 
 export const correctSeventhChordNonRegexAnswers: string[] = [
@@ -69,25 +69,25 @@ export const correctSeventhChordNonRegexAnswers: string[] = [
 
 export const correctProgressionAnswers = [
   //2 - First actual test question
-  /^(E#)(?:-7|min7|mi7|m7)$/,
-  /^(A#7)$/,
-  /^(D#)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
+  /^([Ee]#)(?:-7|min7|mi7|m7)$/i,
+  /^([Aa]#7)$/i,
+  /^([Dd]#)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/i,
   //3
-  /^(Eb)(?:-7|min7|mi7|m7)$/,
-  /^(Ab7)$/,
-  /^(Db)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/,
+  /^([Ee]b)(?:-7|min7|mi7|m7)$/i,
+  /^([Aa]b7)$/i,
+  /^([Dd]b)(?:∆|∆7|[Mm]aj7|[Mm]a7)$/i,
   //4
-  /^(D#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
-  /^(G#7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
-  /^(C#)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
+  /^([Dd]#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/i,
+  /^([Gg]#7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/i,
+  /^([Cc]#)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/i,
   //5
-  /^(F#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
-  /^(B7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
-  /^(E)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
+  /^([Ff]#)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/i,
+  /^([Bb]7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/i,
+  /^([Ee])(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/i,
   //6
-  /^(Ab)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/,
-  /^(Db7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/,
-  /^(Gb)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/,
+  /^([Aa]b)(?:ø|ø7|-7b5|m7b5|min7b5|mi7b5)$/i,
+  /^([Dd]b7)(?:\(?b9\)?|\(?#9b9\)?|\(?b9#9\)?|\(?b13\)?|\(?alt\)?|\(?b13b9\)?|\(?b9b13\)?|\(?b13#9b9\)?||\(?b13b9#9\)?|\(?#9b9b13\)?|\(?b9#9b13\)?|\(?#9b13\)?)$/i,
+  /^([Gg]b)(?:-7|min7|mi7|m7|m6|mi6|min6|-6)$/i,
 ];
 
 // Actual test answers that are counted in student score (not including C Major examples)
