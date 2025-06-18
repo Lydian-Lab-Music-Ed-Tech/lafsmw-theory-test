@@ -9,6 +9,10 @@ import {
   StaveType,
 } from "./types";
 
+// Correct order of accidentals in key signatures
+const SHARP_ORDER = ["F#", "C#", "G#", "D#", "A#", "E#", "B#"];
+const FLAT_ORDER = ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"];
+
 // Calculate a quantized x-position for an accidental based on how many accidentals are already present
 const getQuantizedXPosition = (
   stave: StaveType,
@@ -25,6 +29,13 @@ const getQuantizedXPosition = (
   return baseX + accidentalCount * accidentalSpacing;
 };
 
+// Helper function to get the correct position of a note in the key signature order
+const getAccidentalIndex = (note: string, isSharp: boolean): number => {
+  const order = isSharp ? SHARP_ORDER : FLAT_ORDER;
+  const noteName = note.length > 1 ? note.slice(0, 2) : note + (isSharp ? '#' : 'b');
+  return order.findIndex(n => n === noteName);
+};
+
 export const handleKeySigInteraction = (
   notesAndCoordinates: NotesAndCoordinatesData[],
   buttonState: ButtonStates,
@@ -34,95 +45,91 @@ export const handleKeySigInteraction = (
   glyphState: GlyphProps[],
   setKeySigState: (newState: React.SetStateAction<string[]>) => void,
   keySig: string[],
-  stave: StaveType // Add stave parameter to calculate quantized positions
+  stave: StaveType
 ) => {
-  // Create a copy of the current glyphState that we'll modify and return
   let updatedGlyphs = [...glyphState];
+  let updatedKeySig = [...keySig];
+  const noteBase = foundNoteData.note.charAt(0);
+  const isSharp = buttonState.isSharpActive;
+  const isFlat = buttonState.isFlatActive;
+  const isErase = buttonState.isEraseAccidentalActive;
 
-  if (buttonState.isSharpActive || buttonState.isFlatActive) {
+  if (isSharp || isFlat) {
+    // Update notes and coordinates with the new accidental
     notesAndCoordinates = updateNotesAndCoordsWithAccidental(
       buttonState,
       foundNoteData,
       notesAndCoordinates
     );
 
-    const noteBase = foundNoteData.note.charAt(0);
+    // Remove any existing accidental for this note
+    updatedKeySig = keySig.filter(note => note.charAt(0) !== noteBase);
+    updatedGlyphs = updatedGlyphs.filter(glyph => {
+      const glyphNote = notesAndCoordinates.find(n => n.yCoordinateMin === glyph.yPosition)?.note;
+      return !glyphNote || glyphNote.charAt(0) !== noteBase;
+    });
 
-    const quantizedX = getQuantizedXPosition(
-      stave,
-      glyphState // Pass existing glyphs to determine the next position
-    );
+    // Add the new accidental
+    const accidental = isSharp ? '#' : 'b';
+    const noteWithAccidental = `${noteBase}${accidental}`;
+    updatedKeySig.push(noteWithAccidental);
 
-    const newGlyph: GlyphProps = {
-      xPosition: quantizedX,
-      yPosition: yClick, // Keep the y-position as is - based on where the user clicked
-      glyph: buttonState.isSharpActive ? "accidentalSharp" : "accidentalFlat",
-    };
+    // Sort the key signature according to the correct order
+    const order = isSharp ? SHARP_ORDER : FLAT_ORDER;
+    updatedKeySig.sort((a, b) => {
+      const aIndex = order.findIndex(n => n.startsWith(a[0]));
+      const bIndex = order.findIndex(n => n.startsWith(b[0]));
+      return aIndex - bIndex;
+    });
 
-    updatedGlyphs.push(newGlyph);
+    // Rebuild the glyphs array in the correct order
+    const newGlyphs: GlyphProps[] = [];
+    updatedKeySig.forEach((note, index) => {
+      const noteBase = note.charAt(0);
+      const noteData = notesAndCoordinates.find(n => n.note.startsWith(noteBase));
+      if (noteData) {
+        const xPos = stave.getNoteStartX() + 10 + index * 15; // 15px spacing between accidentals
+        newGlyphs.push({
+          xPosition: xPos,
+          yPosition: noteData.yCoordinateMin,
+          glyph: note.endsWith('#') ? 'accidentalSharp' : 'accidentalFlat'
+        });
+      }
+    });
 
-    // Update the state with our new glyphs
+    updatedGlyphs = newGlyphs;
     setGlyphState(updatedGlyphs);
-
-    const accidental = buttonState.isSharpActive ? "#" : "b";
-    const noteWithAccidental = `${noteBase}${accidental}`;
-
-    // Update the key signature array with the new note
-    // Create a new array with the updated key signature to ensure immediate update
-    const updatedKeySig = keySig.filter((note) => note.charAt(0) !== noteBase);
-    updatedKeySig.push(noteWithAccidental);
-
-    // Set the state with the new array
     setKeySigState(updatedKeySig);
-  } else if (buttonState.isEraseAccidentalActive) {
-    // Get the note being erased (using foundNoteData which already has the note)
-    const noteBase = foundNoteData.note.charAt(0);
+  } else if (isErase) {
+    // Handle erasing an accidental
+    updatedKeySig = keySig.filter(note => note.charAt(0) !== noteBase);
+    updatedGlyphs = updatedGlyphs.filter(glyph => {
+      const glyphNote = notesAndCoordinates.find(n => n.yCoordinateMin === glyph.yPosition)?.note;
+      return !glyphNote || glyphNote.charAt(0) !== noteBase;
+    });
 
-    // Find the index of the note in the key signature that we want to remove
-    const noteIndexInKeySig = keySig.findIndex(
-      (note) => note.charAt(0) === noteBase
-    );
+    // Rebuild the remaining glyphs with correct x-positions
+    const newGlyphs: GlyphProps[] = [];
+    updatedKeySig.forEach((note, index) => {
+      const noteBase = note.charAt(0);
+      const noteData = notesAndCoordinates.find(n => n.note.startsWith(noteBase));
+      if (noteData) {
+        const xPos = stave.getNoteStartX() + 10 + index * 15;
+        newGlyphs.push({
+          xPosition: xPos,
+          yPosition: noteData.yCoordinateMin,
+          glyph: note.endsWith('#') ? 'accidentalSharp' : 'accidentalFlat'
+        });
+      }
+    });
 
-    // Only proceed if we found the note in the key signature
-    if (noteIndexInKeySig !== -1) {
-      // Remove the glyph at the same index as the note in the key signature
-      // This ensures we remove the correct glyph that corresponds to the note
-      updatedGlyphs = updatedGlyphs.filter(
-        (_, index) => index !== noteIndexInKeySig
-      );
-
-      setGlyphState(updatedGlyphs);
-
-      // Update other state values
-      // Create a new array with the note removed to ensure immediate update
-      const updatedKeySig = keySig.filter(
-        (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
-      );
-
-      setKeySigState(updatedKeySig);
-
-      notesAndCoordinates = removeAccidentalFromNotesAndCoords(
-        notesAndCoordinates,
-        foundNoteData
-      );
-    }
-  }
-
-  // Return the updated key signature as well
-  let updatedKeySig = [...keySig];
-
-  if (buttonState.isSharpActive || buttonState.isFlatActive) {
-    const noteBase = foundNoteData.note.charAt(0);
-    const accidental = buttonState.isSharpActive ? "#" : "b";
-    const noteWithAccidental = `${noteBase}${accidental}`;
-
-    // Remove any existing accidental for this note and add the new one
-    updatedKeySig = keySig.filter((note) => note.charAt(0) !== noteBase);
-    updatedKeySig.push(noteWithAccidental);
-  } else if (buttonState.isEraseAccidentalActive) {
-    // Remove the note from the key signature
-    updatedKeySig = keySig.filter(
-      (note) => note.charAt(0) !== foundNoteData.note.charAt(0)
+    updatedGlyphs = newGlyphs;
+    setGlyphState(updatedGlyphs);
+    setKeySigState(updatedKeySig);
+    
+    notesAndCoordinates = removeAccidentalFromNotesAndCoords(
+      notesAndCoordinates,
+      foundNoteData
     );
   }
 
