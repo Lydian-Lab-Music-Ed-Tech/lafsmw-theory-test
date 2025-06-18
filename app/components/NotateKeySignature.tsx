@@ -293,7 +293,7 @@ const NotateKeySignature = ({
           >
             Erase Accidental
           </CustomButton>
-          <CustomButton onClick={clearKey}>Clear Key</CustomButton>
+          <CustomButton onClick={clearKey}>Clear All</CustomButton>
         </Container>
       </NotationContainer>
     </>

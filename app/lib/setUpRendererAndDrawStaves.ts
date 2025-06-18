@@ -17,12 +17,16 @@ export const setupRendererAndDrawStaves = (
     firstStaveWidth,
     keySig,
   } = params;
+
   const renderer = rendererRef?.current;
   renderer?.resize(rendererWidth, rendererHeight);
+
   const context = renderer && renderer.getContext();
   context?.setFont(font, fontSize * 1.5);
   context?.clear();
+
   let newStaves;
+
   if (context && rendererRef) {
     newStaves = createBlankStaves({
       numStaves,
@@ -35,5 +39,6 @@ export const setupRendererAndDrawStaves = (
       keySig,
     });
   }
+
   return newStaves;
 };
