@@ -24,9 +24,11 @@ export const setupRendererAndDrawNotes = (
 
   const renderer = rendererRef?.current;
   renderer?.resize(rendererWidth, rendererHeight);
+
   const context = renderer && renderer.getContext();
   context?.setFont(font, fontSize * 1.5);
   context?.clear();
+
   let newStaves: BlankStaves = [];
 
   if (context && rendererRef) {
