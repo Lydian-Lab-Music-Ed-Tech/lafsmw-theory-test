@@ -9,7 +9,8 @@ const generateYMinAndYMaxForKeySig = (
     const originalNote = note;
     const yCoordinateMin = topNoteYCoordinate + index * 5;
     const yCoordinateMax = yCoordinateMin + tolerance;
-    return { originalNote, note, yCoordinateMin, yCoordinateMax };
+    const userClickY = yCoordinateMin + tolerance / 2; // Calculate the center Y for the note
+    return { originalNote, note, yCoordinateMin, yCoordinateMax, userClickY }; // Include userClickY
   });
 };
 
