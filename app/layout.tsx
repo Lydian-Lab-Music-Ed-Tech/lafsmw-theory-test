@@ -19,6 +19,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "LAFSMW Theory Test",
   description: "Authored by Kasey Knudsen and Brett Eastman",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
