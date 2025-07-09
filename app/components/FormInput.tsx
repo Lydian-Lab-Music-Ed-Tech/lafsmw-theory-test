@@ -13,6 +13,7 @@ export default function FormInput({
   onChange,
   fontSize = "12px",
   required = false,
+  textAlign = "center",
 }: FormInputProps) {
   return (
     <div>
@@ -26,7 +27,7 @@ export default function FormInput({
         maxLength={maxLength}
         style={{
           fontSize,
-          textAlign: "center",
+          textAlign,
           height,
           margin: "0px",
           width,

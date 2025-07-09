@@ -367,6 +367,7 @@ export interface FormInputProps {
   height?: string;
   onChange: React.ChangeEventHandler<HTMLInputElement> | undefined;
   required?: boolean;
+  textAlign?: "left" | "center" | "right" | "justify" | "start" | "end";
 }
 
 export type IdentifyNotationProps = {
