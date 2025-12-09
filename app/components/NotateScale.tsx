@@ -35,27 +35,26 @@ const NotateScale = ({
   initialScaleData?: ScaleData[][] | SimpleScaleData[];
   onChange?: (scaleData: SimpleScaleData[], scales: string[]) => void;
 }) => {
-  const container = useRef<HTMLDivElement | null>(null);
   const [staves, setStaves] = useState<StaveType[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [notesAndCoordinates, setNotesAndCoordinates] = useState<
     NotesAndCoordinatesData[]
   >([initialNotesAndCoordsState]);
+  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
 
   const { buttonStates, setters, clearAllStates } = useButtonStates();
   const { chosenClef } = useClef();
 
-  const [scaleDataMatrix, setScaleDataMatrix] = useState<ScaleData[][]>([[]]);
-
-  const stavesRef = useRef<StaveType[]>(staves);
-  useEffect(() => {
-    stavesRef.current = staves;
-  }, [staves]);
-
+  const container = useRef<HTMLDivElement | null>(null);
   const renderFunctionRef = useRef<(() => StaveType[] | undefined) | null>(
     null
   );
+  const stavesRef = useRef<StaveType[]>(staves);
+
+  useEffect(() => {
+    stavesRef.current = staves;
+  }, [staves]);
 
   const { rendererRef } = useNotationRenderer({
     containerRef: container,
@@ -70,6 +69,7 @@ const NotateScale = ({
   });
 
   const scaleFactor = 1.5;
+
   const { hoveredStaffElement, mouseMoveHandler, mouseLeaveHandler } =
     useStaffHover({
       containerRef: container,
@@ -304,7 +304,10 @@ const NotateScale = ({
         staves[barIndex] // Pass the stave for quantized positioning
       );
 
-      // Use a single batch update to prevent race conditions
+      // Use Promise.resolve().then() to batch these state updates together to prevent race conditions
+      // Promise.resolve() creates a Promise that is already resolved. It schedules
+      // the enclosed code to run in the next event loop cycle, after the current
+      // render cycle is complete.
       // This ensures the state updates happen together in a single render cycle
       // which prevents the flashing issue with double accidentals
       Promise.resolve().then(() => {
